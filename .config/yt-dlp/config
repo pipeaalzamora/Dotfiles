@@ -1,0 +1,8 @@
+# Ubicación del archivo: ~/.config/yt-dlp/config
+
+# Directorio donde se guardarán los archivos descargados.
+# '%(title)s.%(ext)s' añade el título y la extensión al nombre del archivo.
+-o /home/pipeaalzamora/Vídeos/youtube/%(title)s.%(ext)s
+
+# Selecciona el mejor formato de video y audio y los fusiona.
+-f "bestvideo[height<=1080]+bestaudio/best[height<=1080]"

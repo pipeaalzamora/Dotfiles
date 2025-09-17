@@ -1,0 +1,14 @@
+# Habilita los íconos y usa un tema "nerd" si tienes una Nerd Font instalada
+icons:
+  theme: "fancy"
+  when: "always"
+
+# =========================================================
+# Configuración de colores personalizada para LSDeluxe
+# =========================================================
+# == Color ==
+color:
+  # When to colorize the output.
+  when: auto
+  # Use a custom color scheme defined in colors.yaml
+  theme: custom
