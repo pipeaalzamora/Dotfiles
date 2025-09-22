@@ -8,7 +8,5 @@ icons:
 # =========================================================
 # == Color ==
 color:
-  # When to colorize the output.
-  when: auto
   # Use a custom color scheme defined in colors.yaml
   theme: custom

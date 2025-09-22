@@ -1,0 +1,177 @@
+# Configuración básica de Starship
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Configuración general
+add_newline = true
+command_timeout = 1000
+scan_timeout = 30
+
+# Formato del prompt
+format = """
+[╭─](bold blue)$username$hostname$directory$git_branch$git_status$python$nodejs$rust$golang$java$docker_context
+[╰─](bold blue)$character"""
+
+# Carácter del prompt
+[character]
+success_symbol = '[➜](bold green)'
+error_symbol = '[➜](bold red)'
+vicmd_symbol = '[V](bold yellow)'
+
+# Usuario
+[username]
+style_user = 'bold orange'
+style_root = 'bold red'
+format = '[$user]($style) '
+disabled = false
+show_always = true
+
+# Hostname
+[hostname]
+ssh_only = false
+format = 'en [$hostname](bold purple) '
+disabled = false
+
+# Directorio
+[directory]
+style = 'bold orange'
+format = 'en [$path]($style)[$read_only]($read_only_style) '
+truncation_length = 3
+truncation_symbol = '…/'
+read_only = ' 🔒'
+
+# Git branch
+[git_branch]
+symbol = ' '
+style = 'bold cyan'
+format = 'en [$symbol$branch]($style) '
+
+# Git status
+[git_status]
+style = 'bold red'
+format = '([$all_status$ahead_behind]($style) )'
+conflicted = '⚡'
+ahead = '⇡${count}'
+behind = '⇣${count}'
+diverged = '⇕⇡${ahead_count}⇣${behind_count}'
+up_to_date = '✓'
+untracked = '?${count}'
+stashed = '$${count}'
+modified = '!${count}'
+staged = '+${count}'
+renamed = '»${count}'
+deleted = '✘${count}'
+
+# Python
+[python]
+symbol = ' '
+style = 'bold green'
+format = 'con [${symbol}${pyenv_prefix}(${version} )(\\($virtualenv\\) )]($style)'
+
+# Node.js
+[nodejs]
+symbol = ' '
+style = 'bold green'
+format = 'con [$symbol($version )]($style)'
+
+# Rust
+[rust]
+symbol = ' '
+style = 'bold red'
+format = 'con [$symbol($version )]($style)'
+
+# Go
+[golang]
+symbol = ' '
+style = 'bold cyan'
+format = 'con [$symbol($version )]($style)'
+
+# Java
+[java]
+symbol = ' '
+style = 'bold red'
+format = 'con [$symbol($version )]($style)'
+
+# Docker
+[docker_context]
+symbol = ' '
+style = 'bold blue'
+format = 'con [$symbol$context]($style) '
+
+# Tiempo de ejecución del comando
+[cmd_duration]
+min_time = 2000
+style = 'bold yellow'
+format = 'tardó [$duration]($style) '
+
+# Hora
+[time]
+disabled = false
+style = 'bold white'
+format = 'a las [$time]($style) '
+time_format = '%H:%M:%S'
+
+# Batería
+[battery]
+full_symbol = '🔋'
+charging_symbol = '⚡'
+discharging_symbol = '💀'
+
+[[battery.display]]
+threshold = 15
+style = 'bold red'
+
+[[battery.display]]
+threshold = 50
+style = 'bold yellow'
+
+# Memoria
+[memory_usage]
+disabled = false
+threshold = 70
+symbol = ' '
+style = 'bold dimmed red'
+format = 'usando [$symbol${ram}( | ${swap})]($style) '
+
+# Desactivar módulos no necesarios
+[package]
+disabled = true
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+
+palette = "catppuccin_mocha"
+
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"

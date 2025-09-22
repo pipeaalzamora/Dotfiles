@@ -95,12 +95,13 @@ alias ps='ps aux'
 alias top='htop'
 alias cls='clear'
 alias c='clear'
+alias bp='bpytop'
 
 # Archivos y directorios
 alias mkdir='mkdir -pv'
 alias cp='cp -i'
 alias mv='mv -i'
-alias rm='rm -i'
+alias rm='rm -rf'
 alias grep='grep --color=auto'
 alias tree='tree -C'
 
@@ -135,7 +136,7 @@ ff() {
 
 # Información del sistema
 sysinfo() {
-    echo "=== Información del Sistema ==="
+    echo "=== Información del Sistemas ==="
     echo "Usuario: $(whoami)"
     echo "Fecha: $(date)"
     echo "Uptime: $(uptime -p)"
