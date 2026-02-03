@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Script de backup de dotfiles
+# =============================
+
+BACKUP_DIR="$HOME/dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
+
+echo "📦 Creando backup de dotfiles en $BACKUP_DIR"
+
+mkdir -p "$BACKUP_DIR"
+
+# Copiar archivos principales
+cp "$HOME/.zshrc" "$BACKUP_DIR/" 2>/dev/null
+cp "$HOME/.bashrc" "$BACKUP_DIR/" 2>/dev/null
+cp "$HOME/.gitconfig" "$BACKUP_DIR/" 2>/dev/null
+cp "$HOME/.gitignore_global" "$BACKUP_DIR/" 2>/dev/null
+cp "$HOME/.zprofile" "$BACKUP_DIR/" 2>/dev/null
+cp "$HOME/.ripgreprc" "$BACKUP_DIR/" 2>/dev/null
+
+# Copiar directorio .config
+cp -r "$HOME/.config" "$BACKUP_DIR/" 2>/dev/null
+
+# Crear archivo comprimido
+cd "$HOME"
+tar -czf "dotfiles_backup_$(date +%Y%m%d_%H%M%S).tar.gz" "$(basename $BACKUP_DIR)"
+
+echo "✅ Backup creado: dotfiles_backup_$(date +%Y%m%d_%H%M%S).tar.gz"
+echo "📁 Directorio: $BACKUP_DIR"

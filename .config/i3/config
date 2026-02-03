@@ -1,0 +1,173 @@
+# i3 Window Manager Configuration
+# ================================
+
+set $mod Mod4
+
+# Font
+font pango:MesloLGS Nerd Font Mono 12
+
+# Start XDG autostart
+exec --no-startup-id dex --autostart --environment i3
+
+# Autostart
+exec --no-startup-id picom
+exec --no-startup-id dunst
+exec --no-startup-id nm-applet
+
+# Wallpaper
+exec --no-startup-id feh --bg-scale ~/Pictures/wallpaper.jpg
+
+# Use Mouse+$mod to drag floating windows
+floating_modifier $mod
+
+# Start a terminal
+bindsym $mod+Return exec ghostty
+
+# Kill focused window
+bindsym $mod+Shift+q kill
+
+# Start rofi
+bindsym $mod+d exec --no-startup-id rofi -show drun
+
+# Change focus
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+
+# Move focused window
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+
+# Split orientation
+bindsym $mod+b split h
+bindsym $mod+v split v
+
+# Fullscreen
+bindsym $mod+f fullscreen toggle
+
+# Container layout
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# Toggle tiling / floating
+bindsym $mod+Shift+space floating toggle
+
+# Change focus between tiling / floating
+bindsym $mod+space focus mode_toggle
+
+# Workspaces
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10"
+
+# Switch to workspace
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+bindsym $mod+0 workspace number $ws10
+
+# Move container to workspace
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+bindsym $mod+Shift+0 move container to workspace number $ws10
+
+# Reload / Restart / Exit
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Exit i3?' -B 'Yes' 'i3-msg exit'"
+
+# Resize mode
+mode "resize" {
+        bindsym h resize shrink width 10 px or 10 ppt
+        bindsym j resize grow height 10 px or 10 ppt
+        bindsym k resize shrink height 10 px or 10 ppt
+        bindsym l resize grow width 10 px or 10 ppt
+
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+        bindsym $mod+r mode "default"
+}
+
+bindsym $mod+r mode "resize"
+
+# Catppuccin Mocha Colors
+set $rosewater #f5e0dc
+set $flamingo  #f2cdcd
+set $pink      #f5c2e7
+set $mauve     #cba6f7
+set $red       #f38ba8
+set $maroon    #eba0ac
+set $peach     #fab387
+set $green     #a6e3a1
+set $teal      #94e2d5
+set $sky       #89dceb
+set $sapphire  #74c7ec
+set $blue      #89b4fa
+set $lavender  #b4befe
+set $text      #cdd6f4
+set $subtext1  #bac2de
+set $subtext0  #a6adc8
+set $overlay2  #9399b2
+set $overlay1  #7f849c
+set $overlay0  #6c7086
+set $surface2  #585b70
+set $surface1  #45475a
+set $surface0  #313244
+set $base      #1e1e2e
+set $mantle    #181825
+set $crust     #11111b
+
+# Window colors
+#                       border     background text       indicator  child_border
+client.focused          $mauve     $base      $text      $mauve     $mauve
+client.focused_inactive $overlay0  $base      $text      $overlay0  $overlay0
+client.unfocused        $overlay0  $base      $text      $overlay0  $overlay0
+client.urgent           $red       $base      $red       $red       $red
+client.placeholder      $overlay0  $base      $text      $overlay0  $overlay0
+client.background       $base
+
+# Gaps
+gaps inner 10
+gaps outer 5
+
+# Bar
+bar {
+        status_command i3status
+        position top
+        
+        colors {
+                background $base
+                statusline $text
+                separator  $overlay0
+                
+                #                  border     background text
+                focused_workspace  $mauve     $mauve     $base
+                active_workspace   $surface1  $surface1  $text
+                inactive_workspace $base      $base      $text
+                urgent_workspace   $red       $red       $base
+        }
+}

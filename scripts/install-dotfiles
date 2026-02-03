@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Script de instalación de dotfiles
+# ==================================
+
+DOTFILES_DIR="$HOME/dotfiles"
+BACKUP_DIR="$HOME/dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
+
+echo "🚀 Instalando dotfiles..."
+
+# Crear backup de configuraciones existentes
+if [ -f "$HOME/.zshrc" ] || [ -f "$HOME/.bashrc" ]; then
+    echo "📦 Creando backup en $BACKUP_DIR"
+    mkdir -p "$BACKUP_DIR"
+    
+    [ -f "$HOME/.zshrc" ] && cp "$HOME/.zshrc" "$BACKUP_DIR/"
+    [ -f "$HOME/.bashrc" ] && cp "$HOME/.bashrc" "$BACKUP_DIR/"
+    [ -f "$HOME/.gitconfig" ] && cp "$HOME/.gitconfig" "$BACKUP_DIR/"
+    [ -d "$HOME/.config" ] && cp -r "$HOME/.config" "$BACKUP_DIR/"
+fi
+
+# Crear symlinks
+echo "🔗 Creando symlinks..."
+
+ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+ln -sf "$DOTFILES_DIR/.bashrc" "$HOME/.bashrc"
+ln -sf "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
+ln -sf "$DOTFILES_DIR/.gitignore_global" "$HOME/.gitignore_global"
+ln -sf "$DOTFILES_DIR/.zprofile" "$HOME/.zprofile"
+ln -sf "$DOTFILES_DIR/.ripgreprc" "$HOME/.ripgreprc"
+
+# Symlinks de .config
+mkdir -p "$HOME/.config"
+
+for dir in "$DOTFILES_DIR/.config"/*; do
+    if [ -d "$dir" ]; then
+        dirname=$(basename "$dir")
+        ln -sf "$dir" "$HOME/.config/$dirname"
+    fi
+done
+
+# Hacer scripts ejecutables
+chmod +x "$DOTFILES_DIR/scripts"/*
+
+echo "✅ Dotfiles instalados correctamente"
+echo "🔄 Reinicia tu terminal o ejecuta: source ~/.zshrc"

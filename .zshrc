@@ -30,6 +30,15 @@ plugins=(
     command-not-found
     extract
     z
+    docker
+    docker-compose
+    kubectl
+    npm
+    node
+    golang
+    rust
+    python
+    fzf
     zsh-autosuggestions
     zsh-syntax-highlighting
 )
@@ -72,6 +81,7 @@ alias ls='lsd'
 alias la='ls -A'
 alias l='ls -CF'
 alias lh='ls -lh'
+alias ll='lsd -lah'
 
 # Git mejorado
 alias gs='git status'
@@ -86,6 +96,7 @@ alias gd='git diff'
 alias gb='git branch'
 alias gco='git checkout'
 alias gcb='git checkout -b'
+alias lg='lazygit'
 
 # Sistema
 alias df='df -h'
@@ -95,14 +106,16 @@ alias ps='ps aux'
 alias top='htop'
 alias cls='clear'
 alias c='clear'
-alias bp='bpytop'
+alias bp='btop'
 
 # Archivos y directorios
 alias mkdir='mkdir -pv'
 alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -rf'
-alias grep='grep --color=auto'
+alias grep='rg'
+alias cat='bat'
+alias find='fd'
 alias tree='tree -C'
 
 # Red
@@ -114,47 +127,82 @@ alias myip='curl -s ifconfig.me'
 alias py='python3'
 alias pip='pip3'
 alias serve='python3 -m http.server'
-alias json='python3 -m json.tool'
+alias json='fx'
+alias vim='nvim'
+alias vi='nvim'
+
+# Docker (si lo usas)
+alias d='docker'
+alias dc='docker-compose'
+alias dps='docker ps'
+alias dimg='docker images'
+
+# Kubernetes (si lo usas)
+alias k='kubectl'
+alias kgp='kubectl get pods'
+alias kgs='kubectl get services'
+alias kgd='kubectl get deployments'
+
+# Tmux
+alias ta='tmux attach'
+alias tls='tmux ls'
+alias tn='tmux new -s'
 
 # Alias para yt-dlp
 alias yt='yt-dlp'
+
+# Dotfiles
+alias dotfiles='cd ~/dotfiles'
+alias dots='cd ~/dotfiles'
 
 # Funciones útiles
 # ================
 
 # Crear directorio y entrar
-crearc() {
+mkcd() {
     mkdir -p "$1" && cd "$1"
 }
 
 # Buscar archivos
 ff() {
-    find . -name "*$1*" -type f 2>/dev/null
+    fd "$1"
 }
 
-
-
-# Información del sistema
-sysinfo() {
-    echo "=== Información del Sistemas ==="
-    echo "Usuario: $(whoami)"
-    echo "Fecha: $(date)"
-    echo "Uptime: $(uptime -p)"
-    echo "Memoria: $(free -h | grep '^Mem' | awk '{print $3 "/" $2}')"
-    echo "Disco: $(df -h / | tail -1 | awk '{print $3 "/" $2 " (" $5 ")"}')"
+# Buscar en archivos
+fif() {
+    rg "$1" --hidden --follow
 }
 
-# Backup rápido
-backup() {
-    if [ $# -eq 0 ]; then
-        echo "Uso: backup <archivo>"
-        return 1
-    fi
-    cp "$1" "$1.backup.$(date +%Y%m%d_%H%M%S)"
-    echo "Backup creado: $1.backup.$(date +%Y%m%d_%H%M%S)"
+# FZF integrado
+fzf-file() {
+    local file=$(fd --type f --hidden --follow --exclude .git | fzf --preview 'bat --color=always {}')
+    [ -n "$file" ] && nvim "$file"
 }
 
-# Extraer archivos (mejorado)
+# FZF para directorios
+fzf-cd() {
+    local dir=$(fd --type d --hidden --follow --exclude .git | fzf)
+    [ -n "$dir" ] && cd "$dir"
+}
+
+# Git con FZF
+fzf-git-branch() {
+    local branch=$(git branch -a | grep -v HEAD | sed 's/^..//' | fzf)
+    [ -n "$branch" ] && git checkout "$branch"
+}
+
+# Clima
+weather() {
+    local city="${1:-Madrid}"
+    curl -s "wttr.in/$city?lang=es"
+}
+
+# Cheatsheet
+cheat() {
+    curl -s "cheat.sh/$1"
+}
+
+# Extraer cualquier archivo comprimido
 extract() {
     if [ -f "$1" ]; then
         case "$1" in
@@ -176,6 +224,28 @@ extract() {
     fi
 }
 
+
+
+# Información del sistema
+sysinfo() {
+    echo "=== Información del Sistema ==="
+    echo "Usuario: $(whoami)"
+    echo "Fecha: $(date)"
+    echo "Uptime: $(uptime -p)"
+    echo "Memoria: $(free -h | grep '^Mem' | awk '{print $3 "/" $2}')"
+    echo "Disco: $(df -h / | tail -1 | awk '{print $3 "/" $2 " (" $5 ")"}')"
+}
+
+# Backup rápido
+backup() {
+    if [ $# -eq 0 ]; then
+        echo "Uso: backup <archivo>"
+        return 1
+    fi
+    cp "$1" "$1.backup.$(date +%Y%m%d_%H%M%S)"
+    echo "Backup creado: $1.backup.$(date +%Y%m%d_%H%M%S)"
+}
+
 # Buscar procesos
 psg() {
     ps aux | grep -v grep | grep "$1"
@@ -187,12 +257,17 @@ newproject() {
         echo "Uso: newproject <nombre>"
         return 1
     fi
-    mkdir -p "$1"/{src,docs,tests}
+    mkdir -p "$1"/{src,docs}
     cd "$1"
-    touch README.md .gitignore
-    echo "# $1" > README.md
+    touch .gitignore
+    git init
     echo "Proyecto '$1' creado exitosamente"
 }
+
+# Keybindings para FZF
+bindkey -s '^f' 'fzf-file\n'
+bindkey -s '^g' 'fzf-cd\n'
+bindkey -s '^b' 'fzf-git-branch\n'
 
 
 #yazi

@@ -132,18 +132,39 @@ symbol = ' '
 style = 'bold dimmed red'
 format = 'usando [$symbol${ram}( | ${swap})]($style) '
 
-# Desactivar módulos no necesarios
-[package]
-disabled = true
-
+# AWS
 [aws]
-disabled = true
+symbol = "  "
+style = "bold yellow"
+format = 'con [$symbol($profile )]($style)'
+disabled = false
 
-[gcloud]
-disabled = true
+# Terraform
+[terraform]
+symbol = "💠 "
+style = "bold purple"
+format = 'con [$symbol$workspace]($style) '
+disabled = false
 
+# Kubernetes
 [kubernetes]
-disabled = true
+symbol = "☸ "
+style = "bold blue"
+format = 'con [$symbol$context( \\($namespace\\))]($style) '
+disabled = false
+
+# Package
+[package]
+symbol = "📦 "
+style = "bold cyan"
+format = 'con [$symbol$version]($style) '
+disabled = false
+
+# Container
+[container]
+symbol = "⬢ "
+style = "bold red"
+format = '[$symbol \\[$name\\]]($style) '
 
 
 palette = "catppuccin_mocha"

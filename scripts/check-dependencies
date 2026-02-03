@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# Script para verificar dependencias instaladas
+# ==============================================
+
+echo "🔍 Verificando dependencias..."
+echo ""
+
+check_command() {
+    if command -v "$1" &> /dev/null; then
+        echo "✅ $1"
+    else
+        echo "❌ $1 - NO INSTALADO"
+    fi
+}
+
+echo "=== Shells ==="
+check_command zsh
+check_command bash
+check_command starship
+
+echo ""
+echo "=== Terminales ==="
+check_command ghostty
+check_command alacritty
+check_command kitty
+
+echo ""
+echo "=== Editores ==="
+check_command nvim
+check_command vim
+
+echo ""
+echo "=== Herramientas CLI ==="
+check_command tmux
+check_command bat
+check_command lsd
+check_command rg
+check_command fd
+check_command fzf
+check_command zoxide
+check_command yazi
+check_command lazygit
+check_command delta
+
+echo ""
+echo "=== Window Managers ==="
+check_command i3
+check_command hyprland
+check_command rofi
+check_command dunst
+check_command picom
+check_command waybar
+
+echo ""
+echo "=== Desarrollo ==="
+check_command git
+check_command node
+check_command npm
+check_command go
+check_command rustc
+check_command python3
+check_command pip3
+
+echo ""
+echo "=== Utilidades ==="
+check_command htop
+check_command btop
+check_command neofetch
+check_command curl
+check_command wget
+
+echo ""
+echo "✅ Verificación completada"

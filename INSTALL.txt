@@ -1,0 +1,94 @@
+INSTALACIÓN DE DOTFILES
+=======================
+
+1. Clonar el repositorio:
+   git clone <tu-repo> ~/dotfiles
+   cd ~/dotfiles
+
+2. Instalar paquetes esenciales:
+   ./scripts/install-packages
+
+3. Instalar dotfiles (crea symlinks):
+   ./scripts/install-dotfiles
+
+4. Configurar entorno de desarrollo:
+   ./scripts/setup-dev-env
+
+5. Cambiar shell a zsh:
+   chsh -s $(which zsh)
+
+6. Reiniciar sesión
+
+SCRIPTS DISPONIBLES
+===================
+
+- install-packages: Instala todos los paquetes necesarios
+- install-dotfiles: Crea symlinks de configuraciones
+- setup-dev-env: Configura entornos de desarrollo (Node, Go, Rust, etc)
+- backup-dotfiles: Crea backup de configuraciones actuales
+- sync-dotfiles: Sincroniza cambios con Git
+- update-all: Actualiza sistema y herramientas
+
+CONFIGURACIONES INCLUIDAS
+==========================
+
+Shells:
+- Zsh con Oh My Zsh
+- Bash
+- Starship prompt
+
+Terminales:
+- Ghostty
+- Alacritty
+- Kitty
+
+Editores:
+- Neovim con plugins
+- Configuración de Vim
+
+Herramientas CLI:
+- Tmux
+- Lazygit
+- Bat (cat mejorado)
+- LSD (ls mejorado)
+- Ripgrep (grep mejorado)
+- FD (find mejorado)
+- FZF (fuzzy finder)
+- Zoxide (cd mejorado)
+- Yazi (file manager)
+
+Window Managers:
+- i3
+- Hyprland
+
+Utilidades:
+- Rofi (launcher)
+- Dunst (notificaciones)
+- Picom (compositor)
+- Waybar (barra de estado)
+
+Git:
+- Configuración global
+- Delta (diff mejorado)
+- Lazygit
+
+PERSONALIZACIÓN
+===============
+
+1. Edita .gitconfig con tu nombre y email
+2. Ajusta .zprofile para tus variables de entorno
+3. Modifica aliases en .zshrc según tus necesidades
+4. Personaliza Starship en .config/starship.toml
+
+TEMA
+====
+
+Todos los archivos usan el tema Catppuccin Mocha para consistencia visual.
+
+NOTAS
+=====
+
+- Los scripts crean backups automáticos antes de instalar
+- Todos los scripts están en ~/dotfiles/scripts
+- Las configuraciones están en ~/dotfiles/.config
+- Usa 'sync-dotfiles' para guardar cambios en Git

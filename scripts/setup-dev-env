@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# Script de configuración de entorno de desarrollo
+# =================================================
+
+echo "🛠️  Configurando entorno de desarrollo..."
+
+# Node.js con NVM
+if [ ! -d "$HOME/.nvm" ]; then
+    echo "📦 Instalando NVM..."
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+    source "$HOME/.nvm/nvm.sh"
+    nvm install --lts
+    nvm use --lts
+fi
+
+# Bun
+if ! command -v bun &> /dev/null; then
+    echo "📦 Instalando Bun..."
+    curl -fsSL https://bun.sh/install | bash
+fi
+
+# Go
+if ! command -v go &> /dev/null; then
+    echo "📦 Instalando Go..."
+    sudo pacman -S --noconfirm go
+fi
+
+# Rust
+if ! command -v rustc &> /dev/null; then
+    echo "📦 Instalando Rust..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    source "$HOME/.cargo/env"
+fi
+
+# Python tools
+echo "📦 Instalando herramientas de Python..."
+pip install --user pipenv poetry black flake8 pylint
+
+# Global npm packages
+echo "📦 Instalando paquetes globales de npm..."
+npm install -g \
+    typescript \
+    ts-node \
+    eslint \
+    prettier \
+    nodemon \
+    pm2 \
+    vercel \
+    netlify-cli
+
+# Neovim plugins
+echo "📦 Configurando Neovim..."
+nvim --headless "+Lazy! sync" +qa
+
+echo "✅ Entorno de desarrollo configurado"

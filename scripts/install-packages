@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# Script de instalación de paquetes esenciales
+# =============================================
+
+echo "📦 Instalando paquetes esenciales para Arch Linux..."
+
+# Actualizar sistema
+sudo pacman -Syu --noconfirm
+
+# Herramientas básicas
+sudo pacman -S --noconfirm \
+    base-devel \
+    git \
+    curl \
+    wget \
+    unzip \
+    htop \
+    btop \
+    neofetch
+
+# Shell y terminal
+sudo pacman -S --noconfirm \
+    zsh \
+    oh-my-zsh \
+    starship \
+    tmux \
+    alacritty \
+    kitty
+
+# Herramientas CLI modernas
+sudo pacman -S --noconfirm \
+    bat \
+    lsd \
+    ripgrep \
+    fd \
+    fzf \
+    zoxide \
+    yazi \
+    lazygit \
+    delta
+
+# Editores
+sudo pacman -S --noconfirm \
+    neovim \
+    vim
+
+# Window managers y compositors
+sudo pacman -S --noconfirm \
+    i3-wm \
+    i3status \
+    i3lock \
+    rofi \
+    dunst \
+    picom \
+    feh
+
+# Fuentes
+sudo pacman -S --noconfirm \
+    ttf-meslo-nerd \
+    ttf-nerd-fonts-symbols \
+    ttf-nerd-fonts-symbols-mono
+
+# Herramientas de desarrollo
+sudo pacman -S --noconfirm \
+    nodejs \
+    npm \
+    python \
+    python-pip \
+    go \
+    rust
+
+# Utilidades
+sudo pacman -S --noconfirm \
+    xclip \
+    wl-clipboard \
+    tree \
+    jq \
+    fx
+
+echo "✅ Paquetes instalados correctamente"
+echo "🔧 Configura tu shell: chsh -s $(which zsh)"

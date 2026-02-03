@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Script de actualización completa del sistema
+# =============================================
+
+echo "🚀 Actualizando sistema completo..."
+
+# Sistema
+echo "📦 Actualizando paquetes del sistema..."
+sudo pacman -Syu --noconfirm
+
+# AUR helper (si tienes yay o paru)
+if command -v yay &> /dev/null; then
+    echo "📦 Actualizando paquetes AUR..."
+    yay -Syu --noconfirm
+elif command -v paru &> /dev/null; then
+    echo "📦 Actualizando paquetes AUR..."
+    paru -Syu --noconfirm
+fi
+
+# Node.js
+if command -v npm &> /dev/null; then
+    echo "📦 Actualizando paquetes globales de npm..."
+    npm update -g
+fi
+
+# Rust
+if command -v rustup &> /dev/null; then
+    echo "📦 Actualizando Rust..."
+    rustup update
+fi
+
+# Neovim plugins
+if command -v nvim &> /dev/null; then
+    echo "📦 Actualizando plugins de Neovim..."
+    nvim --headless "+Lazy! sync" +qa
+fi
+
+# Oh My Zsh
+if [ -d "$HOME/.oh-my-zsh" ]; then
+    echo "📦 Actualizando Oh My Zsh..."
+    cd "$HOME/.oh-my-zsh" && git pull
+fi
+
+# Limpiar cache
+echo "🧹 Limpiando cache..."
+sudo pacman -Sc --noconfirm
+paccache -rk 2 2>/dev/null
+
+echo "✅ Sistema actualizado completamente"

@@ -1,0 +1,16 @@
+# Configuración de ripgrep
+--max-columns=150
+--max-columns-preview
+--smart-case
+--hidden
+--glob=!.git/*
+--glob=!node_modules/*
+--glob=!dist/*
+--glob=!build/*
+--glob=!.cache/*
+--colors=line:fg:yellow
+--colors=line:style:bold
+--colors=path:fg:green
+--colors=path:style:bold
+--colors=match:fg:red
+--colors=match:style:bold

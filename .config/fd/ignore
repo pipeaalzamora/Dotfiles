@@ -1,0 +1,8 @@
+# fd ignore patterns
+.git/
+node_modules/
+dist/
+build/
+.cache/
+*.log
+.DS_Store
