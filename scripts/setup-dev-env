@@ -40,7 +40,13 @@ fi
 
 # Python tools
 echo "📦 Instalando herramientas de Python..."
-pip install --user pipenv poetry black flake8 pylint
+if command -v pip3 &> /dev/null; then
+    pip3 install --user pipenv poetry black flake8 pylint
+else
+    echo "⚠️  pip3 no encontrado, instalando python3-pip..."
+    sudo apt install -y python3-pip python3-venv
+    pip3 install --user pipenv poetry black flake8 pylint
+fi
 
 # Global npm packages
 echo "📦 Instalando paquetes globales de npm..."
@@ -56,6 +62,9 @@ npm install -g \
 
 # Neovim plugins
 echo "📦 Configurando Neovim..."
-nvim --headless "+Lazy! sync" +qa
+# Primer paso: sincronizar plugins
+nvim --headless "+Lazy! sync" +qa 2>/dev/null
+# Segundo paso: compilar treesitter (necesita que los plugins ya estén instalados)
+nvim --headless "+TSUpdateSync" +qa 2>/dev/null || true
 
 echo "✅ Entorno de desarrollo configurado"
