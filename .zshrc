@@ -137,17 +137,6 @@ alias dc='docker-compose'
 alias dps='docker ps'
 alias dimg='docker images'
 
-# Kubernetes (si lo usas)
-alias k='kubectl'
-alias kgp='kubectl get pods'
-alias kgs='kubectl get services'
-alias kgd='kubectl get deployments'
-
-# Tmux
-alias ta='tmux attach'
-alias tls='tmux ls'
-alias tn='tmux new -s'
-
 # Alias para yt-dlp
 alias yt='yt-dlp'
 
@@ -193,8 +182,8 @@ fzf-git-branch() {
 
 # Clima
 weather() {
-    local city="${1:-Madrid}"
-    curl -s "wttr.in/$city?lang=es"
+    local city="${1:-Villa+Alemana,CL}"
+    curl -s "wttr.in/$city?lang=es&format=3"
 }
 
 # Cheatsheet
@@ -292,7 +281,12 @@ fi
 # Mensaje de bienvenida
 echo "¡Hola hoy sera un gran dia $(whoami)! 👋"
 echo "Fecha: $(date '+%A, %d de %B de %Y - %H:%M')"
-
+# Mostrar clima de Villa Alemana al abrir terminal
+if [[ -n "$ZSH_VERSION" ]]; then
+    echo "🌤️ Clima en Villa Alemana:"
+    weather
+    echo ""
+fi
 
 #NVM path
 export NVM_DIR="$HOME/.nvm"
@@ -301,7 +295,7 @@ export NVM_DIR="$HOME/.nvm"
 
 
 # bun completions
-[ -s "/home/pipeaalzamora/.bun/_bun" ] && source "/home/pipeaalzamora/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
@@ -311,14 +305,16 @@ export PATH="$HOME/scripts:$PATH"
 # =======================================================
 # Actualización automática del sistema (una vez al día)
 # =======================================================
-LAST_UPDATE_FILE="/home/pipeaalzamora/.cache/last_update"
+LAST_UPDATE_FILE="$HOME/.cache/last_update"
 
 # Si el archivo de la última actualización no existe o ha pasado un día, actualiza.
 if [ ! -f "$LAST_UPDATE_FILE" ] || [ $(( $(date +%s) - $(stat -c %Y "$LAST_UPDATE_FILE") )) -gt 86400 ]; then
   echo "✨ Realizando una actualización del sistema. Esto puede tomar unos segundos..."
-  /home/pipeaalzamora/scripts/update-system
+  "$HOME/scripts/update-system"
   touch "$LAST_UPDATE_FILE"
 fi
 
 #fx json terminal
 source <(fx --comp zsh)
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"

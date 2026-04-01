@@ -23,7 +23,12 @@ fi
 # Go
 if ! command -v go &> /dev/null; then
     echo "📦 Instalando Go..."
-    sudo pacman -S --noconfirm go
+    GO_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -1)
+    wget "https://go.dev/dl/${GO_VERSION}.linux-amd64.tar.gz"
+    sudo rm -rf /usr/local/go
+    sudo tar -C /usr/local -xzf "${GO_VERSION}.linux-amd64.tar.gz"
+    rm "${GO_VERSION}.linux-amd64.tar.gz"
+    export PATH=$PATH:/usr/local/go/bin
 fi
 
 # Rust
