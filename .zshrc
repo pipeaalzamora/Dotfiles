@@ -149,6 +149,9 @@ alias dimg='docker images'
 # Alias para yt-dlp
 alias yt='yt-dlp'
 
+# Newsboat
+alias nb='newsboat'
+
 # Dotfiles
 alias dotfiles='cd ~/dotfiles'
 alias dots='cd ~/dotfiles'

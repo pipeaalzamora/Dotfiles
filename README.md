@@ -100,6 +100,7 @@ j <dir>     # zoxide — saltar a directorio por historial
 ll          # lsd -lah
 lg          # lazygit
 bp          # btop
+nb          # newsboat — lector RSS
 upd         # actualizar sistema completo
 rrf         # rm -rf (explícito, para cuando realmente lo necesitas)
 ```
@@ -159,6 +160,23 @@ dotfiles/
     ├── sync-dotfiles
     ├── update-all
     └── check-dependencies
+```
+
+---
+
+## Newsboat (RSS en terminal)
+
+```bash
+./scripts/setup-newsboat   # configura feeds y crea ~/.newsboat/urls
+newsboat                   # o simplemente: nb
+```
+
+Feeds incluidos: Arch Linux, KDE/Plasma, DesdeLinux, SoloConLinux, MuyLinux, Ubunlog, Linux Adictos, Proyecto TicTac, Phoronix, It's FOSS, OMG!Linux, Tecmint, LWN.net.
+
+Para añadir más feeds edita `~/.newsboat/urls`:
+
+```
+https://ejemplo.com/feed  "Nombre del feed"
 ```
 
 ---
