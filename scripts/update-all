@@ -2,28 +2,46 @@
 
 echo "🚀 Actualizando sistema completo..."
 
-# Sistema
+# Sistema (pacman)
 echo "📦 Actualizando paquetes del sistema..."
-sudo apt update && sudo apt upgrade -y
-sudo apt autoremove -y
+sudo pacman -Syu --noconfirm
+
+# Limpiar paquetes huérfanos
+ORPHANS=$(pacman -Qdtq 2>/dev/null)
+if [ -n "$ORPHANS" ]; then
+  echo "🧹 Eliminando paquetes huérfanos..."
+  sudo pacman -Rns --noconfirm $ORPHANS
+fi
+
+# AUR (yay)
+if command -v yay &>/dev/null; then
+  echo "📦 Actualizando paquetes AUR (yay)..."
+  yay -Syu --noconfirm
+fi
 
 # Node.js
-if command -v npm &> /dev/null; then
+if command -v npm &>/dev/null; then
   echo "📦 Actualizando paquetes globales de npm..."
   npm update -g
 fi
 
 # Rust
-if command -v rustup &> /dev/null; then
+if command -v rustup &>/dev/null; then
   echo "📦 Actualizando Rust..."
   rustup update
 fi
 
-
 # Oh My Zsh
 if [ -d "$HOME/.oh-my-zsh" ]; then
   echo "📦 Actualizando Oh My Zsh..."
-  cd "$HOME/.oh-my-zsh" && git pull
+  git -C "$HOME/.oh-my-zsh" pull
 fi
 
+# pipx
+if command -v pipx &>/dev/null; then
+  echo "📦 Actualizando herramientas pipx..."
+  pipx upgrade-all
+fi
+
+echo ""
 echo "✅ Sistema actualizado completamente"

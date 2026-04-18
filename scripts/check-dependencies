@@ -1,17 +1,14 @@
 #!/bin/bash
 
-# Script para verificar dependencias instaladas
-# ==============================================
-
 echo "🔍 Verificando dependencias..."
 echo ""
 
 check_command() {
-    if command -v "$1" &> /dev/null; then
-        echo "✅ $1"
-    else
-        echo "❌ $1 - NO INSTALADO"
-    fi
+  if command -v "$1" &>/dev/null; then
+    echo "✅ $1"
+  else
+    echo "❌ $1 — NO INSTALADO"
+  fi
 }
 
 echo "=== Shells ==="
@@ -20,9 +17,7 @@ check_command bash
 check_command starship
 
 echo ""
-echo "=== Terminales ==="
-check_command ghostty
-check_command alacritty
+echo "=== Terminal ==="
 check_command kitty
 
 echo ""
@@ -33,21 +28,33 @@ check_command vim
 echo ""
 echo "=== Herramientas CLI ==="
 check_command lsd
+check_command bat
+check_command fd
+check_command rg
 check_command fzf
 check_command zoxide
 check_command yazi
 check_command lazygit
-
+check_command delta
+check_command vivid
+check_command fx
+check_command dust
+check_command procs
+check_command tldr
+check_command batdiff
+check_command batman
 
 echo ""
 echo "=== Desarrollo ==="
 check_command git
 check_command node
 check_command npm
+check_command bun
 check_command go
 check_command rustc
 check_command python3
 check_command pip3
+check_command pipx
 
 echo ""
 echo "=== Utilidades ==="
@@ -55,6 +62,18 @@ check_command btop
 check_command fastfetch
 check_command curl
 check_command wget
+check_command stow
+check_command jq
+
+echo ""
+echo "=== AUR helper ==="
+if command -v yay &>/dev/null; then
+  echo "✅ yay"
+elif command -v paru &>/dev/null; then
+  echo "✅ paru"
+else
+  echo "⚠️  Sin AUR helper (yay/paru) — algunos paquetes no estarán disponibles"
+fi
 
 echo ""
 echo "✅ Verificación completada"

@@ -1,52 +1,47 @@
 #!/bin/bash
 
-# Script de configuración de entorno de desarrollo
-# =================================================
+set -e
 
 echo "🛠️  Configurando entorno de desarrollo..."
 
 # Node.js con NVM
 if [ ! -d "$HOME/.nvm" ]; then
-    echo "📦 Instalando NVM..."
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-    source "$HOME/.nvm/nvm.sh"
-    nvm install --lts
-    nvm use --lts
+  echo "📦 Instalando NVM..."
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  nvm install --lts
+  nvm use --lts
 fi
 
 # Bun
-if ! command -v bun &> /dev/null; then
-    echo "📦 Instalando Bun..."
-    curl -fsSL https://bun.sh/install | bash
+if ! command -v bun &>/dev/null; then
+  echo "📦 Instalando Bun..."
+  curl -fsSL https://bun.sh/install | bash
 fi
 
-# Go
-if ! command -v go &> /dev/null; then
-    echo "📦 Instalando Go..."
-    GO_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -1)
-    wget -O "/tmp/${GO_VERSION}.linux-amd64.tar.gz" "https://go.dev/dl/${GO_VERSION}.linux-amd64.tar.gz"
-    sudo rm -rf /usr/local/go
-    sudo tar -C /usr/local -xzf "/tmp/${GO_VERSION}.linux-amd64.tar.gz"
-    rm "/tmp/${GO_VERSION}.linux-amd64.tar.gz"
-    export PATH=$PATH:/usr/local/go/bin
+# Go (disponible en repos oficiales de Arch)
+if ! command -v go &>/dev/null; then
+  echo "📦 Instalando Go..."
+  sudo pacman -S --noconfirm --needed go
 fi
 
 # Rust
-if ! command -v rustc &> /dev/null; then
-    echo "📦 Instalando Rust..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    source "$HOME/.cargo/env"
+if ! command -v rustc &>/dev/null; then
+  echo "📦 Instalando Rust..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  source "$HOME/.cargo/env"
 fi
 
-# Python tools
+# Python tools (en Arch usar pipx para evitar conflictos con el sistema)
 echo "📦 Instalando herramientas de Python..."
-if command -v pip3 &> /dev/null; then
-    pip3 install --user pipenv poetry black flake8 pylint
-else
-    echo "⚠️  pip3 no encontrado, instalando python3-pip..."
-    sudo apt install -y python3-pip python3-venv
-    pip3 install --user pipenv poetry black flake8 pylint
-fi
+sudo pacman -S --noconfirm --needed python python-pip pipx
+pipx install poetry
+pipx install black
+pipx install flake8
+pipx install pylint
+# pipenv sigue disponible vía pip
+pip install --user pipenv
 
-
+echo ""
 echo "✅ Entorno de desarrollo configurado"

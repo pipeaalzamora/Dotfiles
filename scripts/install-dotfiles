@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Script de instalación de dotfiles (Ubuntu / GNOME)
-# ====================================================
+set -e
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKUP_DIR="$HOME/dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
@@ -10,41 +9,39 @@ echo "🚀 Instalando dotfiles..."
 
 # Crear backup de configuraciones existentes
 if [ -f "$HOME/.zshrc" ] || [ -f "$HOME/.bashrc" ]; then
-    echo "📦 Creando backup en $BACKUP_DIR"
-    mkdir -p "$BACKUP_DIR"
-
-    [ -f "$HOME/.zshrc" ]    && cp "$HOME/.zshrc"    "$BACKUP_DIR/"
-    [ -f "$HOME/.bashrc" ]   && cp "$HOME/.bashrc"   "$BACKUP_DIR/"
-    [ -f "$HOME/.gitconfig" ] && cp "$HOME/.gitconfig" "$BACKUP_DIR/"
-    [ -d "$HOME/.config" ]   && cp -r "$HOME/.config" "$BACKUP_DIR/"
+  echo "📦 Creando backup en $BACKUP_DIR"
+  mkdir -p "$BACKUP_DIR"
+  [ -f "$HOME/.zshrc" ]             && cp "$HOME/.zshrc"             "$BACKUP_DIR/"
+  [ -f "$HOME/.bashrc" ]            && cp "$HOME/.bashrc"            "$BACKUP_DIR/"
+  [ -f "$HOME/.gitconfig" ]         && cp "$HOME/.gitconfig"         "$BACKUP_DIR/"
+  [ -d "$HOME/.config" ]            && cp -r "$HOME/.config"         "$BACKUP_DIR/"
 fi
 
-# Crear symlinks de archivos raíz
+# Symlinks de archivos raíz
 echo "🔗 Creando symlinks..."
 
-ln -sf "$DOTFILES_DIR/.zshrc"           "$HOME/.zshrc"
-ln -sf "$DOTFILES_DIR/.bashrc"          "$HOME/.bashrc"
-ln -sf "$DOTFILES_DIR/.gitconfig"       "$HOME/.gitconfig"
+ln -sf "$DOTFILES_DIR/.zshrc"            "$HOME/.zshrc"
+ln -sf "$DOTFILES_DIR/.bashrc"           "$HOME/.bashrc"
+ln -sf "$DOTFILES_DIR/.gitconfig"        "$HOME/.gitconfig"
 ln -sf "$DOTFILES_DIR/.gitignore_global" "$HOME/.gitignore_global"
-ln -sf "$DOTFILES_DIR/.zprofile"        "$HOME/.zprofile"
-ln -sf "$DOTFILES_DIR/.ripgreprc"       "$HOME/.ripgreprc"
+ln -sf "$DOTFILES_DIR/.zprofile"         "$HOME/.zprofile"
+ln -sf "$DOTFILES_DIR/.ripgreprc"        "$HOME/.ripgreprc"
 
-# Symlinks de .config (solo los relevantes para GNOME)
+# Symlinks de .config
 mkdir -p "$HOME/.config"
 
-# Configs que aplican en cualquier entorno
-GNOME_CONFIGS=(
-    bat btop dunst fd ghostty kitty lazygit lsd nvim
-    starship.toml tmux yt-dlp zathura
+CONFIGS=(
+  bat btop dunst fd kitty lazygit lsd nvim
+  starship.toml yt-dlp zathura
 )
 
-for item in "${GNOME_CONFIGS[@]}"; do
-    src="$DOTFILES_DIR/.config/$item"
-    dst="$HOME/.config/$item"
-    if [ -e "$src" ]; then
-        ln -sf "$src" "$dst"
-        echo "  → $dst"
-    fi
+for item in "${CONFIGS[@]}"; do
+  src="$DOTFILES_DIR/.config/$item"
+  dst="$HOME/.config/$item"
+  if [ -e "$src" ]; then
+    ln -sf "$src" "$dst"
+    echo "  → $dst"
+  fi
 done
 
 # Hacer scripts ejecutables

@@ -9,7 +9,7 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 PS1='[\u@\h \W]\$ '
 
-export PATH=$PATH:/home/pipeaalzamora/.spicetify
+export PATH=$PATH:$HOME/.spicetify
 eval "$(starship init bash)"
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path bash)"

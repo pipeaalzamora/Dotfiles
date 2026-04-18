@@ -65,8 +65,8 @@ setopt HIST_IGNORE_SPACE
 setopt SHARE_HISTORY
 
 # Editor preferido
-export EDITOR='nano'
-export VISUAL='nano'
+export EDITOR='nvim'
+export VISUAL='nvim'
 
 
 # Personaliza el color de los directorios para 'ls'
@@ -100,13 +100,16 @@ alias lg='lazygit'
 
 # Sistema
 alias df='df -h'
-alias du='du -h'
+alias du='dust'
 alias free='free -h'
-alias ps='ps aux'
+alias ps='procs'
 alias top='htop'
 alias cls='clear'
 alias c='clear'
 alias bp='btop'
+
+# Cheatsheets
+alias tldr='tldr'
 
 # Archivos y directorios
 alias mkdir='mkdir -pv'
@@ -274,9 +277,7 @@ export PAGER='less'
 export LESS='-R'
 
 # Configuración de colores
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-fi
+# En Arch, bat/fd/rg usan sus nombres reales (sin sufijos como en Ubuntu)
 
 # Mensaje de bienvenida
 echo "¡Hola hoy sera un gran dia $(whoami)! 👋"
@@ -291,7 +292,7 @@ fi
 #NVM path
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm 
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm
 
 
 # bun completions
@@ -307,10 +308,9 @@ export PATH="$HOME/scripts:$PATH"
 # =======================================================
 LAST_UPDATE_FILE="$HOME/.cache/last_update"
 
-# Si el archivo de la última actualización no existe o ha pasado un día, actualiza.
 if [ ! -f "$LAST_UPDATE_FILE" ] || [ $(( $(date +%s) - $(stat -c %Y "$LAST_UPDATE_FILE") )) -gt 86400 ]; then
   echo "✨ Realizando una actualización del sistema. Esto puede tomar unos segundos..."
-  "$HOME/scripts/update-system"
+  "$DOTFILES_DIR/scripts/update-all" &>/dev/null &
   touch "$LAST_UPDATE_FILE"
 fi
 

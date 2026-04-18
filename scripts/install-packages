@@ -2,85 +2,67 @@
 
 set -e
 
-echo "📦 Instalando paquetes esenciales para Ubuntu/GNOME..."
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-sudo apt update && sudo apt upgrade -y
+echo "📦 Instalando paquetes esenciales para Arch Linux..."
 
-# Herramientas básicas
-sudo apt install -y \
-  build-essential git curl wget unzip btop fastfetch stow jq
+# Actualizar sistema
+sudo pacman -Syu --noconfirm
+
+# Herramientas base
+sudo pacman -S --noconfirm --needed \
+  base-devel git curl wget unzip btop fastfetch stow jq
 
 # Shell y terminal
-sudo apt install -y \
+sudo pacman -S --noconfirm --needed \
   zsh kitty
 
-# Herramientas CLI modernas (desde apt)
-sudo apt install -y \
-  fzf
+# Herramientas CLI modernas
+sudo pacman -S --noconfirm --needed \
+  fzf lsd vivid bat fd ripgrep zoxide lazygit git-delta \
+  bat-extras tealdeer dust procs
 
-# lsd (no está en apt estable)
-LSD_DEB=$(curl -s https://api.github.com/repos/lsd-rs/lsd/releases/latest \
-  | grep -Po '"browser_download_url": "\K[^"]*_amd64\.deb' \
-  | grep -v musl \
-  | head -1)
-wget -O /tmp/lsd_amd64.deb "$LSD_DEB"
-sudo dpkg -i /tmp/lsd_amd64.deb
-rm /tmp/lsd_amd64.deb
+# Utilidades
+sudo pacman -S --noconfirm --needed \
+  tree xclip wl-clipboard p7zip unrar yazi
 
-# zoxide
-curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+# Fuentes Nerd (disponibles en repos oficiales)
+sudo pacman -S --noconfirm --needed \
+  ttf-jetbrains-mono-nerd ttf-meslo-nerd
 
-# lazygit
-LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" \
-  | grep -Po '"tag_name": "v\K[^"]*')
-curl -Lo /tmp/lazygit.tar.gz \
-  "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
-tar xf /tmp/lazygit.tar.gz -C /tmp lazygit
-sudo install /tmp/lazygit /usr/local/bin
-rm /tmp/lazygit /tmp/lazygit.tar.gz
+# Starship prompt
+sudo pacman -S --noconfirm --needed starship
 
-# vivid (LS_COLORS, usado en .zshrc)
-VIVID_DEB=$(curl -s https://api.github.com/repos/sharkdp/vivid/releases/latest \
-  | grep -Po '"browser_download_url": "\K[^"]*_amd64\.deb' \
-  | grep -v musl \
-  | head -1)
-wget -O /tmp/vivid_amd64.deb "$VIVID_DEB"
-sudo dpkg -i /tmp/vivid_amd64.deb
-rm /tmp/vivid_amd64.deb
+# yay (AUR helper) — instalar si no existe
+if ! command -v yay &>/dev/null; then
+  echo "📦 Instalando yay (AUR helper)..."
+  sudo pacman -S --noconfirm --needed git base-devel
+  git clone https://aur.archlinux.org/yay.git /tmp/yay
+  (cd /tmp/yay && makepkg -si --noconfirm)
+  rm -rf /tmp/yay
+fi
 
-# yazi (file manager terminal)
-sudo snap install yazi --classic
-
-# fx (JSON viewer, usado en alias json='fx')
-sudo snap install fx
-
-# starship prompt
-curl -sS https://starship.rs/install.sh | sh -s -- -y
+# fx (JSON viewer) — desde AUR
+if ! command -v fx &>/dev/null; then
+  yay -S --noconfirm fx
+fi
 
 # Oh My Zsh (instalación no interactiva)
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 fi
 
 # Plugins de zsh
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ] && \
-    git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+  git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
 [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] && \
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
 
-# Fuentes Nerd
-mkdir -p ~/.local/share/fonts
-wget -O /tmp/JetBrainsMono.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
-unzip -o /tmp/JetBrainsMono.zip -d ~/.local/share/fonts/JetBrainsMono
-wget -O /tmp/Meslo.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip
-unzip -o /tmp/Meslo.zip -d ~/.local/share/fonts/Meslo
+# Actualizar caché de fuentes
 fc-cache -fv
-rm /tmp/JetBrainsMono.zip /tmp/Meslo.zip
 
-# Utilidades GNOME / portapapeles
-sudo apt install -y tree xclip wl-clipboard p7zip-full unrar gnome-tweaks
-
+echo ""
 echo "✅ Paquetes instalados correctamente"
 echo "🔧 Cambia tu shell a zsh: chsh -s \$(which zsh)"
 echo "🔄 Cierra sesión y vuelve a entrar para que tome efecto"

@@ -1,11 +1,17 @@
-INSTALACIÓN DE DOTFILES (Ubuntu / GNOME)
-=========================================
+INSTALACIÓN DE DOTFILES (Arch Linux)
+=====================================
 
 REQUISITOS
 ----------
-- Ubuntu 22.04 o superior
+- Arch Linux (base instalada)
 - Conexión a internet
-- Git instalado (sudo apt install git)
+- Git instalado: sudo pacman -S git
+- Recomendado: yay o paru (AUR helper) para fx y otros paquetes AUR
+
+INSTALAR AUR HELPER (opcional pero recomendado)
+-----------------------------------------------
+  git clone https://aur.archlinux.org/yay.git /tmp/yay
+  cd /tmp/yay && makepkg -si
 
 PASOS
 -----
@@ -32,75 +38,61 @@ PASOS
 SCRIPTS DISPONIBLES
 ===================
 
-- install-packages  Instala todos los paquetes necesarios (apt, snap, binarios)
-- install-dotfiles  Crea symlinks de configuraciones en $HOME
-- setup-dev-env     Configura entornos de desarrollo (Node, Go, Rust, etc.)
-- backup-dotfiles   Crea backup de configuraciones actuales
-- sync-dotfiles     Sincroniza cambios con Git
-- update-all        Actualiza sistema y herramientas
+- install-packages   Instala todos los paquetes (pacman + AUR)
+- install-dotfiles   Crea symlinks de configuraciones en $HOME
+- setup-dev-env      Configura entornos de desarrollo (Node, Go, Rust, etc.)
+- backup-dotfiles    Crea backup de configuraciones actuales
+- sync-dotfiles      Sincroniza cambios con Git
+- update-all         Actualiza sistema, AUR, npm, rust, omz
+- check-dependencies Verifica qué herramientas están instaladas
 
 CONFIGURACIONES INCLUIDAS
 ==========================
 
 Shells:
 - Zsh con Oh My Zsh + plugins (autosuggestions, syntax-highlighting)
-- Bash
+- Bash (fallback)
 - Starship prompt (Catppuccin Mocha)
 
-Terminales:
-- Kitty (recomendado en GNOME)
+Terminal:
+- Kitty (X11 y Wayland, detección automática)
 
-Editores:
+Editor:
 - Neovim con plugins (Lazy.nvim)
 
 Herramientas CLI:
-- Tmux
-- Lazygit
-- Bat (cat mejorado)
-- LSD (ls mejorado)
-- Ripgrep (grep mejorado)
-- FD (find mejorado)
-- FZF (fuzzy finder)
-- Zoxide (cd mejorado)
-- Yazi (file manager)
-- Delta (diff mejorado)
-- Vivid (LS_COLORS)
-- fx (JSON viewer)
+- Lazygit       — Git TUI
+- Bat           — cat mejorado
+- bat-extras    — batdiff, batman, batgrep
+- LSD           — ls mejorado
+- Ripgrep       — grep mejorado
+- FD            — find mejorado
+- FZF           — fuzzy finder
+- Zoxide        — cd mejorado
+- Yazi          — file manager terminal
+- Delta         — diff mejorado
+- Vivid         — LS_COLORS generator
+- fx            — JSON viewer (AUR)
+- btop          — monitor del sistema
+- fastfetch     — info del sistema
+- tealdeer      — tldr rápido en Rust
+- dust          — du mejorado y visual
+- procs         — ps mejorado con colores
 
-Window Managers (opcionales, no requeridos en GNOME):
-- i3 (X11)
-- Hyprland (Wayland)
+NOTAS ARCH LINUX
+================
 
-Utilidades:
-- Rofi (launcher, opcional en GNOME)
-- Dunst (notificaciones, opcional en GNOME)
-- Waybar (barra, solo Hyprland)
-
-Git:
-- Configuración global
-- Delta (diff mejorado)
-- Lazygit
-
-PERSONALIZACIÓN
-===============
-
-1. Edita .gitconfig con tu nombre y email
-2. Ajusta .zprofile para tus variables de entorno
-3. Modifica aliases en .zshrc según tus necesidades
-4. Personaliza Starship en .config/starship.toml
-
-NOTAS UBUNTU/GNOME
-==================
-
-- En Ubuntu, 'bat' se instala como 'batcat' y 'fd' como 'fdfind'.
-  El script install-packages crea los symlinks necesarios en ~/.local/bin.
-- Kitty está configurado con linux_display_server auto para funcionar
-  tanto en sesiones X11 como Wayland de GNOME.
-- Los configs de i3 y Hyprland están incluidos pero no son necesarios
-  si usas GNOME como entorno de escritorio.
-- gnome-tweaks se instala para personalización adicional de GNOME.
+- bat, fd, rg usan sus nombres reales (sin sufijos como en Ubuntu)
+- Las fuentes Nerd están en los repos oficiales:
+    ttf-jetbrains-mono-nerd, ttf-meslo-nerd
+- lsd, vivid, lazygit, zoxide, yazi, starship están en repos oficiales
+- fx está en el AUR — el script instala yay automáticamente si no existe
+- Para Python, se usa pipx en lugar de pip --user para evitar
+  conflictos con los paquetes del sistema
+- tealdeer requiere ejecutar `tldr --update` la primera vez para
+  descargar la base de datos de comandos
 
 TEMA
 ====
 
-Todos los archivos usan el tema Catppuccin Mocha para consistencia visual.
+Todos los archivos usan Catppuccin Mocha para consistencia visual.
