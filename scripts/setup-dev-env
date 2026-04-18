@@ -24,10 +24,10 @@ fi
 if ! command -v go &> /dev/null; then
     echo "📦 Instalando Go..."
     GO_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -1)
-    wget "https://go.dev/dl/${GO_VERSION}.linux-amd64.tar.gz"
+    wget -O "/tmp/${GO_VERSION}.linux-amd64.tar.gz" "https://go.dev/dl/${GO_VERSION}.linux-amd64.tar.gz"
     sudo rm -rf /usr/local/go
-    sudo tar -C /usr/local -xzf "${GO_VERSION}.linux-amd64.tar.gz"
-    rm "${GO_VERSION}.linux-amd64.tar.gz"
+    sudo tar -C /usr/local -xzf "/tmp/${GO_VERSION}.linux-amd64.tar.gz"
+    rm "/tmp/${GO_VERSION}.linux-amd64.tar.gz"
     export PATH=$PATH:/usr/local/go/bin
 fi
 
@@ -48,23 +48,5 @@ else
     pip3 install --user pipenv poetry black flake8 pylint
 fi
 
-# Global npm packages
-echo "📦 Instalando paquetes globales de npm..."
-npm install -g \
-    typescript \
-    ts-node \
-    eslint \
-    prettier \
-    nodemon \
-    pm2 \
-    vercel \
-    netlify-cli
-
-# Neovim plugins
-echo "📦 Configurando Neovim..."
-# Primer paso: sincronizar plugins
-nvim --headless "+Lazy! sync" +qa 2>/dev/null
-# Segundo paso: compilar treesitter (necesita que los plugins ya estén instalados)
-nvim --headless "+TSUpdateSync" +qa 2>/dev/null || true
 
 echo "✅ Entorno de desarrollo configurado"

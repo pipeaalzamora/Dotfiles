@@ -7,10 +7,6 @@ echo "📦 Actualizando paquetes del sistema..."
 sudo apt update && sudo apt upgrade -y
 sudo apt autoremove -y
 
-# Snap
-echo "📦 Actualizando snaps..."
-sudo snap refresh
-
 # Node.js
 if command -v npm &> /dev/null; then
   echo "📦 Actualizando paquetes globales de npm..."
@@ -23,11 +19,6 @@ if command -v rustup &> /dev/null; then
   rustup update
 fi
 
-# Neovim plugins
-if command -v nvim &> /dev/null; then
-  echo "📦 Actualizando plugins de Neovim..."
-  nvim --headless "+Lazy! sync" +qa
-fi
 
 # Oh My Zsh
 if [ -d "$HOME/.oh-my-zsh" ]; then

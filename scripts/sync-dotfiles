@@ -3,7 +3,7 @@
 # Script de sincronización de dotfiles con Git
 # =============================================
 
-DOTFILES_DIR="$HOME/dotfiles"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 cd "$DOTFILES_DIR" || exit
 
@@ -13,13 +13,13 @@ echo "🔄 Sincronizando dotfiles..."
 if [[ -n $(git status -s) ]]; then
     echo "📝 Cambios detectados:"
     git status -s
-    
+
     # Agregar todos los cambios
     git add .
-    
+
     # Commit con timestamp
     git commit -m "Update dotfiles - $(date '+%Y-%m-%d %H:%M:%S')"
-    
+
     # Push a remoto
     if git remote | grep -q 'origin'; then
         echo "⬆️  Subiendo cambios..."
@@ -32,3 +32,4 @@ if [[ -n $(git status -s) ]]; then
 else
     echo "✅ No hay cambios para sincronizar"
 fi
+

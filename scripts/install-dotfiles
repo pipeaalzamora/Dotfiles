@@ -3,7 +3,7 @@
 # Script de instalación de dotfiles (Ubuntu / GNOME)
 # ====================================================
 
-DOTFILES_DIR="$HOME/dotfiles"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKUP_DIR="$HOME/dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
 
 echo "🚀 Instalando dotfiles..."

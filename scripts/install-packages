@@ -1,12 +1,14 @@
 #!/bin/bash
 
+set -e
+
 echo "📦 Instalando paquetes esenciales para Ubuntu/GNOME..."
 
 sudo apt update && sudo apt upgrade -y
 
 # Herramientas básicas
 sudo apt install -y \
-  build-essential git curl wget unzip htop btop fastfetch stow jq
+  build-essential git curl wget unzip btop fastfetch stow jq
 
 # Shell y terminal
 sudo apt install -y \
@@ -14,37 +16,37 @@ sudo apt install -y \
 
 # Herramientas CLI modernas (desde apt)
 sudo apt install -y \
-  bat fd-find ripgrep fzf
-
-# Symlinks necesarios en Ubuntu (bat y fd tienen nombres distintos)
-mkdir -p ~/.local/bin
-[ ! -f ~/.local/bin/bat ] && ln -sf /usr/bin/batcat ~/.local/bin/bat
-[ ! -f ~/.local/bin/fd ]  && ln -sf /usr/bin/fdfind ~/.local/bin/fd
+  fzf
 
 # lsd (no está en apt estable)
-LSD_DEB=$(curl -s https://api.github.com/repos/lsd-rs/lsd/releases/latest | grep -Po '"browser_download_url": "\K[^"]*amd64\.deb')
-wget -O lsd_amd64.deb "$LSD_DEB"
-sudo dpkg -i lsd_amd64.deb && rm lsd_amd64.deb
+LSD_DEB=$(curl -s https://api.github.com/repos/lsd-rs/lsd/releases/latest \
+  | grep -Po '"browser_download_url": "\K[^"]*_amd64\.deb' \
+  | grep -v musl \
+  | head -1)
+wget -O /tmp/lsd_amd64.deb "$LSD_DEB"
+sudo dpkg -i /tmp/lsd_amd64.deb
+rm /tmp/lsd_amd64.deb
 
 # zoxide
 curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 
 # lazygit
-LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
-tar xf lazygit.tar.gz lazygit
-sudo install lazygit /usr/local/bin
-rm lazygit lazygit.tar.gz
-
-# delta (diff mejorado, usado en .gitconfig)
-DELTA_DEB=$(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | grep -Po '"browser_download_url": "\K[^"]*amd64\.deb')
-wget -O git-delta_amd64.deb "$DELTA_DEB"
-sudo dpkg -i git-delta_amd64.deb && rm git-delta_amd64.deb
+LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" \
+  | grep -Po '"tag_name": "v\K[^"]*')
+curl -Lo /tmp/lazygit.tar.gz \
+  "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+tar xf /tmp/lazygit.tar.gz -C /tmp lazygit
+sudo install /tmp/lazygit /usr/local/bin
+rm /tmp/lazygit /tmp/lazygit.tar.gz
 
 # vivid (LS_COLORS, usado en .zshrc)
-VIVID_DEB=$(curl -s https://api.github.com/repos/sharkdp/vivid/releases/latest | grep -Po '"browser_download_url": "\K[^"]*amd64\.deb')
-wget -O vivid_amd64.deb "$VIVID_DEB"
-sudo dpkg -i vivid_amd64.deb && rm vivid_amd64.deb
+VIVID_DEB=$(curl -s https://api.github.com/repos/sharkdp/vivid/releases/latest \
+  | grep -Po '"browser_download_url": "\K[^"]*_amd64\.deb' \
+  | grep -v musl \
+  | head -1)
+wget -O /tmp/vivid_amd64.deb "$VIVID_DEB"
+sudo dpkg -i /tmp/vivid_amd64.deb
+rm /tmp/vivid_amd64.deb
 
 # yazi (file manager terminal)
 sudo snap install yazi --classic
@@ -54,11 +56,6 @@ sudo snap install fx
 
 # starship prompt
 curl -sS https://starship.rs/install.sh | sh -s -- -y
-
-# Editores
-sudo apt install -y vim
-# Neovim (versión reciente via snap)
-sudo snap install nvim --classic
 
 # Oh My Zsh (instalación no interactiva)
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
@@ -74,11 +71,12 @@ ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
 # Fuentes Nerd
 mkdir -p ~/.local/share/fonts
-wget -O JetBrainsMono.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
-unzip -o JetBrainsMono.zip -d ~/.local/share/fonts/JetBrainsMono
-wget -O Meslo.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip
-unzip -o Meslo.zip -d ~/.local/share/fonts/Meslo
-fc-cache -fv && rm JetBrainsMono.zip Meslo.zip
+wget -O /tmp/JetBrainsMono.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
+unzip -o /tmp/JetBrainsMono.zip -d ~/.local/share/fonts/JetBrainsMono
+wget -O /tmp/Meslo.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip
+unzip -o /tmp/Meslo.zip -d ~/.local/share/fonts/Meslo
+fc-cache -fv
+rm /tmp/JetBrainsMono.zip /tmp/Meslo.zip
 
 # Utilidades GNOME / portapapeles
 sudo apt install -y tree xclip wl-clipboard p7zip-full unrar gnome-tweaks
