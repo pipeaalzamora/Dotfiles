@@ -45,3 +45,7 @@ fi
 
 echo ""
 echo "✅ Sistema actualizado completamente"
+
+# Actualizar timestamp para el recordatorio del .zshrc
+mkdir -p "$HOME/.cache"
+touch "$HOME/.cache/last_update"

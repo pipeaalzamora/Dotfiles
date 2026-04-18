@@ -7,40 +7,61 @@ BACKUP_DIR="$HOME/dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
 
 echo "🚀 Instalando dotfiles..."
 
-# Crear backup de configuraciones existentes
-if [ -f "$HOME/.zshrc" ] || [ -f "$HOME/.bashrc" ]; then
-  echo "📦 Creando backup en $BACKUP_DIR"
-  mkdir -p "$BACKUP_DIR"
-  [ -f "$HOME/.zshrc" ]             && cp "$HOME/.zshrc"             "$BACKUP_DIR/"
-  [ -f "$HOME/.bashrc" ]            && cp "$HOME/.bashrc"            "$BACKUP_DIR/"
-  [ -f "$HOME/.gitconfig" ]         && cp "$HOME/.gitconfig"         "$BACKUP_DIR/"
-  [ -d "$HOME/.config" ]            && cp -r "$HOME/.config"         "$BACKUP_DIR/"
-fi
+# Archivos y directorios que este script va a sobrescribir
+ROOT_FILES=(
+  .zshrc
+  .bashrc
+  .gitconfig
+  .gitignore_global
+  .zprofile
+  .ripgreprc
+)
 
-# Symlinks de archivos raíz
-echo "🔗 Creando symlinks..."
-
-ln -sf "$DOTFILES_DIR/.zshrc"            "$HOME/.zshrc"
-ln -sf "$DOTFILES_DIR/.bashrc"           "$HOME/.bashrc"
-ln -sf "$DOTFILES_DIR/.gitconfig"        "$HOME/.gitconfig"
-ln -sf "$DOTFILES_DIR/.gitignore_global" "$HOME/.gitignore_global"
-ln -sf "$DOTFILES_DIR/.zprofile"         "$HOME/.zprofile"
-ln -sf "$DOTFILES_DIR/.ripgreprc"        "$HOME/.ripgreprc"
-
-# Symlinks de .config
-mkdir -p "$HOME/.config"
-
-CONFIGS=(
+CONFIG_ITEMS=(
   bat btop dunst fd kitty lazygit lsd nvim
   starship.toml yt-dlp zathura
 )
 
-for item in "${CONFIGS[@]}"; do
+# Backup selectivo — solo lo que vamos a tocar
+NEEDS_BACKUP=false
+for f in "${ROOT_FILES[@]}"; do
+  [ -e "$HOME/$f" ] && NEEDS_BACKUP=true && break
+done
+for item in "${CONFIG_ITEMS[@]}"; do
+  [ -e "$HOME/.config/$item" ] && NEEDS_BACKUP=true && break
+done
+
+if $NEEDS_BACKUP; then
+  echo "📦 Creando backup selectivo en $BACKUP_DIR"
+  mkdir -p "$BACKUP_DIR/.config"
+
+  for f in "${ROOT_FILES[@]}"; do
+    [ -e "$HOME/$f" ] && cp -r "$HOME/$f" "$BACKUP_DIR/$f" && echo "  backed up: ~/$f"
+  done
+
+  for item in "${CONFIG_ITEMS[@]}"; do
+    [ -e "$HOME/.config/$item" ] && cp -r "$HOME/.config/$item" "$BACKUP_DIR/.config/$item" && echo "  backed up: ~/.config/$item"
+  done
+fi
+
+# Symlinks de archivos raíz
+echo ""
+echo "🔗 Creando symlinks..."
+
+for f in "${ROOT_FILES[@]}"; do
+  ln -sf "$DOTFILES_DIR/$f" "$HOME/$f"
+  echo "  → ~/$f"
+done
+
+# Symlinks de .config
+mkdir -p "$HOME/.config"
+
+for item in "${CONFIG_ITEMS[@]}"; do
   src="$DOTFILES_DIR/.config/$item"
   dst="$HOME/.config/$item"
   if [ -e "$src" ]; then
     ln -sf "$src" "$dst"
-    echo "  → $dst"
+    echo "  → ~/.config/$item"
   fi
 done
 

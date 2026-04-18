@@ -1,6 +1,9 @@
 # Configuración mejorada de Zsh para Latinoamérica
 # ================================================
 
+# Directorio de dotfiles (usado por scripts internos)
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+
 
 #starship
 eval "$(starship init zsh)"
@@ -76,11 +79,13 @@ export LS_COLORS="di=01;38;5;208:$(vivid generate molokai | cut -d: -f2-)"
 # ======================
 
 # Navegación
-alias cd='z'
+alias z='z'           # zoxide explícito
+alias cd='cd'         # cd clásico sin romper scripts
+alias j='z'           # atajo rápido para zoxide
 alias ls='lsd'
-alias la='ls -A'
-alias l='ls -CF'
-alias lh='ls -lh'
+alias la='lsd -A'
+alias l='lsd -CF'
+alias lh='lsd -lh'
 alias ll='lsd -lah'
 
 # Git mejorado
@@ -115,7 +120,8 @@ alias tldr='tldr'
 alias mkdir='mkdir -pv'
 alias cp='cp -i'
 alias mv='mv -i'
-alias rm='rm -rf'
+alias rm='rm -i'              # interactivo — pide confirmación antes de borrar
+alias rrf='rm -rf'            # borrado forzado explícito cuando realmente lo necesitas
 alias grep='rg'
 alias cat='bat'
 alias find='fd'
@@ -304,17 +310,21 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="$HOME/scripts:$PATH"
 
 # =======================================================
-# Actualización automática del sistema (una vez al día)
+# Recordatorio de actualización (una vez al día)
 # =======================================================
 LAST_UPDATE_FILE="$HOME/.cache/last_update"
 
 if [ ! -f "$LAST_UPDATE_FILE" ] || [ $(( $(date +%s) - $(stat -c %Y "$LAST_UPDATE_FILE") )) -gt 86400 ]; then
-  echo "✨ Realizando una actualización del sistema. Esto puede tomar unos segundos..."
-  "$DOTFILES_DIR/scripts/update-all" &>/dev/null &
-  touch "$LAST_UPDATE_FILE"
+  echo "💡 Llevas más de un día sin actualizar. Ejecuta: upd"
 fi
 
-#fx json terminal
-source <(fx --comp zsh)
+# Alias para actualizar manualmente cuando quieras
+alias upd="$DOTFILES_DIR/scripts/update-all"
 
-[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+#fx json terminal
+if command -v fx >/dev/null 2>&1; then
+  source <(fx --comp zsh)
+fi
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && command -v kiro >/dev/null 2>&1 && \
+  . "$(kiro --locate-shell-integration-path zsh)"
