@@ -1,0 +1,102 @@
+#!/bin/bash
+
+set -e
+
+echo "📰 Configurando Newsboat con feeds de Arch, KDE y Linux (es/en)..."
+
+# Instalar newsboat si no existe
+if ! command -v newsboat >/dev/null 2>&1; then
+  echo "📦 Instalando newsboat..."
+  sudo pacman -S --noconfirm --needed newsboat
+fi
+
+# Directorio de configuración
+mkdir -p "$HOME/.newsboat"
+
+URLS_FILE="$HOME/.newsboat/urls"
+
+# No sobreescribir si ya existe
+if [ -f "$URLS_FILE" ]; then
+  echo "⚠️  $URLS_FILE ya existe. Creando backup antes de sobreescribir..."
+  cp "$URLS_FILE" "${URLS_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
+fi
+
+cat > "$URLS_FILE" << 'EOF'
+# ======================================================
+# Arch Linux (oficiales)
+# ======================================================
+
+# Noticias importantes: avisos de cambios, breakages, actualizaciones críticas
+https://archlinux.org/feeds/news/  "Arch Linux - News"
+
+# Cambios recientes en la Wiki de Arch
+https://archlinux.org/feeds/wiki/  "Arch Linux - Wiki"
+
+# ======================================================
+# KDE / Plasma
+# ======================================================
+
+# Blogs de desarrolladores y colaboradores de KDE
+https://planet.kde.org/en/rss2.xml  "Planet KDE"
+
+# Anuncios oficiales de KDE (releases, eventos)
+https://kde.org/announcements/index.xml  "KDE Announcements"
+
+# ======================================================
+# Linux en Español
+# ======================================================
+
+# DesdeLinux / Usemos Linux — noticias, tutoriales y artículos de opinión
+https://blog.desdelinux.net/feed/  "DesdeLinux"
+
+# SoloConLinux — tutoriales, guías y noticias sobre GNU/Linux
+https://soloconlinux.org.es/rss  "SoloConLinux"
+
+# MuyLinux — portal grande en español, artículos completos vía RSS
+https://www.muylinux.com/feed  "MuyLinux"
+
+# Ubunlog — noticias sobre Ubuntu, sabores y derivados
+https://ubunlog.com/feed  "Ubunlog"
+
+# Linux Adictos — noticias, artículos y recursos sobre GNU/Linux
+https://www.linuxadictos.com/feed  "Linux Adictos"
+
+# Proyecto TicTac — recopila y difunde noticias del Linuxverso en español
+https://proyectotictac.com/feed  "Proyecto TicTac"
+
+# ======================================================
+# Linux / FOSS en Inglés
+# ======================================================
+
+# Phoronix — noticias muy técnicas: kernel, drivers, benchmarks, rendimiento
+https://www.phoronix.com/rss.php  "Phoronix"
+
+# It's FOSS News — noticias y artículos sobre Linux y software libre
+https://feed.itsfoss.com  "It's FOSS News"
+
+# OMG!Linux — escritorio, apps, novedades del mundo Linux
+https://feeds.feedburner.com/d0od  "OMG!Linux"
+
+# Tecmint — tutoriales y howtos de administración Linux
+https://www.tecmint.com/feed/  "Tecmint"
+
+# LWN.net — análisis profundo del kernel y el ecosistema Linux
+https://lwn.net/headlines/rss  "LWN.net"
+
+# ======================================================
+# Agrega tus propios feeds aquí
+# ======================================================
+
+EOF
+
+echo "✅ Newsboat configurado."
+echo "   Feeds: $URLS_FILE"
+echo ""
+echo "👉 Ejecuta: newsboat"
+echo "   r       — refrescar todos los feeds"
+echo "   Enter   — abrir feed / leer noticia"
+echo "   o       — abrir en navegador (puedes traducir desde ahí)"
+echo "   q       — salir"
+echo ""
+echo "💡 Para añadir más feeds edita: $URLS_FILE"
+echo "   Formato: https://url.del.feed  \"Nombre del feed\""

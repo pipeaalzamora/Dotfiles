@@ -64,6 +64,7 @@ check_command curl
 check_command wget
 check_command stow
 check_command jq
+check_command newsboat
 
 echo ""
 echo "=== AUR helper ==="

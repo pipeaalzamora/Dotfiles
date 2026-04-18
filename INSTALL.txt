@@ -6,10 +6,11 @@ REQUISITOS
 - Arch Linux (base instalada)
 - Conexión a internet
 - Git instalado: sudo pacman -S git
-- Recomendado: yay o paru (AUR helper) para fx y otros paquetes AUR
 
-INSTALAR AUR HELPER (opcional pero recomendado)
------------------------------------------------
+INSTALAR AUR HELPER
+-------------------
+El script install-packages instala yay automáticamente si no existe.
+Si prefieres instalarlo antes a mano:
   git clone https://aur.archlinux.org/yay.git /tmp/yay
   cd /tmp/yay && makepkg -si
 
@@ -41,6 +42,7 @@ SCRIPTS DISPONIBLES
 - install-packages   Instala todos los paquetes (pacman + AUR)
 - install-dotfiles   Crea symlinks de configuraciones en $HOME
 - setup-dev-env      Configura entornos de desarrollo (Node, Go, Rust, etc.)
+- setup-newsboat     Configura newsboat con feeds de Arch, KDE y Linux (es/en)
 - backup-dotfiles    Crea backup de configuraciones actuales
 - sync-dotfiles      Sincroniza cambios con Git
 - update-all         Actualiza sistema, AUR, npm, rust, omz
@@ -78,6 +80,7 @@ Herramientas CLI:
 - tealdeer      — tldr rápido en Rust
 - dust          — du mejorado y visual
 - procs         — ps mejorado con colores
+- newsboat      — lector de RSS/Atom para la terminal
 
 NOTAS ARCH LINUX
 ================

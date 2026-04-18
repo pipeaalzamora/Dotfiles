@@ -24,7 +24,7 @@ sudo pacman -S --noconfirm --needed \
 
 # Utilidades
 sudo pacman -S --noconfirm --needed \
-  tree xclip wl-clipboard p7zip unrar yazi
+  tree xclip wl-clipboard p7zip unrar yazi newsboat
 
 # Fuentes Nerd (disponibles en repos oficiales)
 sudo pacman -S --noconfirm --needed \

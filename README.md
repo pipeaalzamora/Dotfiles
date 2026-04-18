@@ -10,7 +10,7 @@ Setup personal para Arch Linux con tema **Catppuccin Mocha** en todo el stack.
 - **Terminal**: Kitty (X11 y Wayland, detección automática)
 - **Editor**: Neovim (Lazy.nvim)
 - **Tema**: Catppuccin Mocha en kitty, nvim, btop, lazygit, zathura, bat, lsd, starship, delta y zsh-syntax-highlighting
-- **CLI moderno**: lsd, bat, fd, ripgrep, fzf, zoxide, yazi, lazygit, delta, vivid, dust, procs, tealdeer, bat-extras
+- **CLI moderno**: lsd, bat, fd, ripgrep, fzf, zoxide, yazi, lazygit, delta, vivid, dust, procs, tealdeer, bat-extras, newsboat
 - **Dev**: NVM (Node), Bun, Go, Rust, Python (pipx)
 
 ---
@@ -39,6 +39,7 @@ Cierra sesión y vuelve a entrar para que `$SHELL` tome efecto.
 | `install-packages`   | Máquina nueva — instala todos los paquetes                             |
 | `install-dotfiles`   | Máquina nueva o al clonar en otro equipo — crea los symlinks           |
 | `setup-dev-env`      | Máquina nueva — instala runtimes de desarrollo                         |
+| `setup-newsboat`     | Configura newsboat con feeds de Arch, KDE y Linux (es/en)              |
 | `backup-dotfiles`    | Antes de cambios grandes — backup manual                               |
 | `sync-dotfiles`      | Cuando quieres commitear y pushear cambios                             |
 | `update-all`         | Actualización completa del sistema (o ejecuta `upd` desde la terminal) |
@@ -90,6 +91,7 @@ install-packages → install-dotfiles → setup-dev-env
 | `bat-extras` | —              | `batman`, `batdiff`, `batgrep`       |
 | `vivid`      | —              | Genera `LS_COLORS` con temas         |
 | `fx`         | jq (visual)    | JSON viewer interactivo              |
+| `newsboat`   | —              | Lector de RSS/Atom en terminal       |
 
 ### Aliases útiles
 
