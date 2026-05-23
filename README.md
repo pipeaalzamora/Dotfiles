@@ -1,53 +1,10 @@
-<<<<<<< HEAD
 # Dotfiles — Ubuntu
-||||||| 4cc8a55
-# Dotfiles — Arch Linux
-=======
-# Dotfiles — Ubuntu & Arch Linux
->>>>>>> caa102d9198c573d25a1bb9ca1d93a112d3f6172
 
-<<<<<<< HEAD
 Setup personal para Ubuntu 24.04+ con tema **Catppuccin Mocha** en todo el stack.
-||||||| 4cc8a55
-Setup personal para Arch Linux con tema **Catppuccin Mocha** en todo el stack.
-=======
-Setup personal con tema **Catppuccin Mocha** en todo el stack.  
-Compatible con **Ubuntu 26.04 LTS**, Arch Linux, Zorin OS y derivados.
-
-> La detección del OS es automática — los dotfiles se adaptan solos sin configuración extra.
->>>>>>> caa102d9198c573d25a1bb9ca1d93a112d3f6172
 
 ---
 
-<<<<<<< HEAD
 ## Instalación
-||||||| 4cc8a55
-## Features
-
-- **Shell**: Zsh + Oh My Zsh + Starship prompt
-- **Terminal**: Kitty (X11 y Wayland, detección automática)
-- **Editor**: Neovim (Lazy.nvim)
-- **Tema**: Catppuccin Mocha en kitty, nvim, btop, lazygit, zathura, bat, lsd, starship, delta y zsh-syntax-highlighting
-- **CLI moderno**: lsd, bat, fd, ripgrep, fzf, zoxide, yazi, lazygit, delta, vivid, dust, procs, tealdeer, bat-extras, newsboat
-- **Dev**: NVM (Node), Bun, Go, Rust, Python (pipx)
-
----
-
-## Instalación rápida
-=======
-## Features
-
-- **Shell**: Zsh + Oh My Zsh + Starship prompt
-- **Terminal**: Kitty (X11 y Wayland, detección automática)
-- **Editor**: Neovim (Lazy.nvim)
-- **Tema**: Catppuccin Mocha en kitty, nvim, btop, lazygit, bat, lsd, starship, delta y zsh-syntax-highlighting
-- **CLI moderno**: lsd, bat, fd, ripgrep, fzf, zoxide, yazi, lazygit, delta, vivid, dust, procs, tealdeer, bat-extras, newsboat
-- **Dev**: NVM (Node), Bun, Go, Rust, Python (pipx)
-
----
-
-## Instalación rápida
->>>>>>> caa102d9198c573d25a1bb9ca1d93a112d3f6172
 
 ### Ubuntu 26.04 LTS
 
