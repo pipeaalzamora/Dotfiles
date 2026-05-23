@@ -1,101 +1,36 @@
-INSTALACIÓN DE DOTFILES (Arch Linux)
-=====================================
+INSTALACIÓN DE DOTFILES (Ubuntu 24.04+ / 26.04)
+=================================================
 
 REQUISITOS
 ----------
-- Arch Linux (base instalada)
+- Ubuntu 24.04 o superior
 - Conexión a internet
-- Git instalado: sudo pacman -S git
+- Git: sudo apt install git
 
-INSTALAR AUR HELPER
+INSTALACIÓN
+-----------
+git clone <tu-repo> ~/dotfiles
+cd ~/dotfiles
+./install.sh
+
+El script es interactivo: te pregunta qué instalar y explica cada componente.
+
+DESPUÉS DE INSTALAR
 -------------------
-El script install-packages instala yay automáticamente si no existe.
-Si prefieres instalarlo antes a mano:
-  git clone https://aur.archlinux.org/yay.git /tmp/yay
-  cd /tmp/yay && makepkg -si
+1. Cierra sesión y vuelve a entrar (para que Zsh tome efecto)
+2. Edita ~/.gitconfig con tu nombre y email
+3. Ejecuta: tldr --update (si instalaste tealdeer)
 
-PASOS
------
+SCRIPTS
+-------
+- install.sh                  Instalador interactivo principal
+- scripts/update-all          Actualiza sistema completo (alias: upd)
+- scripts/check-dependencies  Verifica qué herramientas están instaladas
 
-1. Clonar el repositorio:
-   git clone <tu-repo> ~/dotfiles
-   cd ~/dotfiles
-
-2. Instalar paquetes esenciales:
-   chmod +x scripts/*
-   ./scripts/install-packages
-
-3. Instalar dotfiles (crea symlinks):
-   ./scripts/install-dotfiles
-
-4. Configurar entorno de desarrollo:
-   ./scripts/setup-dev-env
-
-5. Cambiar shell a zsh:
-   chsh -s $(which zsh)
-
-6. Cerrar sesión y volver a entrar
-
-SCRIPTS DISPONIBLES
-===================
-
-- install-packages   Instala todos los paquetes (pacman + AUR)
-- install-dotfiles   Crea symlinks de configuraciones en $HOME
-- setup-dev-env      Configura entornos de desarrollo (Node, Go, Rust, etc.)
-- setup-newsboat     Configura newsboat con feeds de Arch, KDE y Linux (es/en)
-- backup-dotfiles    Crea backup de configuraciones actuales
-- sync-dotfiles      Sincroniza cambios con Git
-- update-all         Actualiza sistema, AUR, npm, rust, omz
-- check-dependencies Verifica qué herramientas están instaladas
-
-CONFIGURACIONES INCLUIDAS
-==========================
-
-Shells:
-- Zsh con Oh My Zsh + plugins (autosuggestions, syntax-highlighting)
-- Bash (fallback)
-- Starship prompt (Catppuccin Mocha)
-
-Terminal:
-- Kitty (X11 y Wayland, detección automática)
-
-Editor:
-- Neovim con plugins (Lazy.nvim)
-
-Herramientas CLI:
-- Lazygit       — Git TUI
-- Bat           — cat mejorado
-- bat-extras    — batdiff, batman, batgrep
-- LSD           — ls mejorado
-- Ripgrep       — grep mejorado
-- FD            — find mejorado
-- FZF           — fuzzy finder
-- Zoxide        — cd mejorado
-- Yazi          — file manager terminal
-- Delta         — diff mejorado
-- Vivid         — LS_COLORS generator
-- fx            — JSON viewer (AUR)
-- btop          — monitor del sistema
-- fastfetch     — info del sistema
-- tealdeer      — tldr rápido en Rust
-- dust          — du mejorado y visual
-- procs         — ps mejorado con colores
-- newsboat      — lector de RSS/Atom para la terminal
-
-NOTAS ARCH LINUX
-================
-
-- bat, fd, rg usan sus nombres reales (sin sufijos como en Ubuntu)
-- Las fuentes Nerd están en los repos oficiales:
-    ttf-jetbrains-mono-nerd, ttf-meslo-nerd
-- lsd, vivid, lazygit, zoxide, yazi, starship están en repos oficiales
-- fx está en el AUR — el script instala yay automáticamente si no existe
-- Para Python, se usa pipx en lugar de pip --user para evitar
-  conflictos con los paquetes del sistema
-- tealdeer requiere ejecutar `tldr --update` la primera vez para
-  descargar la base de datos de comandos
+SINCRONIZAR CAMBIOS
+-------------------
+Usa lazygit (lg) desde ~/dotfiles para commitear y pushear.
 
 TEMA
-====
-
-Todos los archivos usan Catppuccin Mocha para consistencia visual.
+----
+Catppuccin Mocha en todas las herramientas.

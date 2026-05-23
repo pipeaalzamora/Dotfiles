@@ -1,5 +1,0 @@
-# Stow ignore patterns
-\.git
-\.gitignore
-^/INSTALL\.txt
-^/scripts

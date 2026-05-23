@@ -4,11 +4,14 @@ echo "🔍 Verificando dependencias..."
 echo ""
 
 check_command() {
-  if command -v "$1" &>/dev/null; then
-    echo "✅ $1"
-  else
-    echo "❌ $1 — NO INSTALADO"
-  fi
+    local cmd="$1"
+    local display="${2:-$1}"
+    if command -v "$cmd" &>/dev/null; then
+        local version=$("$cmd" --version 2>/dev/null | head -1 || echo "")
+        echo -e "✅ $display \033[0;90m$version\033[0m"
+    else
+        echo "❌ $display — NO INSTALADO"
+    fi
 }
 
 echo "=== Shells ==="
@@ -22,15 +25,15 @@ check_command kitty
 
 echo ""
 echo "=== Editores ==="
-check_command nvim
+check_command nvim "neovim"
 check_command vim
 
 echo ""
 echo "=== Herramientas CLI ==="
 check_command lsd
-check_command bat
-check_command fd
-check_command rg
+check_command batcat "bat (batcat)"
+check_command fdfind "fd (fdfind)"
+check_command rg "ripgrep"
 check_command fzf
 check_command zoxide
 check_command yazi
@@ -40,9 +43,9 @@ check_command vivid
 check_command fx
 check_command dust
 check_command procs
-check_command tldr
-check_command batdiff
-check_command batman
+check_command tldr "tealdeer"
+check_command btop
+check_command fastfetch
 
 echo ""
 echo "=== Desarrollo ==="
@@ -51,30 +54,21 @@ check_command node
 check_command npm
 check_command bun
 check_command go
-check_command rustc
+check_command rustc "rust"
+check_command cargo
 check_command python3
 check_command pip3
 check_command pipx
 
 echo ""
 echo "=== Utilidades ==="
-check_command btop
-check_command fastfetch
 check_command curl
 check_command wget
-check_command stow
 check_command jq
+check_command tree
 check_command newsboat
-
-echo ""
-echo "=== AUR helper ==="
-if command -v yay &>/dev/null; then
-  echo "✅ yay"
-elif command -v paru &>/dev/null; then
-  echo "✅ paru"
-else
-  echo "⚠️  Sin AUR helper (yay/paru) — algunos paquetes no estarán disponibles"
-fi
+check_command yt-dlp
+check_command zathura
 
 echo ""
 echo "✅ Verificación completada"
