@@ -6,41 +6,15 @@ Setup personal para Ubuntu 24.04+ con tema **Catppuccin Mocha** en todo el stack
 
 ## Instalación
 
-### Ubuntu 26.04 LTS
-
-```bash
-# 1. Clonar dotfiles
-git clone https://github.com/pipeaalzamora/Dotfiles.git ~/dotfiles
-cd ~/dotfiles
-
-# 2. Instalar dependencias base
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y zsh git curl wget stow build-essential \
-    neovim bat fd-find ripgrep fzf btop lsd git-delta fastfetch
-
-# 3. Crear symlinks necesarios para Ubuntu
-mkdir -p ~/.local/bin
-ln -sf /usr/bin/batcat ~/.local/bin/bat
-ln -sf $(which fdfind) ~/.local/bin/fd
-
-# 4. Aplicar dotfiles con Stow
-stow .
-
-# 5. Cambiar shell a Zsh
-chsh -s $(which zsh)
-```
-
-> Cierra sesión y vuelve a entrar para que `$SHELL` tome efecto.
-
-### Arch Linux
-
 ```bash
 git clone https://github.com/pipeaalzamora/Dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./install.sh
 ```
 
-El script te pregunta qué componentes quieres instalar, explicando cada uno.
+El instalador es interactivo: te pregunta qué componentes quieres instalar y te explica para qué sirve cada uno antes de instalarlo.
+
+Después de instalar, cierra sesión y vuelve a entrar para que Zsh tome efecto.
 
 ---
 
@@ -49,25 +23,25 @@ El script te pregunta qué componentes quieres instalar, explicando cada uno.
 | Script | Uso |
 |--------|-----|
 | `install.sh` | Instalación interactiva completa |
-| `scripts/update-all` | Actualizar todo (`upd` desde terminal) |
-| `scripts/check-dependencies` | Verificar qué está instalado |
+| `scripts/update-all` | Actualizar todo (alias `upd` en terminal) |
+| `scripts/check-dependencies` | Verificar qué herramientas están instaladas |
 
 ---
 
-## Herramientas CLI
+## Herramientas incluidas
 
 | Herramienta | Reemplaza | Descripción |
 |-------------|-----------|-------------|
 | `lsd` | `ls` | Listado con iconos y colores |
 | `bat` | `cat` | Visor con syntax highlighting |
 | `fd` | `find` | Búsqueda de archivos rápida |
-| `ripgrep` | `grep` | Búsqueda en contenido |
-| `zoxide` | `cd` | Navegación inteligente |
+| `ripgrep` | `grep` | Búsqueda en contenido de archivos |
+| `zoxide` | `cd` | Navegación inteligente por historial |
 | `fzf` | — | Fuzzy finder interactivo |
 | `dust` | `du` | Uso de disco visual |
 | `procs` | `ps` | Procesos con colores |
-| `delta` | diff | Diffs con highlighting |
-| `lazygit` | git TUI | Interfaz visual para git |
+| `delta` | diff | Diffs con syntax highlighting |
+| `lazygit` | git TUI | Interfaz visual para git en terminal |
 | `yazi` | ranger | File manager en terminal |
 | `tealdeer` | man | Ejemplos prácticos de comandos |
 | `btop` | htop | Monitor del sistema |
@@ -76,33 +50,35 @@ El script te pregunta qué componentes quieres instalar, explicando cada uno.
 
 ---
 
-## Aliases principales
+## Aliases y funciones
 
 ```zsh
-j <dir>     # zoxide — saltar a directorio frecuente
-ll          # lsd -lah
-lg          # lazygit
-bp          # btop
-glog        # git log --oneline --graph
-y           # yazi (file manager, cd al salir)
-upd         # actualizar sistema completo
+j <dir>              # zoxide — saltar a directorio frecuente
+ll                   # lsd -lah
+lg                   # lazygit
+bp                   # btop
+glog                 # git log --oneline --graph
+y                    # yazi (file manager, cd al salir)
+upd                  # actualizar sistema completo
+dots                 # cd ~/dotfiles
+
+mkcd <dir>           # crear directorio y entrar
+ff <pattern>         # buscar archivos con fd
+fif <pattern>        # buscar en contenido con rg
+weather [ciudad]     # clima desde wttr.in
+cheat <comando>      # cheatsheet desde cheat.sh
+sysinfo              # info del sistema
+backup <archivo>     # backup rápido con timestamp
+newproject <nombre>  # crear proyecto con git init
 ```
 
-## Funciones
+### Keybindings
 
-```zsh
-mkcd <dir>          # crear directorio y entrar
-ff <pattern>        # buscar archivos con fd/fdfind
-fif <pattern>       # buscar en contenido con rg
-fzf-file            # Ctrl+F — abrir archivo en nvim
-fzf-cd              # Ctrl+G — cambiar directorio
-fzf-git-branch      # Ctrl+B — cambiar rama git
-weather [ciudad]    # clima desde wttr.in
-cheat <comando>     # cheatsheet desde cheat.sh
-sysinfo             # info del sistema
-backup <archivo>    # backup rápido con timestamp
-newproject <nombre> # crear proyecto con git init
-```
+| Atajo | Acción |
+|-------|--------|
+| `Ctrl+F` | FZF — abrir archivo en nvim |
+| `Ctrl+G` | FZF — cambiar directorio |
+| `Ctrl+B` | FZF — cambiar rama git |
 
 ---
 
@@ -110,34 +86,32 @@ newproject <nombre> # crear proyecto con git init
 
 ```
 dotfiles/
-├── install.sh              # instalador interactivo
-├── .zshrc                  # aliases, funciones, plugins (interactivo)
-├── .zprofile               # variables de entorno (login)
-├── .bashrc                 # bash fallback
-├── .gitconfig              # git global + delta
-├── .gitignore_global       # ignores globales
-├── .ripgreprc              # config de ripgrep
-├── .editorconfig           # indentación por tipo de archivo
-├── .stow-local-ignore      # archivos ignorados por stow
+├── install.sh           # instalador interactivo
+├── .zshrc               # aliases, funciones, plugins
+├── .zprofile            # variables de entorno (login)
+├── .bashrc              # bash fallback
+├── .gitconfig           # git global + delta
+├── .gitignore_global    # ignores globales
+├── .ripgreprc           # config de ripgrep
+├── .editorconfig        # indentación por tipo de archivo
 ├── .config/
-│   ├── starship.toml       # prompt
-│   ├── kitty/              # terminal
-│   ├── btop/               # monitor
-│   ├── lazygit/            # git TUI
-│   ├── lsd/                # ls mejorado
-│   ├── zathura/            # PDF viewer
-│   ├── fd/                 # find mejorado
-│   └── yt-dlp/             # youtube downloader
+│   ├── starship.toml    # prompt Catppuccin Mocha
+│   ├── kitty/           # terminal
+│   ├── btop/            # monitor del sistema
+│   ├── lazygit/         # git TUI
+│   ├── lsd/             # ls mejorado
+│   ├── zathura/         # PDF viewer
+│   ├── fd/              # find mejorado
+│   └── yt-dlp/          # descargador de videos
 └── scripts/
-    ├── update-all          # actualización completa
-    └── check-dependencies  # verificar instalación
+    ├── update-all       # actualización completa
+    └── check-dependencies
 ```
 
 ---
 
 ## Notas
 
-- `bat` = `batcat` en Ubuntu, `fd` = `fdfind` — el .zshrc lo detecta automáticamente
-- Tema Catppuccin Mocha consistente en todas las herramientas
-- El `.zprofile` maneja exports, el `.zshrc` solo lo interactivo (sin duplicación)
-- Para sincronizar dotfiles usa `lg` (lazygit) desde `~/dotfiles`
+- En Ubuntu, `bat` se llama `batcat` y `fd` se llama `fdfind` — los dotfiles lo detectan automáticamente.
+- El `.zprofile` maneja solo variables de entorno. El `.zshrc` maneja solo lo interactivo.
+- Para sincronizar cambios usa `lg` (lazygit) desde `~/dotfiles`.
