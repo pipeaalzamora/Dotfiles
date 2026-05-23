@@ -1,6 +1,9 @@
-# Dotfiles — Arch Linux
+# Dotfiles — Ubuntu & Arch Linux
 
-Setup personal para Arch Linux con tema **Catppuccin Mocha** en todo el stack.
+Setup personal con tema **Catppuccin Mocha** en todo el stack.  
+Compatible con **Ubuntu 26.04 LTS**, Arch Linux, Zorin OS y derivados.
+
+> La detección del OS es automática — los dotfiles se adaptan solos sin configuración extra.
 
 ---
 
@@ -9,7 +12,7 @@ Setup personal para Arch Linux con tema **Catppuccin Mocha** en todo el stack.
 - **Shell**: Zsh + Oh My Zsh + Starship prompt
 - **Terminal**: Kitty (X11 y Wayland, detección automática)
 - **Editor**: Neovim (Lazy.nvim)
-- **Tema**: Catppuccin Mocha en kitty, nvim, btop, lazygit, zathura, bat, lsd, starship, delta y zsh-syntax-highlighting
+- **Tema**: Catppuccin Mocha en kitty, nvim, btop, lazygit, bat, lsd, starship, delta y zsh-syntax-highlighting
 - **CLI moderno**: lsd, bat, fd, ripgrep, fzf, zoxide, yazi, lazygit, delta, vivid, dust, procs, tealdeer, bat-extras, newsboat
 - **Dev**: NVM (Node), Bun, Go, Rust, Python (pipx)
 
@@ -17,18 +20,72 @@ Setup personal para Arch Linux con tema **Catppuccin Mocha** en todo el stack.
 
 ## Instalación rápida
 
+### Ubuntu 26.04 LTS
+
 ```bash
-git clone <tu-repo> ~/dotfiles
+# 1. Clonar dotfiles
+git clone https://github.com/pipeaalzamora/Dotfiles.git ~/dotfiles
+cd ~/dotfiles
+
+# 2. Instalar dependencias base
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y zsh git curl wget stow build-essential \
+    neovim bat fd-find ripgrep fzf btop lsd git-delta fastfetch
+
+# 3. Crear symlinks necesarios para Ubuntu
+mkdir -p ~/.local/bin
+ln -sf /usr/bin/batcat ~/.local/bin/bat
+ln -sf $(which fdfind) ~/.local/bin/fd
+
+# 4. Aplicar dotfiles con Stow
+stow .
+
+# 5. Cambiar shell a Zsh
+chsh -s $(which zsh)
+```
+
+> Cierra sesión y vuelve a entrar para que `$SHELL` tome efecto.
+
+### Arch Linux
+
+```bash
+git clone https://github.com/pipeaalzamora/Dotfiles.git ~/dotfiles
 cd ~/dotfiles
 chmod +x scripts/*
 
 ./scripts/install-packages   # instala todo (pacman + yay + AUR)
 ./scripts/install-dotfiles   # crea symlinks en $HOME
 ./scripts/setup-dev-env      # Node, Go, Rust, Python
-chsh -s $(which zsh)         # cambiar shell
+chsh -s $(which zsh)
 ```
 
-Cierra sesión y vuelve a entrar para que `$SHELL` tome efecto.
+> Cierra sesión y vuelve a entrar para que `$SHELL` tome efecto.
+
+---
+
+## Compatibilidad Ubuntu vs Arch
+
+Los dotfiles detectan automáticamente el sistema y ajustan los comandos:
+
+| Herramienta | Ubuntu | Arch | Solución |
+|---|---|---|---|
+| `bat` | `batcat` | `bat` | Detectado automáticamente con `$_bat_cmd` |
+| `fd` | `fdfind` | `fd` | Detectado automáticamente con `$_fd_cmd` |
+| `dust` | instalar via Cargo | AUR | Alias con fallback a `du -h` |
+| `procs` | instalar via Cargo | AUR | Alias con fallback a `ps aux` |
+| `vivid` | instalar via Cargo | AUR | `LS_COLORS` solo si está instalado |
+| Nerd Fonts | descargar manualmente | repos oficiales | Ver sección Fuentes |
+
+### Instalar herramientas opcionales en Ubuntu (via Cargo)
+
+```bash
+# Instalar Rust si no está
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source ~/.cargo/env
+
+# Instalar herramientas
+cargo install du-dust procs vivid
+```
 
 ---
 
@@ -36,22 +93,28 @@ Cierra sesión y vuelve a entrar para que `$SHELL` tome efecto.
 
 | Script               | Cuándo usarlo                                                          |
 | -------------------- | ---------------------------------------------------------------------- |
-| `install-packages`   | Máquina nueva — instala todos los paquetes                             |
+| `install-packages`   | Arch — instala todos los paquetes (pacman + yay + AUR)                 |
 | `install-dotfiles`   | Máquina nueva o al clonar en otro equipo — crea los symlinks           |
-| `setup-dev-env`      | Máquina nueva — instala runtimes de desarrollo                         |
-| `setup-newsboat`     | Configura newsboat con feeds de Arch, KDE y Linux (es/en)              |
+| `setup-dev-env`      | Máquina nueva — instala runtimes de desarrollo (Node, Go, Rust, Python)|
+| `setup-newsboat`     | Configura newsboat con feeds de Linux (es/en)                          |
 | `backup-dotfiles`    | Antes de cambios grandes — backup manual                               |
 | `sync-dotfiles`      | Cuando quieres commitear y pushear cambios                             |
 | `update-all`         | Actualización completa del sistema (o ejecuta `upd` desde la terminal) |
 | `check-dependencies` | Verificar qué herramientas están instaladas                            |
 
-> **En servidores**: solo ejecuta `install-dotfiles`. No necesitas `install-packages` ni `setup-dev-env`.
+> **En servidores / VPS**: solo ejecuta `install-dotfiles`. No necesitas `install-packages` ni `setup-dev-env`.
 
 ---
 
 ## Perfiles de uso
 
-**Máquina de desarrollo completa**
+**Máquina de desarrollo completa (Ubuntu)**
+
+```
+sudo apt install ... → stow . → setup-dev-env
+```
+
+**Máquina de desarrollo completa (Arch)**
 
 ```
 install-packages → install-dotfiles → setup-dev-env
@@ -63,35 +126,28 @@ install-packages → install-dotfiles → setup-dev-env
 install-dotfiles   (solo symlinks, sin instalar paquetes)
 ```
 
-**Segundo equipo personal**
-
-```
-install-packages → install-dotfiles → setup-dev-env
-```
-
 ---
 
 ## Herramientas incluidas
 
 ### CLI
 
-| Herramienta  | Reemplaza a    | Descripción                          |
-| ------------ | -------------- | ------------------------------------ |
-| `lsd`        | `ls`           | Listado con iconos y colores         |
-| `bat`        | `cat`          | Visor con syntax highlighting        |
-| `fd`         | `find`         | Búsqueda de archivos rápida          |
-| `ripgrep`    | `grep`         | Búsqueda en contenido de archivos    |
-| `zoxide`     | `cd`           | Navegación inteligente por historial |
-| `dust`       | `du`           | Uso de disco visual                  |
-| `procs`      | `ps`           | Procesos con colores y búsqueda      |
-| `delta`      | diff de git    | Diffs con syntax highlighting        |
-| `lazygit`    | `git` (TUI)    | Interfaz visual para git             |
-| `yazi`       | ranger/nnn     | File manager en terminal             |
-| `tealdeer`   | `man` (rápido) | Ejemplos prácticos de comandos       |
-| `bat-extras` | —              | `batman`, `batdiff`, `batgrep`       |
-| `vivid`      | —              | Genera `LS_COLORS` con temas         |
-| `fx`         | jq (visual)    | JSON viewer interactivo              |
-| `newsboat`   | —              | Lector de RSS/Atom en terminal       |
+| Herramienta  | Reemplaza a    | Ubuntu             | Arch              | Descripción                          |
+| ------------ | -------------- | ------------------ | ----------------- | ------------------------------------ |
+| `lsd`        | `ls`           | `apt install lsd`  | `pacman -S lsd`   | Listado con iconos y colores         |
+| `bat`        | `cat`          | `batcat` (apt)     | `bat` (pacman)    | Visor con syntax highlighting        |
+| `fd`         | `find`         | `fdfind` (apt)     | `fd` (pacman)     | Búsqueda de archivos rápida          |
+| `ripgrep`    | `grep`         | `apt install`      | `pacman -S`       | Búsqueda en contenido de archivos    |
+| `zoxide`     | `cd`           | script install     | `pacman -S`       | Navegación inteligente por historial |
+| `dust`       | `du`           | Cargo              | AUR               | Uso de disco visual                  |
+| `procs`      | `ps`           | Cargo              | AUR               | Procesos con colores y búsqueda      |
+| `delta`      | diff de git    | `apt install`      | `pacman -S`       | Diffs con syntax highlighting        |
+| `lazygit`    | `git` (TUI)    | binario GitHub     | AUR               | Interfaz visual para git             |
+| `yazi`       | ranger/nnn     | binario GitHub     | AUR               | File manager en terminal             |
+| `tealdeer`   | `man` (rápido) | Cargo              | AUR               | Ejemplos prácticos de comandos       |
+| `vivid`      | —              | Cargo              | AUR               | Genera `LS_COLORS` con temas         |
+| `fx`         | jq (visual)    | binario/npm        | AUR               | JSON viewer interactivo              |
+| `newsboat`   | —              | `apt install`      | `pacman -S`       | Lector de RSS/Atom en terminal       |
 
 ### Aliases útiles
 
@@ -103,18 +159,22 @@ bp          # btop
 nb          # newsboat — lector RSS
 upd         # actualizar sistema completo
 rrf         # rm -rf (explícito, para cuando realmente lo necesitas)
+bat         # funciona en Ubuntu y Arch (alias automático)
+fd          # funciona en Ubuntu y Arch (alias automático)
 ```
 
 ### Funciones
 
 ```zsh
 mkcd <dir>          # crear directorio y entrar
-ff <pattern>        # buscar archivos con fd
+ff <pattern>        # buscar archivos con fd/fdfind
 fif <pattern>       # buscar en contenido con rg
-weather [ciudad]    # clima desde wttr.in
+weather [ciudad]    # clima desde wttr.in (default: Santiago, CL)
 cheat <comando>     # cheatsheet desde cheat.sh
 extract <archivo>   # descomprimir cualquier formato
 y                   # yazi con cd al salir
+sysinfo             # resumen del sistema
+backup <archivo>    # copia de seguridad con timestamp
 ```
 
 ### Keybindings (terminal)
@@ -131,35 +191,58 @@ y                   # yazi con cd al salir
 
 ```
 dotfiles/
-├── .zshrc                  # config principal de zsh
+├── .zshrc                  # config principal de zsh (multi-distro)
 ├── .bashrc                 # bash (fallback)
 ├── .zprofile               # variables de entorno (login shell)
 ├── .gitconfig              # git global
 ├── .gitignore_global       # ignores globales de git
 ├── .ripgreprc              # config de ripgrep
 ├── .editorconfig           # indentación por tipo de archivo
+├── .stow-local-ignore      # archivos ignorados por stow
 ├── .config/
 │   ├── kitty/              # terminal
-│   ├── nvim/               # editor
+│   ├── nvim/               # editor (Lazy.nvim)
 │   ├── starship.toml       # prompt
 │   ├── btop/               # monitor del sistema
 │   ├── lazygit/            # git TUI
 │   ├── lsd/                # ls mejorado
-│   ├── bat/                # cat mejorado
-│   ├── zathura/            # PDF viewer
-│   ├── dunst/              # notificaciones
-│   ├── rofi/               # launcher (X11)
-│   ├── picom/              # compositor (X11)
+│   ├── bat/                # cat mejorado (tema Catppuccin)
 │   ├── fd/                 # find mejorado
 │   └── yt-dlp/             # youtube downloader
 └── scripts/
-    ├── install-packages
-    ├── install-dotfiles
-    ├── setup-dev-env
-    ├── backup-dotfiles
-    ├── sync-dotfiles
-    ├── update-all
-    └── check-dependencies
+    ├── install-packages    # Arch: pacman + yay + AUR
+    ├── install-dotfiles    # crea symlinks con stow
+    ├── setup-dev-env       # Node, Go, Rust, Python
+    ├── backup-dotfiles     # backup manual
+    ├── sync-dotfiles       # commit + push
+    ├── update-all          # actualización completa
+    └── check-dependencies  # verificar herramientas instaladas
+```
+
+---
+
+## Fuentes (Nerd Fonts)
+
+### Ubuntu
+
+```bash
+mkdir -p ~/.local/share/fonts && cd ~/.local/share/fonts
+
+# JetBrains Mono Nerd Font
+wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
+unzip JetBrainsMono.zip && rm JetBrainsMono.zip
+
+# Meslo LG Nerd Font (recomendada para Starship)
+wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip
+unzip Meslo.zip && rm Meslo.zip
+
+fc-cache -fv
+```
+
+### Arch Linux
+
+```bash
+sudo pacman -S ttf-jetbrains-mono-nerd ttf-meslo-nerd
 ```
 
 ---
@@ -171,7 +254,7 @@ dotfiles/
 newsboat                   # o simplemente: nb
 ```
 
-Feeds incluidos: Arch Linux, KDE/Plasma, DesdeLinux, SoloConLinux, MuyLinux, Ubunlog, Linux Adictos, Proyecto TicTac, Phoronix, It's FOSS, OMG!Linux, Tecmint, LWN.net.
+Feeds incluidos: Arch Linux, KDE/Plasma, DesdeLinux, SoloConLinux, MuyLinux, Ubunlog, Linux Adictos, Phoronix, It's FOSS, OMG!Linux, Tecmint, LWN.net.
 
 Para añadir más feeds edita `~/.newsboat/urls`:
 
@@ -185,6 +268,7 @@ https://ejemplo.com/feed  "Nombre del feed"
 
 - `rm` está mapeado a `rm -i` (interactivo). Para borrado forzado usa `rrf`.
 - `cd` clásico está intacto. Usa `j` para zoxide.
+- `bat` y `fd` se resuelven automáticamente (`batcat`/`fdfind` en Ubuntu, `bat`/`fd` en Arch).
 - El recordatorio de actualización aparece si llevas más de 24h sin ejecutar `upd`.
 - `tealdeer`: ejecuta `tldr --update` la primera vez para descargar la base de datos.
-- Las fuentes Nerd están en los repos oficiales de Arch (`ttf-jetbrains-mono-nerd`, `ttf-meslo-nerd`).
+- `dust`, `procs` y `vivid` tienen fallbacks si no están instalados — instálalos con `cargo install` para activarlos.
