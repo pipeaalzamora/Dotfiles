@@ -17,9 +17,15 @@ command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
 [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 
 # ============================================================
-# Oh My Zsh
+# Oh My Zsh (solo carga una vez por sesión)
 # ============================================================
 export ZSH="$HOME/.oh-my-zsh"
+
+# Necesario para que clipboard.zsh de OMZ use &| sin error
+setopt MULTIOS
+
+if [[ -z "$ZSH_LOADED" ]]; then
+    export ZSH_LOADED=1
 
 plugins=(
     git
@@ -48,7 +54,8 @@ HIST_STAMPS="dd/mm/yyyy"
 zstyle ':omz:update' mode auto
 zstyle ':omz:update' frequency 7
 
-source $ZSH/oh-my-zsh.sh
+    source $ZSH/oh-my-zsh.sh
+fi
 
 # ============================================================
 # Historial
@@ -305,13 +312,17 @@ fi
 # ============================================================
 # Actualización — recordatorio diario
 # ============================================================
-alias upd="$DOTFILES_DIR/scripts/update-all"
+alias upd="$HOME/dotfiles/scripts/update-all"
 
 LAST_UPDATE_FILE="$HOME/.cache/last_update"
-if [ ! -f "$LAST_UPDATE_FILE" ] || [ $(( $(date +%s) - $(stat -c %Y "$LAST_UPDATE_FILE") )) -gt 86400 ]; then
-    echo "💡 Llevas más de un día sin actualizar. Ejecuta: upd"
+_needs_update=true
+if [[ -f "$LAST_UPDATE_FILE" ]]; then
+    _last=$(date -r "$LAST_UPDATE_FILE" +%s 2>/dev/null || echo 0)
+    _now=$(date +%s)
+    (( _now - _last < 86400 )) && _needs_update=false
 fi
-
+$_needs_update && echo "💡 Llevas más de un día sin actualizar. Ejecuta: upd"
+unset _needs_update _last _now
 # ============================================================
 # Mensaje de bienvenida (sin bloquear con peticiones HTTP)
 # ============================================================
