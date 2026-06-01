@@ -327,3 +327,73 @@ unset _needs_update _last _now
 # Mensaje de bienvenida (sin bloquear con peticiones HTTP)
 # ============================================================
 echo "¡Hola $(whoami)! 👋 — $(date '+%A, %d de %B de %Y - %H:%M')"
+export PATH="$HOME/develop/flutter/bin:$PATH"
+export PATH=$PATH:$HOME/.spicetify
+
+# spotDL - Descargador de Spotify
+spd() {
+    # Ayuda
+    if [ -z "$1" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+        echo "🎵 SpotDL - Descargador de Spotify"
+        echo ""
+        echo "Uso:  spd <url>                    → MP3 en ~/Música/Spotify"
+        echo "      spd <url> <formato>           → mp3 | flac | opus | ogg | m4a | wav"
+        echo "      spd <url> <formato> <carpeta> → Carpeta personalizada"
+        echo ""
+        echo "Ejemplos:"
+        echo "  spd 'https://open.spotify.com/playlist/...'"
+        echo "  spd 'https://open.spotify.com/album/...' flac"
+        echo "  spd 'https://open.spotify.com/playlist/...' mp3 ~/Música/Chill"
+        return 0
+    fi
+
+    local url="$1"
+    local format="${2:-mp3}"
+    local output_dir="${3:-$HOME/Música/Spotify}"
+
+    # Crear carpeta si no existe
+    mkdir -p "$output_dir"
+
+    echo ""
+    echo "🎵 SpotDL iniciando..."
+    echo "🔗 URL:     $url"
+    echo "📁 Destino: $output_dir"
+    echo "🎧 Formato: $format"
+    echo ""
+
+    # Descargar
+    spotdl \
+        --audio youtube \
+        --cookie-file "$HOME/cookies.txt" \
+        --threads 4 \
+        --no-cache \
+        --format "$format" \
+        --output "$output_dir/{artists} - {title}" \
+        "$url"
+
+    local exit_code=$?
+
+    # Notificación de escritorio
+    if [ $exit_code -eq 0 ]; then
+        echo ""
+        echo "✅ ¡Descarga completada en $output_dir!"
+        # Notificación visual del sistema (notify-send)
+        if command -v notify-send &>/dev/null; then
+            notify-send "🎵 SpotDL" "✅ Descarga completada\n📁 $output_dir" \
+                --icon=audio-x-generic \
+                --urgency=normal \
+                --expire-time=5000
+        fi
+    else
+        echo ""
+        echo "⚠️  Descarga finalizada con algunos errores."
+        if command -v notify-send &>/dev/null; then
+            notify-send "🎵 SpotDL" "⚠️ Descarga con errores\n📁 $output_dir" \
+                --icon=dialog-warning \
+                --urgency=normal \
+                --expire-time=5000
+        fi
+    fi
+
+    return $exit_code
+}
