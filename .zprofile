@@ -35,7 +35,7 @@ elif command -v bat &>/dev/null; then
 else
     export BAT_CMD="cat"
 fi
-export BAT_THEME="Catppuccin-mocha"
+export BAT_THEME="Catppuccin Mocha"
 
 # fd — compatible Ubuntu (fdfind) y otros (fd)
 if command -v fdfind &>/dev/null; then

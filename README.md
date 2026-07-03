@@ -88,6 +88,7 @@ newproject <nombre>  # crear proyecto con git init
 dotfiles/
 ├── install.sh           # instalador interactivo
 ├── .zshrc               # aliases, funciones, plugins
+├── .zshrc.local.example # plantilla para config personal (no versionada)
 ├── .zprofile            # variables de entorno (login)
 ├── .bashrc              # bash fallback
 ├── .gitconfig           # git global + delta
@@ -110,8 +111,22 @@ dotfiles/
 
 ---
 
+## Configuración personal (no versionada)
+
+Todo lo específico de tu máquina (paths de Flutter, spicetify, funciones con
+tokens/cookies, etc.) va en `~/.zshrc.local`, que el `.zshrc` carga
+automáticamente al final y que está ignorado por git.
+
+```bash
+cp .zshrc.local.example ~/.zshrc.local   # el instalador ya lo hace por ti
+```
+
+Así el repo se puede compartir públicamente sin exponer datos personales.
+
 ## Notas
 
-- En Ubuntu, `bat` se llama `batcat` y `fd` se llama `fdfind` — los dotfiles lo detectan automáticamente.
+- En Ubuntu, `bat` se llama `batcat` y `fd` se llama `fdfind` — los dotfiles lo detectan automáticamente (`.zshrc` también las define como fallback si no se cargó `.zprofile`).
+- El tema **Catppuccin Mocha** de `bat`/`delta` lo instala el propio `install.sh` (descarga el `.tmTheme` y ejecuta `bat cache --build`).
 - El `.zprofile` maneja solo variables de entorno. El `.zshrc` maneja solo lo interactivo.
-- Para sincronizar cambios usa `lg` (lazygit) desde `~/dotfiles`.
+- Las rutas usan `$DOTFILES_DIR` (por defecto `~/dotfiles`), así que los aliases `dots` y `upd` funcionan sin importar dónde clones el repo.
+- Para sincronizar cambios usa `lg` (lazygit) desde `$DOTFILES_DIR`.

@@ -289,6 +289,23 @@ if ask_install "bat (reemplazo de cat)" \
    En Ubuntu se llama 'batcat' pero el alias lo mapea a 'cat'."; then
     INSTALL_BAT=true
     install_if_missing batcat bat
+
+    # Detectar el binario de bat (batcat en Ubuntu, bat en otros)
+    BAT_BIN=""
+    command -v batcat &>/dev/null && BAT_BIN="batcat"
+    command -v bat &>/dev/null && BAT_BIN="bat"
+
+    # Instalar tema Catppuccin Mocha para bat (lo usa bat y delta)
+    if [ -n "$BAT_BIN" ]; then
+        print_info "Instalando tema Catppuccin Mocha para bat..."
+        BAT_THEME_DIR="$("$BAT_BIN" --config-dir)/themes"
+        mkdir -p "$BAT_THEME_DIR"
+        curl -fsSL -o "$BAT_THEME_DIR/Catppuccin Mocha.tmTheme" \
+            "https://github.com/catppuccin/bat/raw/main/themes/Catppuccin%20Mocha.tmTheme" \
+            && "$BAT_BIN" cache --build >/dev/null 2>&1 \
+            && print_success "Tema Catppuccin Mocha instalado" \
+            || print_warning "No se pudo instalar el tema Catppuccin de bat"
+    fi
     print_success "bat instalado"
 fi
 
@@ -736,6 +753,12 @@ done
 
 print_success "Configuraciones enlazadas"
 
+# Config local/personal (no versionada) — crear desde plantilla si no existe
+if [ ! -f "$HOME/.zshrc.local" ] && [ -f "$DOTFILES_DIR/.zshrc.local.example" ]; then
+    cp "$DOTFILES_DIR/.zshrc.local.example" "$HOME/.zshrc.local"
+    print_info "Creado ~/.zshrc.local desde plantilla (edítalo para tus cosas personales)"
+fi
+
 # ============================================================
 # PASO 10: Configurar newsboat (si se instaló)
 # ============================================================
@@ -786,13 +809,8 @@ fi
 # ============================================================
 
 if $INSTALL_YTDLP; then
-    # Actualizar ruta de descarga en config de yt-dlp
-    YT_CONFIG="$DOTFILES_DIR/.config/yt-dlp/config"
-    if [ -f "$YT_CONFIG" ]; then
-        VIDEOS_DIR="$HOME/Vídeos/youtube"
-        mkdir -p "$VIDEOS_DIR"
-        sed -i "s|-o /home/pipeaalzamora/Vídeos/youtube/|-o $HOME/Vídeos/youtube/|g" "$YT_CONFIG"
-    fi
+    # La config usa ~/Vídeos/youtube (portable). Solo creamos el directorio.
+    mkdir -p "$HOME/Vídeos/youtube"
 fi
 
 # ============================================================

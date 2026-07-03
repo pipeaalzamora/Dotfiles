@@ -1,0 +1,17 @@
+# Configuración local / personal (no compartir)
+.zshrc.local
+*.local
+
+# Backups generados por el instalador
+dotfiles_backup_*/
+
+# Archivos con datos sensibles (nunca subir)
+cookies.txt
+*.token
+*.secret
+.env
+
+# Basura del sistema
+.DS_Store
+*.swp
+*~
