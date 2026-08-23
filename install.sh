@@ -81,6 +81,20 @@ pkg_install() {
 }
 
 # ============================================================
+# Parches de Kernel para GPU AMD GCN 3.0 (Fiji / R9 Fury)
+# ============================================================
+if lspci | grep -qiE "fiji|r9 fury|radeon R9 Fury"; then
+    print_info "AMD R9 Fury (Fiji) detectada. Verificando driver amdgpu..."
+    if [ -f /etc/default/grub ]; then
+        if ! grep -q "amdgpu.cik_support=1" /etc/default/grub; then
+            print_info "Inyectando parámetros para aceleración Vulkan/Wayland en GRUB..."
+            sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="radeon.cik_support=0 amdgpu.cik_support=1 /' /etc/default/grub
+            sudo grub-mkconfig -o /boot/grub/grub.cfg
+            print_success "GRUB reconfigurado correctamente para GPU AMD Fiji"
+        fi
+    fi
+fi
+# ============================================================
 # Verificar Arch Linux / EndeavourOS
 # ============================================================
 
@@ -545,3 +559,20 @@ fi
 
 print_header "¡Instalación completada!"
 echo -e "${PURPLE}¡Disfruta tu nuevo entorno en Arch Linux / EndeavourOS! 🚀${NC}"
+
+# ============================================================
+# Autoconfiguración de KDE Plasma (Catppuccin Mocha)
+# ============================================================
+if pgrep -x "plasmashell" > /dev/null; then
+    print_info "Entorno KDE Plasma detectado. Aplicando estilo Catppuccin Mocha..."
+    
+    # Instalar temas visuales desde AUR
+    yay -S --needed --noconfirm catppuccin-kde-theme-mocha-git 2>/dev/null || true
+
+    # Aplicar LookAndFeel globalmente en Plasma
+    if command -v plasma-apply-lookandfeel &>/dev/null; then
+        plasma-apply-lookandfeel -a Catppuccin-Mocha-Dark 2>/dev/null || true
+        print_success "Tema visual Catppuccin Mocha aplicado a KDE Plasma"
+    fi
+fi
+
