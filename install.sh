@@ -81,20 +81,6 @@ pkg_install() {
 }
 
 # ============================================================
-# Parches de Kernel para GPU AMD GCN 3.0 (Fiji / R9 Fury)
-# ============================================================
-if lspci | grep -qiE "fiji|r9 fury|radeon R9 Fury"; then
-    print_info "AMD R9 Fury (Fiji) detectada. Verificando driver amdgpu..."
-    if [ -f /etc/default/grub ]; then
-        if ! grep -q "amdgpu.cik_support=1" /etc/default/grub; then
-            print_info "Inyectando parámetros para aceleración Vulkan/Wayland en GRUB..."
-            sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="radeon.cik_support=0 amdgpu.cik_support=1 /' /etc/default/grub
-            sudo grub-mkconfig -o /boot/grub/grub.cfg
-            print_success "GRUB reconfigurado correctamente para GPU AMD Fiji"
-        fi
-    fi
-fi
-# ============================================================
 # Verificar Arch Linux / EndeavourOS
 # ============================================================
 
@@ -123,10 +109,10 @@ echo ""
 echo -e "${YELLOW}─────────────────────────────────────────────────────${NC}"
 
 # ============================================================
-# PASO 1: Actualizar sistema
+# PASO 1: Actualizar sistema y aplicar parches de Hardware
 # ============================================================
 
-print_header "Paso 1: Actualizar sistema"
+print_header "Paso 1: Actualizar sistema y verificar Hardware"
 print_info "Sincronizando repositorios y actualizando el sistema..."
 sudo pacman -Syu --noconfirm
 
@@ -141,7 +127,20 @@ if ! command -v yay &>/dev/null; then
     rm -rf /tmp/yay
 fi
 
-print_success "Sistema base actualizado y yay preparado"
+# Detección de GPU AMD R9 Fury / Fiji
+if lspci | grep -qiE "fiji|r9 fury|radeon R9 Fury"; then
+    print_info "AMD R9 Fury (Fiji) detectada. Configurando driver amdgpu..."
+    if [ -f /etc/default/grub ]; then
+        if ! grep -q "amdgpu.cik_support=1" /etc/default/grub; then
+            print_info "Inyectando parámetros Vulkan/Wayland en GRUB..."
+            sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="radeon.cik_support=0 amdgpu.cik_support=1 /' /etc/default/grub
+            sudo grub-mkconfig -o /boot/grub/grub.cfg
+            print_success "GRUB reconfigurado correctamente para AMD Fury"
+        fi
+    fi
+fi
+
+print_success "Sistema base actualizado y dependencias listas"
 
 # ============================================================
 # PASO 2: Shell (Zsh + Oh My Zsh)
@@ -159,7 +158,6 @@ if ask_install "Zsh + Oh My Zsh" \
     pkg_install zsh
     print_success "Zsh instalado"
 
-    # Oh My Zsh
     if [ ! -d "$HOME/.oh-my-zsh" ]; then
         print_info "Instalando Oh My Zsh..."
         RUNZSH=no CHSH=no sh -c \
@@ -167,7 +165,6 @@ if ask_install "Zsh + Oh My Zsh" \
     fi
     print_success "Oh My Zsh instalado"
 
-    # Plugins
     ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
     print_info "Instalando plugin: zsh-autosuggestions"
@@ -264,7 +261,6 @@ if ask_install "bat (reemplazo de cat)" "Muestra archivos con syntax highlightin
     INSTALL_BAT=true
     pkg_install bat
 
-    # Instalar tema Catppuccin Mocha para bat
     print_info "Instalando tema Catppuccin Mocha para bat..."
     BAT_THEME_DIR="$(bat --config-dir)/themes"
     mkdir -p "$BAT_THEME_DIR"
@@ -444,11 +440,11 @@ if ask_install "Python herramientas (pipx, poetry)" "Herramientas de entorno Pyt
 fi
 
 # ============================================================
-# PASO 8: Utilidades extra
+# PASO 8: Utilidades extra y Personalización de KDE
 # ============================================================
 
-print_header "Paso 8: Utilidades extra"
-print_info "Instalando utilidades base (jq, tree, xclip, wl-clipboard, p7zip, unrar)..."
+print_header "Paso 8: Utilidades extra y Tema KDE"
+print_info "Instalando utilidades base..."
 pkg_install jq tree xclip wl-clipboard p7zip unrar
 
 INSTALL_FASTFETCH=false
@@ -456,6 +452,17 @@ if ask_install "fastfetch (info del sistema)" "Muestra información del sistema 
     INSTALL_FASTFETCH=true
     pkg_install fastfetch
     print_success "fastfetch instalado"
+fi
+
+if pgrep -x "plasmashell" > /dev/null; then
+    if ask_install "Tema Catppuccin Mocha para KDE Plasma" "Aplica el esquema de colores global de Catppuccin a KDE."; then
+        print_info "Instalando tema KDE desde AUR..."
+        yay -S --needed --noconfirm catppuccin-kde-theme-mocha-git 2>/dev/null || true
+        if command -v plasma-apply-lookandfeel &>/dev/null; then
+            plasma-apply-lookandfeel -a Catppuccin-Mocha-Dark 2>/dev/null || true
+            print_success "Tema Catppuccin Mocha aplicado a KDE Plasma"
+        fi
+    fi
 fi
 
 # ============================================================
@@ -519,35 +526,23 @@ if [ ! -f "$HOME/.zshrc.local" ] && [ -f "$DOTFILES_DIR/.zshrc.local.example" ];
 fi
 
 # ============================================================
-# PASO 10: Configurar newsboat (si se instaló)
+# PASO 10: Configuración final y cambio de Shell
 # ============================================================
 
 if $INSTALL_NEWSBOAT; then
-    print_info "Configurando newsboat..."
     mkdir -p "$HOME/.newsboat"
     if [ ! -f "$HOME/.newsboat/urls" ]; then
         cat > "$HOME/.newsboat/urls" << 'EOF'
-# Linux en Español
 https://blog.desdelinux.net/feed/  "DesdeLinux"
-https://soloconlinux.org.es/rss  "SoloConLinux"
-https://www.muylinux.com/feed  "MuyLinux"
-
-# Linux / Arch
 https://archlinux.org/news/news.xml  "Arch Linux News"
 https://www.phoronix.com/rss.php  "Phoronix"
 EOF
-        print_success "Feeds de newsboat configurados"
     fi
 fi
 
-# ============================================================
-# PASO 11: Cambiar shell a Zsh
-# ============================================================
-
 if $INSTALL_ZSH; then
     echo ""
-    if ask_install "Cambiar shell por defecto a Zsh" \
-        "Tu shell actual es $(basename $SHELL). ¿Quieres que Zsh sea tu shell por defecto?"; then
+    if ask_install "Cambiar shell por defecto a Zsh" "Establece Zsh como la shell del sistema."; then
         chsh -s "$(which zsh)"
         print_success "Shell cambiada a Zsh"
     fi
@@ -559,20 +554,3 @@ fi
 
 print_header "¡Instalación completada!"
 echo -e "${PURPLE}¡Disfruta tu nuevo entorno en Arch Linux / EndeavourOS! 🚀${NC}"
-
-# ============================================================
-# Autoconfiguración de KDE Plasma (Catppuccin Mocha)
-# ============================================================
-if pgrep -x "plasmashell" > /dev/null; then
-    print_info "Entorno KDE Plasma detectado. Aplicando estilo Catppuccin Mocha..."
-    
-    # Instalar temas visuales desde AUR
-    yay -S --needed --noconfirm catppuccin-kde-theme-mocha-git 2>/dev/null || true
-
-    # Aplicar LookAndFeel globalmente en Plasma
-    if command -v plasma-apply-lookandfeel &>/dev/null; then
-        plasma-apply-lookandfeel -a Catppuccin-Mocha-Dark 2>/dev/null || true
-        print_success "Tema visual Catppuccin Mocha aplicado a KDE Plasma"
-    fi
-fi
-
