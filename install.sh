@@ -1,27 +1,24 @@
 #!/bin/bash
 # ============================================================
 # Dotfiles Installer para Arch Linux / EndeavourOS
-# Instalación interactiva — elige qué instalar
+# Instalación interactiva detallada con descripción de paquetes
 # ============================================================
 
 set -e
 
-# Colores
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+BACKUP_DIR="$HOME/dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
+
+# Colores y estilos
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
 BOLD='\033[1m'
-
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKUP_DIR="$HOME/dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
-
-# ============================================================
-# Funciones auxiliares
-# ============================================================
+DIM='\033[2m'
+NC='\033[0m'
 
 print_header() {
     echo ""
@@ -49,31 +46,30 @@ print_error() {
 
 ask_yes_no() {
     local prompt="$1"
-    local default="${2:-s}"
-    local response
+    local default="${2:-y}"
+    local yn_hint="[S/n]"
+    [ "$default" = "n" ] && yn_hint="[s/N]"
 
-    if [[ "$default" == "s" ]]; then
-        prompt="$prompt [S/n]: "
-    else
-        prompt="$prompt [s/N]: "
-    fi
-
-    echo -ne "${PURPLE}❓ ${prompt}${NC}"
-    read -r response
-    response=${response:-$default}
-
-    [[ "$response" =~ ^[sS]$ ]]
+    while true; do
+        read -r -p "$(echo -e "${YELLOW}?${NC} $prompt $yn_hint: ")" answer
+        answer="${answer:-$default}"
+        case "$answer" in
+            [SsYy]*) return 0 ;;
+            [Nn]*) return 1 ;;
+            *) echo "Por favor responde sí (s) o no (n)." ;;
+        esac
+    done
 }
 
 ask_install() {
     local name="$1"
-    local description="$2"
-    local default="${3:-s}"
+    local desc="$2"
+    local default="${3:-y}"
 
     echo ""
-    echo -e "${BOLD}📦 $name${NC}"
-    echo -e "   ${description}"
-    ask_yes_no "¿Instalar $name?" "$default"
+    echo -e "${BOLD}${PURPLE}▶ ${name}${NC}"
+    echo -e "${DIM}${desc}${NC}"
+    ask_yes_no "¿Deseas instalar este componente?" "$default"
 }
 
 pkg_install() {
@@ -81,17 +77,17 @@ pkg_install() {
 }
 
 # ============================================================
-# Verificar Arch Linux / EndeavourOS
+# Verificación de Distribución
 # ============================================================
 
 if [[ ! -f /etc/os-release ]]; then
-    print_error "No se puede detectar el sistema operativo"
+    print_error "No se pudo detectar la distribución Linux."
     exit 1
 fi
 
 source /etc/os-release
 if [[ "$ID" != "arch" && "$ID_LIKE" != *"arch"* && "$ID" != "endeavouros" ]]; then
-    print_error "Este script está diseñado para Arch Linux / EndeavourOS. Detectado: $ID"
+    print_error "Este instalador está optimizado para Arch Linux / EndeavourOS. Detectado: $ID"
     exit 1
 fi
 
@@ -99,125 +95,117 @@ fi
 # Inicio
 # ============================================================
 
-print_header "Instalador de Dotfiles para Arch Linux / EndeavourOS"
-echo -e "Sistema detectado: ${GREEN}$PRETTY_NAME${NC}"
-echo -e "Directorio dotfiles: ${CYAN}$DOTFILES_DIR${NC}"
+print_header "Instalador de Dotfiles — Arch Linux / EndeavourOS"
+echo -e "Sistema detectado:   ${GREEN}$PRETTY_NAME${NC}"
+echo -e "Ruta de Dotfiles:    ${CYAN}$DOTFILES_DIR${NC}"
 echo ""
-echo "Este script te permitirá elegir qué componentes instalar."
-echo "Cada uno incluye una explicación de para qué sirve."
+echo "Cada programa incluye una breve descripción de su función y utilidad."
+echo "Puedes elegir qué instalar respondiendo 's' o 'n' a cada paso."
 echo ""
 echo -e "${YELLOW}─────────────────────────────────────────────────────${NC}"
 
 # ============================================================
-# PASO 1: Actualizar sistema y aplicar parches de Hardware
+# PASO 1: Actualizar sistema y dependencias base
 # ============================================================
 
-print_header "Paso 1: Actualizar sistema y verificar Hardware"
+print_header "Paso 1: Actualizar sistema y preparar dependencias base"
 print_info "Sincronizando repositorios y actualizando el sistema..."
 sudo pacman -Syu --noconfirm
 
-print_info "Instalando dependencias base (git, curl, wget, unzip, base-devel)..."
+print_info "Instalando utilidades del sistema (git, curl, wget, unzip, base-devel)..."
 pkg_install git curl wget unzip base-devel ca-certificates
 
-# Instalar AUR Helper (yay) si no existe
 if ! command -v yay &>/dev/null; then
-    print_info "Instalando AUR helper (yay)..."
+    print_info "Instalando AUR Helper (yay)..."
     git clone https://aur.archlinux.org/yay.git /tmp/yay
     (cd /tmp/yay && makepkg -si --noconfirm)
     rm -rf /tmp/yay
 fi
 
-# Detección de GPU AMD R9 Fury / Fiji
-if lspci | grep -qiE "fiji|r9 fury|radeon R9 Fury"; then
-    print_info "AMD R9 Fury (Fiji) detectada. Configurando driver amdgpu..."
-    if [ -f /etc/default/grub ]; then
-        if ! grep -q "amdgpu.cik_support=1" /etc/default/grub; then
-            print_info "Inyectando parámetros Vulkan/Wayland en GRUB..."
-            sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="radeon.cik_support=0 amdgpu.cik_support=1 /' /etc/default/grub
-            sudo grub-mkconfig -o /boot/grub/grub.cfg
-            print_success "GRUB reconfigurado correctamente para AMD Fury"
+# Detección y parche de GPU AMD Fiji / R9 Fury
+if lspci 2>/dev/null | grep -qiE "fiji|r9 fury|radeon R9 Fury"; then
+    if ask_install "Optimización GPU AMD GCN 3.0 (Fiji / R9 Fury)" \
+        "Activa el driver amdgpu en lugar de radeon en GRUB para permitir aceleración\nVulkan y compatibilidad completa con Wayland y Plasma 6."; then
+        if [ -f "$DOTFILES_DIR/scripts/setup-amd-gpu.sh" ]; then
+            bash "$DOTFILES_DIR/scripts/setup-amd-gpu.sh"
         fi
     fi
 fi
 
-print_success "Sistema base actualizado y dependencias listas"
+print_success "Sistema base listo y repositorios sincronizados"
 
 # ============================================================
 # PASO 2: Shell (Zsh + Oh My Zsh)
 # ============================================================
 
-print_header "Paso 2: Shell"
+print_header "Paso 2: Shell y Experiencia de Terminal"
 
 INSTALL_ZSH=false
-if ask_install "Zsh + Oh My Zsh" \
-    "Shell avanzada con autocompletado inteligente, corrección de errores,
-   historial compartido entre terminales y cientos de plugins.
-   Reemplaza bash como tu shell principal."; then
+if ask_install "Zsh + Oh My Zsh + Plugins" \
+    "Shell moderna que reemplaza a Bash. Incluye:\n   • zsh-autosuggestions: Autocompleta comandos según tu historial en tiempo real.\n   • zsh-syntax-highlighting: Resalta comandos válidos en verde y errores en rojo."; then
     INSTALL_ZSH=true
-
     pkg_install zsh
-    print_success "Zsh instalado"
 
     if [ ! -d "$HOME/.oh-my-zsh" ]; then
         print_info "Instalando Oh My Zsh..."
         RUNZSH=no CHSH=no sh -c \
             "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     fi
-    print_success "Oh My Zsh instalado"
 
     ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
-    print_info "Instalando plugin: zsh-autosuggestions"
+    print_info "Descargando plugin: zsh-autosuggestions..."
     if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
         git clone https://github.com/zsh-users/zsh-autosuggestions \
             "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
     fi
 
-    print_info "Instalando plugin: zsh-syntax-highlighting"
+    print_info "Descargando plugin: zsh-syntax-highlighting..."
     if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
         git clone https://github.com/zsh-users/zsh-syntax-highlighting \
             "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
     fi
 
-    print_success "Plugins de Zsh instalados"
+    print_success "Zsh y plugins configurados"
 fi
 
 # ============================================================
 # PASO 3: Starship Prompt
 # ============================================================
 
+print_header "Paso 3: Prompt de Terminal"
+
 INSTALL_STARSHIP=false
-if ask_install "Starship" \
-    "Prompt minimalista y ultra-rápido (escrito en Rust).
-   Muestra info contextual: rama git, lenguaje del proyecto, errores.
-   Tema Catppuccin Mocha."; then
+if ask_install "Starship Prompt" \
+    "Prompt ultrarrápido y personalizable escrito en Rust.\n   Muestra el directorio actual, rama de git, versión de Node/Go/Python\n   y estado de batería con la paleta Catppuccin Mocha."; then
     INSTALL_STARSHIP=true
     pkg_install starship
     print_success "Starship instalado"
 fi
 
 # ============================================================
-# PASO 4: Terminal Kitty
+# PASO 4: Kitty Terminal Emulator
 # ============================================================
 
+print_header "Paso 4: Emulador de Terminal"
+
 INSTALL_KITTY=false
-if ask_install "Kitty" \
-    "Terminal emulador acelerado por GPU. Soporta transparencia,
-   ligatures de fuentes, tabs, splits y es muy rápido.
-   Excelente rendimiento en Wayland y KDE Plasma."; then
+if ask_install "Kitty Terminal" \
+    "Emulador de terminal acelerado por GPU (OpenGL).\n   Soporta transparencias, división de ventanas, pestañas, renderizado\n   de imágenes de alta velocidad y excelente rendimiento en Wayland."; then
     INSTALL_KITTY=true
     pkg_install kitty
     print_success "Kitty instalado"
 fi
 
 # ============================================================
-# PASO 5: Fuentes Nerd
+# PASO 5: Tipografías Nerd Fonts
 # ============================================================
+
+print_header "Paso 5: Tipografías con Iconos"
 
 INSTALL_FONTS=false
 if ask_install "Nerd Fonts (MesloLGS + JetBrains Mono)" \
-    "Fuentes monoespaciadas con iconos integrados (necesarias para
-   que lsd, starship y kitty muestren iconos correctamente)."; then
+    "Fuentes tipográficas con glifos e iconos incrustados.\n   Indispensables para ver correctamente iconos en Starship, lsd, lazygit y yazi."; then
     INSTALL_FONTS=true
 
     FONT_DIR="$HOME/.local/share/fonts"
@@ -227,7 +215,7 @@ if ask_install "Nerd Fonts (MesloLGS + JetBrains Mono)" \
         print_info "Descargando MesloLGS Nerd Font..."
         MESLO_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip"
         wget -q "$MESLO_URL" -O /tmp/Meslo.zip
-        unzip -qo /tmp/Meslo.zip -d "$FONT_DIR/MesloNerd"
+        unzip -qo /tmp/Meslo.zip -d "$FONT_DIR/Meslo"
         rm /tmp/Meslo.zip
     fi
 
@@ -235,29 +223,31 @@ if ask_install "Nerd Fonts (MesloLGS + JetBrains Mono)" \
         print_info "Descargando JetBrains Mono Nerd Font..."
         JB_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
         wget -q "$JB_URL" -O /tmp/JetBrainsMono.zip
-        unzip -qo /tmp/JetBrainsMono.zip -d "$FONT_DIR/JetBrainsMonoNerd"
+        unzip -qo /tmp/JetBrainsMono.zip -d "$FONT_DIR/JetBrainsMono"
         rm /tmp/JetBrainsMono.zip
     fi
 
-    fc-cache -fv >/dev/null 2>&1
-    print_success "Fuentes Nerd instaladas"
+    fc-cache -f "$FONT_DIR" 2>/dev/null || true
+    print_success "Nerd Fonts instaladas en ~/.local/share/fonts"
 fi
 
 # ============================================================
 # PASO 6: Herramientas CLI modernas
 # ============================================================
 
-print_header "Paso 6: Herramientas CLI modernas"
+print_header "Paso 6: Utilidades CLI de Alto Rendimiento"
 
 INSTALL_LSD=false
-if ask_install "lsd (reemplazo de ls)" "Listado de archivos con iconos y colores."; then
+if ask_install "lsd (Reemplazo moderno de 'ls')" \
+    "Muestra directorios y archivos organizados con colores vibrantes,\n   iconos tipográficos y vista en árbol opcional."; then
     INSTALL_LSD=true
     pkg_install lsd
     print_success "lsd instalado"
 fi
 
 INSTALL_BAT=false
-if ask_install "bat (reemplazo de cat)" "Muestra archivos con syntax highlighting e integración git."; then
+if ask_install "bat (Reemplazo inteligente de 'cat')" \
+    "Visualizador de archivos con resaltado de sintaxis para +100 lenguajes,\n   números de línea e indicadores de cambios Git en el margen lateral."; then
     INSTALL_BAT=true
     pkg_install bat
 
@@ -267,91 +257,111 @@ if ask_install "bat (reemplazo de cat)" "Muestra archivos con syntax highlightin
     curl -fsSL -o "$BAT_THEME_DIR/Catppuccin Mocha.tmTheme" \
         "https://github.com/catppuccin/bat/raw/main/themes/Catppuccin%20Mocha.tmTheme" \
         && bat cache --build >/dev/null 2>&1 \
-        && print_success "Tema Catppuccin Mocha instalado" \
-        || print_warning "No se pudo instalar el tema Catppuccin de bat"
+        && print_success "Tema Catppuccin Mocha configurado en bat" \
+        || print_warning "No se pudo compilar el tema de bat"
 
     print_success "bat instalado"
 fi
 
 INSTALL_FD=false
-if ask_install "fd (reemplazo de find)" "Búsqueda de archivos ultra-rápida con sintaxis simple."; then
+if ask_install "fd (Buscador rápido de archivos)" \
+    "Alternativa simple e intuitiva al comando 'find'.\n   Busca archivos respetando .gitignore de forma predeterminada y con mayor velocidad."; then
     INSTALL_FD=true
     pkg_install fd
     print_success "fd instalado"
 fi
 
 INSTALL_RG=false
-if ask_install "ripgrep (reemplazo de grep)" "Búsqueda de texto en archivos extremadamente rápida."; then
+if ask_install "ripgrep (Búsqueda ultra rápida en código)" \
+    "Herramienta para buscar cadenas de texto y expresiones regulares\n   en proyectos completos en milisegundos ignorando archivos pesados."; then
     INSTALL_RG=true
     pkg_install ripgrep
     print_success "ripgrep instalado"
 fi
 
 INSTALL_FZF=false
-if ask_install "fzf (fuzzy finder)" "Buscador interactivo fuzzy para archivos e historial."; then
+if ask_install "fzf (Fuzzy Finder interactivo)" \
+    "Buscador interactivo difuso para la terminal.\n   Permite buscar archivos al vuelo y consultar el historial de comandos con Ctrl+R."; then
     INSTALL_FZF=true
     pkg_install fzf
     print_success "fzf instalado"
 fi
 
 INSTALL_ZOXIDE=false
-if ask_install "zoxide (reemplazo de cd)" "Aprende los directorios que más visitas (comando 'j')."; then
+if ask_install "zoxide (Navegación inteligente entre carpetas)" \
+    "Aprende las rutas que visitas con frecuencia en la terminal.\n   Permite saltar a cualquier carpeta usando solo parte de su nombre con 'j <directorio>'."; then
     INSTALL_ZOXIDE=true
     pkg_install zoxide
     print_success "zoxide instalado"
 fi
 
+INSTALL_ZELLIJ=false
+if ask_install "Zellij (Multiplexor de terminal)" \
+    "Alternativa moderna a tmux con paneles divididos, pestañas,\n   modo flotante, soporte total para ratón y tema Catppuccin Mocha."; then
+    INSTALL_ZELLIJ=true
+    pkg_install zellij
+    print_success "Zellij instalado"
+fi
+
 INSTALL_LAZYGIT=false
-if ask_install "lazygit (git visual en terminal)" "Interfaz TUI para operaciones complejas de Git."; then
+if ask_install "lazygit (Interfaz visual TUI para Git)" \
+    "Interfaz gráfica en terminal que permite hacer commits parciales,\n   gestionar ramas, resolver conflictos y hacer rebase fácilmente mediante el alias 'lg'."; then
     INSTALL_LAZYGIT=true
     pkg_install lazygit
     print_success "lazygit instalado"
 fi
 
 INSTALL_DELTA=false
-if ask_install "delta (diffs mejorados de git)" "Diffs de Git con syntax highlighting y formato side-by-side."; then
+if ask_install "git-delta (Visor de diferencias en Git)" \
+    "Mejora 'git diff' y 'git log' con vista lado a lado (side-by-side),\n   resaltado de sintaxis y tema visual Catppuccin."; then
     INSTALL_DELTA=true
     pkg_install git-delta
-    print_success "delta instalado"
+    print_success "git-delta instalado"
 fi
 
 INSTALL_BTOP=false
-if ask_install "btop (monitor del sistema)" "Monitor de recursos del sistema moderno y visual."; then
+if ask_install "btop (Monitor de recursos y procesos)" \
+    "Monitor del sistema en terminal con gráficos de CPU, RAM, discos,\n   tráfico de red, uso de GPU y administración de procesos (comando 'bp')."; then
     INSTALL_BTOP=true
     pkg_install btop
     print_success "btop instalado"
 fi
 
 INSTALL_YAZI=false
-if ask_install "yazi (file manager en terminal)" "Explorador de archivos en terminal con previews visuales."; then
+if ask_install "yazi (Explorador de archivos en terminal)" \
+    "Administrador de archivos de consola ultrarrápido (Rust) con navegación\n   tipo Vim, vista previa de imágenes y PDFs (función 'y')."; then
     INSTALL_YAZI=true
     pkg_install yazi
     print_success "yazi instalado"
 fi
 
 INSTALL_VIVID=false
-if ask_install "vivid (colores para ls)" "Generador de esquemas de colores para LS_COLORS." "n"; then
+if ask_install "vivid (Generador de colores LS_COLORS)" \
+    "Genera una paleta de colores coherente y armónica para distinguir\n   tipos de archivos (binarios, archivos comprimidos, scripts) en la shell." "n"; then
     INSTALL_VIVID=true
     pkg_install vivid
     print_success "vivid instalado"
 fi
 
 INSTALL_DUST=false
-if ask_install "dust (reemplazo de du)" "Uso de disco visual con barras de progreso." "n"; then
+if ask_install "dust (Visualizador de espacio en disco)" \
+    "Alternativa a 'du' que representa visualmente qué carpetas y archivos\n   ocupan más espacio en tu disco mediante barras proporcionales." "n"; then
     INSTALL_DUST=true
     pkg_install du-dust
     print_success "dust instalado"
 fi
 
 INSTALL_PROCS=false
-if ask_install "procs (reemplazo de ps)" "Muestra procesos con colores y formato estructurado." "n"; then
+if ask_install "procs (Visualizador moderno de procesos)" \
+    "Reemplazo de 'ps' con salida formateada en tablas limpias,\n   colores según el estado del proceso y búsqueda por nombre integrada." "n"; then
     INSTALL_PROCS=true
     pkg_install procs
     print_success "procs instalado"
 fi
 
 INSTALL_TLDR=false
-if ask_install "tealdeer / tldr (cheatsheets de comandos)" "Muestra ejemplos prácticos y concisos de comandos."; then
+if ask_install "tealdeer / tldr (Cheatsheets y ejemplos de comandos)" \
+    "Muestra resúmenes prácticos con los ejemplos de uso más comunes\n   de cualquier comando en Linux sin necesidad de leer manuales extensos."; then
     INSTALL_TLDR=true
     pkg_install tealdeer
     tldr --update 2>/dev/null || true
@@ -359,48 +369,54 @@ if ask_install "tealdeer / tldr (cheatsheets de comandos)" "Muestra ejemplos pr�
 fi
 
 INSTALL_FX=false
-if ask_install "fx (visor JSON interactivo)" "Visor interactivo de JSON en terminal." "n"; then
+if ask_install "fx (Explorador interactivo de JSON)" \
+    "Herramienta interactiva para inspeccionar, colapsar y transformar\n   archivos JSON en la terminal, ideal para desarrollo y APIs." "n"; then
     INSTALL_FX=true
     pkg_install fx
     print_success "fx instalado"
 fi
 
 INSTALL_NEWSBOAT=false
-if ask_install "newsboat (lector RSS en terminal)" "Lector de feeds RSS/Atom en la terminal." "n"; then
+if ask_install "newsboat (Lector de RSS/Atom en terminal)" \
+    "Cliente ligero para leer noticias, blogs y fuentes técnicas (Arch, Phoronix)\n   directamente en la consola sin distracciones." "n"; then
     INSTALL_NEWSBOAT=true
     pkg_install newsboat
     print_success "newsboat instalado"
 fi
 
 INSTALL_YTDLP=false
-if ask_install "yt-dlp (descargador de videos)" "Descarga de videos de YouTube y plataformas soportadas."; then
+if ask_install "yt-dlp (Descargador de audio y video)" \
+    "Descarga videos y música en máxima calidad desde YouTube y cientos de plataformas.\n   Configurado para guardar automáticamente en ~/Vídeos/youtube."; then
     INSTALL_YTDLP=true
     pkg_install yt-dlp
     print_success "yt-dlp instalado"
 fi
 
 INSTALL_ZATHURA=false
-if ask_install "zathura (visor de PDF minimalista)" "Visor de PDF ligero con navegación estilo Vim." "n"; then
+if ask_install "zathura (Visor PDF minimalista)" \
+    "Visor de documentos PDF ultraligero y rápido con control mediante teclas\n   de Vim (j/k) y tema oscuro Catppuccin Mocha." "n"; then
     INSTALL_ZATHURA=true
     pkg_install zathura zathura-pdf-poppler
     print_success "zathura instalado"
 fi
 
 INSTALL_NVIM=false
-if ask_install "Neovim" "Editor de texto avanzado extensible con Lua."; then
+if ask_install "Neovim (Editor de código modal)" \
+    "Editor extensible con soporte para LSP, autocompletado y sintaxis avanzada.\n   Configurado como editor por defecto del sistema."; then
     INSTALL_NVIM=true
     pkg_install neovim
     print_success "Neovim instalado"
 fi
 
 # ============================================================
-# PASO 7: Entorno de desarrollo
+# PASO 7: Entornos de Desarrollo
 # ============================================================
 
-print_header "Paso 7: Entorno de desarrollo"
+print_header "Paso 7: Lenguajes y Gestores de Entorno"
 
 INSTALL_NODE=false
-if ask_install "NVM + Node.js (JavaScript/TypeScript)" "Gestor de versiones de Node.js."; then
+if ask_install "NVM + Node.js (JavaScript / TypeScript)" \
+    "Node Version Manager para instalar y cambiar fácilmente entre versiones de Node.js."; then
     INSTALL_NODE=true
     if [ ! -d "$HOME/.nvm" ]; then
         print_info "Instalando NVM..."
@@ -410,21 +426,24 @@ if ask_install "NVM + Node.js (JavaScript/TypeScript)" "Gestor de versiones de N
 fi
 
 INSTALL_BUN=false
-if ask_install "Bun (runtime JS ultra-rápido)" "Runtime de JS alternativo y rápido." "n"; then
+if ask_install "Bun (Runtime de JS/TS ultrarrápido)" \
+    "Alternativa a Node con bundler, ejecutor de pruebas y gestor de paquetes de alto rendimiento." "n"; then
     INSTALL_BUN=true
     pkg_install bun
     print_success "Bun instalado"
 fi
 
 INSTALL_GO=false
-if ask_install "Go (Golang)" "Lenguaje de programación Go." "n"; then
+if ask_install "Go (Compilador y herramientas oficiales)" \
+    "Lenguaje de Google enfocado en concurrencia, microservicios y backend de alto rendimiento." "n"; then
     INSTALL_GO=true
     pkg_install go
     print_success "Go instalado"
 fi
 
 INSTALL_RUST=false
-if ask_install "Rust (Rustlang)" "Lenguaje de programación Rust y cargo." "n"; then
+if ask_install "Rust + Rustup (Toolchain de Rust)" \
+    "Compilador rustc, gestor de dependencias cargo y soporte para el ecosistema Rust." "n"; then
     INSTALL_RUST=true
     pkg_install rustup
     rustup default stable
@@ -432,31 +451,34 @@ if ask_install "Rust (Rustlang)" "Lenguaje de programación Rust y cargo." "n"; 
 fi
 
 INSTALL_PYTHON=false
-if ask_install "Python herramientas (pipx, poetry)" "Herramientas de entorno Python." "n"; then
+if ask_install "Python + Herramientas (pipx, poetry)" \
+    "Entorno Python con pipx para CLIs aislados y poetry para gestión moderna de proyectos."; then
     INSTALL_PYTHON=true
     pkg_install python python-pip python-pipx python-poetry
     pipx ensurepath 2>/dev/null || true
-    print_success "Herramientas Python instaladas"
+    print_success "Entorno Python listo"
 fi
 
 # ============================================================
-# PASO 8: Utilidades extra y Personalización de KDE
+# PASO 8: Utilidades Extra y Estilo Visual
 # ============================================================
 
-print_header "Paso 8: Utilidades extra y Tema KDE"
-print_info "Instalando utilidades base..."
+print_header "Paso 8: Utilidades del Sistema y Personalización"
+print_info "Instalando paquetes básicos (jq, tree, xclip, wl-clipboard, p7zip, unrar)..."
 pkg_install jq tree xclip wl-clipboard p7zip unrar
 
 INSTALL_FASTFETCH=false
-if ask_install "fastfetch (info del sistema)" "Muestra información del sistema rápida y estilizada." "n"; then
+if ask_install "fastfetch (Información rápida del sistema)" \
+    "Muestra un resumen elegante de hardware, kernel, escritorio y memoria al abrir la consola." "n"; then
     INSTALL_FASTFETCH=true
     pkg_install fastfetch
     print_success "fastfetch instalado"
 fi
 
 if pgrep -x "plasmashell" > /dev/null; then
-    if ask_install "Tema Catppuccin Mocha para KDE Plasma" "Aplica el esquema de colores global de Catppuccin a KDE."; then
-        print_info "Instalando tema KDE desde AUR..."
+    if ask_install "Tema Catppuccin Mocha para KDE Plasma" \
+        "Aplica el tema visual oscuro global de Catppuccin a ventanas, panel y controles de KDE Plasma."; then
+        print_info "Instalando tema visual desde AUR..."
         yay -S --needed --noconfirm catppuccin-kde-theme-mocha-git 2>/dev/null || true
         if command -v plasma-apply-lookandfeel &>/dev/null; then
             plasma-apply-lookandfeel -a Catppuccin-Mocha-Dark 2>/dev/null || true
@@ -466,21 +488,22 @@ if pgrep -x "plasmashell" > /dev/null; then
 fi
 
 # ============================================================
-# PASO 9: Crear backup y symlinks
+# PASO 9: Crear Backup y Enlazar Archivos (Symlinks)
 # ============================================================
 
-print_header "Paso 9: Instalando configuraciones (symlinks)"
+print_header "Paso 9: Creación de Enlaces Simbólicos (Symlinks)"
 
-ROOT_FILES=(.zshrc .zprofile .gitconfig .gitignore_global .ripgreprc .editorconfig)
+ROOT_FILES=(.zshrc .zprofile .gitconfig .gitignore_global .ripgreprc .editorconfig .tool-versions)
 
 CONFIG_ITEMS=(starship.toml)
 $INSTALL_KITTY && CONFIG_ITEMS+=(kitty)
 $INSTALL_LAZYGIT && CONFIG_ITEMS+=(lazygit)
-$INSTALL_LSD && CONFIG_ITEMS+=(lsd)
 $INSTALL_BTOP && CONFIG_ITEMS+=(btop)
+$INSTALL_LSD && CONFIG_ITEMS+=(lsd)
 $INSTALL_ZATHURA && CONFIG_ITEMS+=(zathura)
 $INSTALL_YTDLP && CONFIG_ITEMS+=(yt-dlp)
 $INSTALL_FD && CONFIG_ITEMS+=(fd)
+$INSTALL_ZELLIJ && CONFIG_ITEMS+=(zellij)
 
 NEEDS_BACKUP=false
 for f in "${ROOT_FILES[@]}"; do
@@ -488,45 +511,42 @@ for f in "${ROOT_FILES[@]}"; do
 done
 
 if $NEEDS_BACKUP; then
-    print_info "Creando backup en $BACKUP_DIR"
-    mkdir -p "$BACKUP_DIR/.config"
+    print_info "Respaldando configuraciones previas en $BACKUP_DIR..."
+    mkdir -p "$BACKUP_DIR"
     for f in "${ROOT_FILES[@]}"; do
-        [ -e "$HOME/$f" ] && cp -r "$HOME/$f" "$BACKUP_DIR/$f"
+        if [ -e "$HOME/$f" ] && [ ! -L "$HOME/$f" ]; then
+            cp -r "$HOME/$f" "$BACKUP_DIR/"
+        fi
     done
-    for item in "${CONFIG_ITEMS[@]}"; do
-        [ -e "$HOME/.config/$item" ] && cp -r "$HOME/.config/$item" "$BACKUP_DIR/.config/$item"
-    done
-    print_success "Backup creado"
+    print_success "Copia de respaldo completada"
 fi
 
-print_info "Creando symlinks..."
+print_info "Enlazando archivos raíz a tu home..."
 for f in "${ROOT_FILES[@]}"; do
     if [ -e "$DOTFILES_DIR/$f" ]; then
         ln -sf "$DOTFILES_DIR/$f" "$HOME/$f"
-        echo "  → ~/$f"
+        echo "   $f → ~/$f"
     fi
 done
 
 mkdir -p "$HOME/.config"
+print_info "Enlazando directorios en ~/.config/..."
 for item in "${CONFIG_ITEMS[@]}"; do
-    src="$DOTFILES_DIR/.config/$item"
-    dst="$HOME/.config/$item"
-    if [ -e "$src" ]; then
-        rm -rf "$dst"
-        ln -sf "$src" "$dst"
-        echo "  → ~/.config/$item"
+    if [ -e "$DOTFILES_DIR/.config/$item" ]; then
+        ln -sf "$DOTFILES_DIR/.config/$item" "$HOME/.config/$item"
+        echo "   .config/$item → ~/.config/$item"
     fi
 done
 
-print_success "Configuraciones enlazadas"
+print_success "Todos los enlaces simbólicos han sido creados"
 
 if [ ! -f "$HOME/.zshrc.local" ] && [ -f "$DOTFILES_DIR/.zshrc.local.example" ]; then
     cp "$DOTFILES_DIR/.zshrc.local.example" "$HOME/.zshrc.local"
-    print_info "Creado ~/.zshrc.local desde plantilla"
+    print_info "Se ha creado ~/.zshrc.local a partir de la plantilla de ejemplo"
 fi
 
 # ============================================================
-# PASO 10: Configuración final y cambio de Shell
+# PASO 10: Configuración Final
 # ============================================================
 
 if $INSTALL_NEWSBOAT; then
@@ -542,9 +562,10 @@ fi
 
 if $INSTALL_ZSH; then
     echo ""
-    if ask_install "Cambiar shell por defecto a Zsh" "Establece Zsh como la shell del sistema."; then
+    if ask_install "Establecer Zsh como Shell por Defecto" \
+        "Cambia tu shell de usuario a Zsh (requiere reiniciar sesión para surtir efecto completo)."; then
         chsh -s "$(which zsh)"
-        print_success "Shell cambiada a Zsh"
+        print_success "Shell predeterminada cambiada a Zsh"
     fi
 fi
 
@@ -552,5 +573,5 @@ if $INSTALL_YTDLP; then
     mkdir -p "$HOME/Vídeos/youtube"
 fi
 
-print_header "¡Instalación completada!"
-echo -e "${PURPLE}¡Disfruta tu nuevo entorno en Arch Linux / EndeavourOS! 🚀${NC}"
+print_header "¡Instalación y Configuración Completada!"
+echo -e "${PURPLE}¡Disfruta tu entorno de trabajo en Arch Linux / EndeavourOS! 🚀${NC}"
