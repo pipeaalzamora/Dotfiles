@@ -1,132 +1,82 @@
-# Dotfiles — Ubuntu
+# Dotfiles — Arch Linux / EndeavourOS
 
-Setup personal para Ubuntu 24.04+ con tema **Catppuccin Mocha** en todo el stack.
+Entorno de terminal moderno, rápido y estético configurado con la paleta de colores **Catppuccin Mocha**.
 
 ---
 
-## Instalación
+## ⚡ Instalación Rápida
+
+### One-Liner (Clonar e Iniciar Instalador)
 
 ```bash
-git clone https://github.com/pipeaalzamora/Dotfiles.git ~/dotfiles
-cd ~/dotfiles
-./install.sh
+git clone https://github.com/pipeaalzamora/Dotfiles.git ~/dotfiles && cd ~/dotfiles && chmod +x install.sh scripts/* && ./install.sh
 ```
 
-El instalador es interactivo: te pregunta qué componentes quieres instalar y te explica para qué sirve cada uno antes de instalarlo.
-
-Después de instalar, cierra sesión y vuelve a entrar para que Zsh tome efecto.
+El instalador es completamente interactivo: pregunta paso a paso qué componentes deseas instalar y crea copias de respaldo automáticas (`~/dotfiles_backup_YYYYMMDD_HHMMSS`) antes de enlazar archivos.
 
 ---
 
-## Scripts
+## 🛠️ Herramientas y Componentes
 
-| Script | Uso |
-|--------|-----|
-| `install.sh` | Instalación interactiva completa |
-| `scripts/update-all` | Actualizar todo (alias `upd` en terminal) |
-| `scripts/check-dependencies` | Verificar qué herramientas están instaladas |
-
----
-
-## Herramientas incluidas
-
-| Herramienta | Reemplaza | Descripción |
-|-------------|-----------|-------------|
-| `lsd` | `ls` | Listado con iconos y colores |
-| `bat` | `cat` | Visor con syntax highlighting |
-| `fd` | `find` | Búsqueda de archivos rápida |
-| `ripgrep` | `grep` | Búsqueda en contenido de archivos |
-| `zoxide` | `cd` | Navegación inteligente por historial |
-| `fzf` | — | Fuzzy finder interactivo |
-| `dust` | `du` | Uso de disco visual |
-| `procs` | `ps` | Procesos con colores |
-| `delta` | diff | Diffs con syntax highlighting |
-| `lazygit` | git TUI | Interfaz visual para git en terminal |
-| `yazi` | ranger | File manager en terminal |
-| `tealdeer` | man | Ejemplos prácticos de comandos |
-| `btop` | htop | Monitor del sistema |
-| `vivid` | — | Colores para LS_COLORS |
-| `fx` | jq | JSON viewer interactivo |
+| Categoría | Herramienta | Utilidad |
+| :--- | :--- | :--- |
+| **Shell & Prompt** | `Zsh` + `Starship` | Prompt contextual de alto rendimiento con plugins de autosuggestions y highlighting. |
+| **Terminal & Multiplexer** | `Kitty` + `Zellij` | Terminal acelerado por GPU y multiplexor con paneles divididos y sesiones. |
+| **Navegación & Búsqueda** | `zoxide`, `fzf`, `fd`, `ripgrep` | Salto inteligente entre carpetas (`j <dir>`) y búsquedas ultra rápidas de archivos/código. |
+| **Git & Diffs** | `lazygit`, `git-delta` | TUI completa para Git (`lg`) y diffs side-by-side con resaltado de sintaxis. |
+| **Monitor & Utilidades** | `btop`, `fastfetch`, `yazi`, `bat`, `lsd` | Monitoreo visual de recursos (`bp`), explorador de archivos con preview y reemplazos enriquecidos para `ls` y `cat`. |
+| **Runtime & Versiones** | `mise` / `asdf` | Control de versiones fijadas para Node.js, Go y Python mediante `.tool-versions`. |
 
 ---
 
-## Aliases y funciones
+## 📁 Estructura del Repositorio
 
-```zsh
-j <dir>              # zoxide — saltar a directorio frecuente
-ll                   # lsd -lah
-lg                   # lazygit
-bp                   # btop
-glog                 # git log --oneline --graph
-y                    # yazi (file manager, cd al salir)
-upd                  # actualizar sistema completo
-dots                 # cd ~/dotfiles
-
-mkcd <dir>           # crear directorio y entrar
-ff <pattern>         # buscar archivos con fd
-fif <pattern>        # buscar en contenido con rg
-weather [ciudad]     # clima desde wttr.in
-cheat <comando>      # cheatsheet desde cheat.sh
-sysinfo              # info del sistema
-backup <archivo>     # backup rápido con timestamp
-newproject <nombre>  # crear proyecto con git init
-```
-
-### Keybindings
-
-| Atajo | Acción |
-|-------|--------|
-| `Ctrl+F` | FZF — abrir archivo en nvim |
-| `Ctrl+G` | FZF — cambiar directorio |
-| `Ctrl+B` | FZF — cambiar rama git |
-
----
-
-## Estructura
-
-```
-dotfiles/
-├── install.sh           # instalador interactivo
-├── .zshrc               # aliases, funciones, plugins
-├── .zshrc.local.example # plantilla para config personal (no versionada)
-├── .zprofile            # variables de entorno (login)
-├── .bashrc              # bash fallback
-├── .gitconfig           # git global + delta
-├── .gitignore_global    # ignores globales
-├── .ripgreprc           # config de ripgrep
-├── .editorconfig        # indentación por tipo de archivo
+```text
+Dotfiles/
 ├── .config/
-│   ├── starship.toml    # prompt Catppuccin Mocha
-│   ├── kitty/           # terminal
-│   ├── btop/            # monitor del sistema
-│   ├── lazygit/         # git TUI
-│   ├── lsd/             # ls mejorado
-│   ├── zathura/         # PDF viewer
-│   ├── fd/              # find mejorado
-│   └── yt-dlp/          # descargador de videos
-└── scripts/
-    ├── update-all       # actualización completa
-    └── check-dependencies
+│   ├── btop/               # Monitor del sistema
+│   ├── fd/                 # Reglas de búsqueda ignoradas
+│   ├── kitty/              # Terminal Kitty (Mocha)
+│   ├── lazygit/            # Git visual TUI
+│   ├── lsd/                # ls moderno
+│   ├── starship.toml       # Prompt Starship
+│   ├── yt-dlp/             # Configuración de descargas
+│   ├── zathura/            # Visor PDF minimalista
+│   └── zellij/             # Terminal multiplexer (Catppuccin)
+├── .github/
+│   └── workflows/
+│       └── lint.yml        # CI automatizado con ShellCheck
+├── scripts/
+│   ├── check-dependencies  # Validador de comandos instalados
+│   ├── setup-amd-gpu.sh    # Script opcional para parámetros amdgpu en GRUB
+│   └── update-all          # Actualizador centralizado del sistema y paquetes
+├── .editorconfig           # Reglas de formato de código
+├── .gitconfig              # Configuración global de Git + delta
+├── .gitignore_global       # Archivos ignorados globalmente
+├── .ripgreprc              # Flags de búsqueda para ripgrep
+├── .tool-versions          # Versiones globales de Node, Go, Python
+├── .zprofile               # Variables de entorno para login
+├── .zshrc                  # Aliases, funciones y configuración interactiva
+├── .zshrc.local.example    # Plantilla para configuraciones privadas
+└── install.sh              # Script instalador principal
 ```
 
 ---
 
-## Configuración personal (no versionada)
+## 🔒 Configuración Personal y Privada
 
-Todo lo específico de tu máquina (paths de Flutter, spicetify, funciones con
-tokens/cookies, etc.) va en `~/.zshrc.local`, que el `.zshrc` carga
-automáticamente al final y que está ignorado por git.
+Todo ajuste específico de tu máquina o datos confidenciales (tokens, rutas privadas, funciones especiales) va en `~/.zshrc.local`.
 
 ```bash
-cp .zshrc.local.example ~/.zshrc.local   # el instalador ya lo hace por ti
+cp .zshrc.local.example ~/.zshrc.local
 ```
 
-Así el repo se puede compartir públicamente sin exponer datos personales.
+`.zshrc` carga este archivo automáticamente al final de cada sesión interactiva y está protegido en `.gitignore` para evitar filtraciones en git.
 
-## Notas
+---
 
-- En Ubuntu, `bat` se llama `batcat` y `fd` se llama `fdfind` — los dotfiles lo detectan automáticamente (`.zshrc` también las define como fallback si no se cargó `.zprofile`).
-- El tema **Catppuccin Mocha** de `bat`/`delta` lo instala el propio `install.sh` (descarga el `.tmTheme` y ejecuta `bat cache --build`).
-- El `.zprofile` maneja solo variables de entorno. El `.zshrc` maneja solo lo interactivo.
-- Las rutas usan `$DOTFILES_DIR` (por defecto `~/dotfiles`), así que los aliases `dots` y `upd` funcionan sin importar dónde clones el repo.
-- Para sincronizar cambios usa `lg` (lazygit) desde `$DOTFILES_DIR`.
+## 🚀 Scripts de Mantenimiento
+
+- **Actualizar todo**: ejecuta `upd` o `./scripts/update-all` para refrescar repositorios pacman, AUR y herramientas CLI.
+- **Chequear dependencias**: `./scripts/check-dependencies` reporta el estado de cada comando configurado.
+- **Optimización GPU AMD**: `./scripts/setup-amd-gpu.sh` configura el soporte amdgpu para familias GCN 3.0 (Fiji / R9 Fury).
