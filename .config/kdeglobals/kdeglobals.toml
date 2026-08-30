@@ -1,0 +1,19 @@
+[General]
+ColorScheme=CatppuccinMochaDark
+Name=Catppuccin Mocha Dark
+widgetStyle=kvantum
+
+[Icons]
+Theme=Papirus-Dark
+
+[WM]
+activeBackground=30,30,46
+activeBlend=205,214,244
+activeForeground=205,214,244
+inactiveBackground=18,18,24
+inactiveBlend=108,112,134
+inactiveForeground=166,173,200
+
+[KDE]
+Contrast=7
+SingleClick=true
