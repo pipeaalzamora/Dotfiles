@@ -14,6 +14,8 @@ git clone https://github.com/pipeaalzamora/Dotfiles.git ~/dotfiles && cd ~/dotfi
 
 El instalador es completamente interactivo: pregunta paso a paso qué componentes deseas instalar, explica en detalle la función de cada personalización y crea copias de respaldo automáticas (`~/dotfiles_backup_YYYYMMDD_HHMMSS`) antes de enlazar archivos.
 
+> 📖 **Consulta la [Guía Completa de Atajos de Teclado (KEYBINDINGS.md)](KEYBINDINGS.md)** para conocer todos los atajos de KDE, Neovim, Kitty y Zsh.
+
 ---
 
 ## 🛠️ Herramientas y Componentes
