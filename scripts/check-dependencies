@@ -1,4 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ============================================================
+# Verificador de dependencias y herramientas instaladas
+# Repositorio: pipeaalzamora/Dotfiles
+# ============================================================
 
 echo "🔍 Verificando dependencias..."
 echo ""
@@ -14,31 +18,30 @@ check_command() {
     fi
 }
 
-echo "=== Shells ==="
+echo "=== Shell & Prompt ==="
 check_command zsh
-check_command bash
 check_command starship
 
 echo ""
-echo "=== Terminal ==="
+echo "=== Terminal & Multiplexores ==="
 check_command kitty
+check_command zellij
 
 echo ""
 echo "=== Editores ==="
 check_command nvim "neovim"
-check_command vim
 
 echo ""
 echo "=== Herramientas CLI ==="
 check_command lsd
-check_command batcat "bat (batcat)"
-check_command fdfind "fd (fdfind)"
+if command -v bat &>/dev/null; then check_command bat; else check_command batcat "bat"; fi
+if command -v fd &>/dev/null; then check_command fd; else check_command fdfind "fd"; fi
 check_command rg "ripgrep"
 check_command fzf
 check_command zoxide
 check_command yazi
 check_command lazygit
-check_command delta
+check_command delta "git-delta"
 check_command vivid
 check_command fx
 check_command dust
@@ -46,6 +49,15 @@ check_command procs
 check_command tldr "tealdeer"
 check_command btop
 check_command fastfetch
+
+echo ""
+echo "=== KDE Plasma & Entorno Gráfico ==="
+check_command kvantummanager "Kvantum"
+check_command rofi "Rofi-Wayland"
+check_command spicetify "Spicetify CLI"
+check_command konsave "Konsave"
+check_command easyeffects "EasyEffects"
+check_command snapper "Snapper (Btrfs)"
 
 echo ""
 echo "=== Desarrollo ==="
@@ -56,8 +68,7 @@ check_command bun
 check_command go
 check_command rustc "rust"
 check_command cargo
-check_command python3
-check_command pip3
+check_command python3 "python"
 check_command pipx
 
 echo ""
@@ -69,6 +80,7 @@ check_command tree
 check_command newsboat
 check_command yt-dlp
 check_command zathura
+check_command wl-copy "wl-clipboard"
 
 echo ""
 echo "✅ Verificación completada"

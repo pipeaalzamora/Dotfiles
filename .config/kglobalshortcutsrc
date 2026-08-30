@@ -4,6 +4,9 @@ _launch=Meta+Return
 [org.kde.spectacle.desktop]
 RectangularRegionScreenShot=Meta+Shift+S
 
+[change-wallpaper.desktop]
+_launch=Meta+Alt+W
+
 [kwin][Global Shortcuts]
 Kill Window=Meta+Shift+Q
 Overview=Meta+W

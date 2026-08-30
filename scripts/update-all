@@ -1,58 +1,73 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ============================================================
+# Actualizador Centralizado de Sistema y Herramientas (Arch Linux)
+# Repositorio: pipeaalzamora/Dotfiles
+# ============================================================
 
-echo "🚀 Actualizando sistema completo..."
+set -e
 
-# Sistema (apt)
-echo "📦 Actualizando paquetes del sistema..."
-sudo apt update
-sudo apt upgrade -y
+echo "🚀 Actualizando sistema y herramientas..."
 
-# Limpiar paquetes innecesarios
-echo "🧹 Limpiando paquetes innecesarios..."
-sudo apt autoremove -y
-sudo apt autoclean
+# Actualizar paquetes del sistema (Pacman + AUR yay/paru)
+if command -v yay &>/dev/null; then
+    echo "📦 [1/7] Actualizando repositorios oficiales y AUR (yay)..."
+    yay -Syu --noconfirm
+elif command -v paru &>/dev/null; then
+    echo "📦 [1/7] Actualizando repositorios oficiales y AUR (paru)..."
+    paru -Syu --noconfirm
+elif command -v pacman &>/dev/null; then
+    echo "📦 [1/7] Actualizando paquetes del sistema (pacman)..."
+    sudo pacman -Syu --noconfirm
+elif command -v apt &>/dev/null; then
+    echo "📦 [1/7] Actualizando paquetes del sistema (apt)..."
+    sudo apt update && sudo apt upgrade -y
+fi
 
-# Node.js
+# Limpieza de caché de paquetes huérfanos
+if command -v pacman &>/dev/null; then
+    echo "🧹 [2/7] Limpiando paquetes huérfanos..."
+    orphans=$(pacman -Qtdq 2>/dev/null || true)
+    if [ -n "$orphans" ]; then
+        sudo pacman -Rns --noconfirm $orphans 2>/dev/null || true
+    fi
+fi
+
+# Node.js / NPM
 if command -v npm &>/dev/null; then
-    echo "📦 Actualizando paquetes globales de npm..."
-    npm update -g
+    echo "📦 [3/7] Actualizando paquetes globales de npm..."
+    npm update -g 2>/dev/null || true
 fi
 
-# Rust
+# Rust / Rustup
 if command -v rustup &>/dev/null; then
-    echo "📦 Actualizando Rust..."
-    rustup update
+    echo "📦 [4/7] Actualizando toolchain de Rust..."
+    rustup update 2>/dev/null || true
 fi
 
-# Oh My Zsh
-if [ -d "$HOME/.oh-my-zsh" ]; then
-    echo "📦 Actualizando Oh My Zsh..."
-    git -C "$HOME/.oh-my-zsh" pull
-fi
-
-# Plugins de Zsh
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-if [ -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
-    git -C "$ZSH_CUSTOM/plugins/zsh-autosuggestions" pull
-fi
-if [ -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
-    git -C "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" pull
-fi
-
-# pipx
+# Python / Pipx
 if command -v pipx &>/dev/null; then
-    echo "📦 Actualizando herramientas pipx..."
-    pipx upgrade-all
+    echo "📦 [5/7] Actualizando herramientas pipx..."
+    pipx upgrade-all 2>/dev/null || true
 fi
 
-# Starship
-if command -v starship &>/dev/null; then
-    echo "📦 Actualizando Starship..."
-    curl -sS https://starship.rs/install.sh | sh -s -- -y 2>/dev/null || true
+# Oh My Zsh y plugins
+if [ -d "$HOME/.oh-my-zsh" ]; then
+    echo "📦 [6/7] Actualizando Oh My Zsh y plugins..."
+    git -C "$HOME/.oh-my-zsh" pull --quiet 2>/dev/null || true
+    
+    ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+    [ -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ] && git -C "$ZSH_CUSTOM/plugins/zsh-autosuggestions" pull --quiet 2>/dev/null || true
+    [ -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] && git -C "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" pull --quiet 2>/dev/null || true
+fi
+
+# Spicetify (si está instalado)
+if command -v spicetify &>/dev/null; then
+    echo "📦 [7/7] Actualizando Spicetify..."
+    spicetify upgrade 2>/dev/null || true
 fi
 
 echo ""
-echo "✅ Sistema actualizado completamente"
+echo "✅ ¡Sistema y herramientas actualizados con éxito!"
 
 # Actualizar timestamp para el recordatorio del .zshrc
 mkdir -p "$HOME/.cache"

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# ============================================================
+# Git Pre-Commit Hook: Validación de sintaxis Bash y ShellCheck
+# Repositorio: pipeaalzamora/Dotfiles
+# ============================================================
+
+set -e
+
+echo "🔍 Validando sintaxis de scripts antes del commit..."
+
+SCRIPTS=(install.sh scripts/*)
+
+# Verificar sintaxis básica de bash
+for script in "${SCRIPTS[@]}"; do
+    if [ -f "$script" ] && [[ "$script" != *.md && "$script" != *.knsv ]]; then
+        bash -n "$script" || {
+            echo "❌ Error de sintaxis en: $script"
+            exit 1
+        }
+    fi
+done
+
+# Si shellcheck está instalado, realizar linting estricto
+if command -v shellcheck &>/dev/null; then
+    for script in "${SCRIPTS[@]}"; do
+        if [ -f "$script" ] && [[ "$script" != *.md && "$script" != *.knsv ]]; then
+            shellcheck -x -e SC1090,SC1091 "$script" || true
+        fi
+    done
+fi
+
+echo "✅ Scripts validados correctamente."

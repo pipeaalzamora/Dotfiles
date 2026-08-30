@@ -1,0 +1,115 @@
+/**
+ * Rofi Catppuccin Mocha Theme (Wayland)
+ * Repositorio: pipeaalzamora/Dotfiles
+ **/
+
+configuration {
+    modi:                       "drun,run,window";
+    show-icons:                 true;
+    display-drun:               "  Apps";
+    display-run:                "  Run";
+    display-window:             "  Windows";
+    drun-display-format:        "{name}";
+    window-format:              "{w} · {c} · {t}";
+    font:                       "JetBrainsMono Nerd Font 10";
+}
+
+* {
+    bg-col:      #1e1e2e;
+    bg-col-light:#313244;
+    border-col:  #cba6f7;
+    selected-col:#45475a;
+    blue:        #89b4fa;
+    fg-col:      #cdd6f4;
+    fg-col2:     #f38ba8;
+    grey:        #6c7086;
+
+    background-color: transparent;
+    text-color:       @fg-col;
+    margin:           0;
+    padding:          0;
+}
+
+window {
+    width:            600px;
+    border:           2px;
+    border-color:     @border-col;
+    border-radius:    14px;
+    background-color: @bg-col;
+    padding:          20px;
+}
+
+mainbox {
+    spacing:          15px;
+    children:         [ "inputbar", "listview", "mode-switcher" ];
+}
+
+inputbar {
+    background-color: @bg-col-light;
+    border-radius:    10px;
+    padding:          10px 14px;
+    children:         [ "prompt", "entry" ];
+    spacing:          10px;
+}
+
+prompt {
+    text-color:       @blue;
+}
+
+entry {
+    placeholder:        "Buscar...";
+    placeholder-color:  @grey;
+    text-color:         @fg-col;
+}
+
+listview {
+    columns:          1;
+    lines:            8;
+    cycle:            true;
+    dynamic:          true;
+    scrollbar:        false;
+    spacing:          6px;
+}
+
+element {
+    padding:          8px 12px;
+    border-radius:    8px;
+    spacing:          10px;
+}
+
+element normal.normal {
+    background-color: transparent;
+    text-color:       @fg-col;
+}
+
+element selected.normal {
+    background-color: @selected-col;
+    text-color:       @blue;
+}
+
+element-icon {
+    size:             24px;
+    background-color: transparent;
+}
+
+element-text {
+    vertical-align:   0.5;
+    background-color: transparent;
+    text-color:       inherit;
+}
+
+mode-switcher {
+    spacing:          10px;
+}
+
+button {
+    padding:          8px;
+    background-color: @bg-col-light;
+    border-radius:    8px;
+    text-color:       @grey;
+}
+
+button selected {
+    background-color: @border-col;
+    text-color:       @bg-col;
+}

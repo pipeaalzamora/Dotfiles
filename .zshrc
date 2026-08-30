@@ -344,9 +344,30 @@ fi
 $_needs_update && echo "💡 Llevas más de un día sin actualizar. Ejecuta: upd"
 unset _needs_update _last _now
 # ============================================================
-# Mensaje de bienvenida (sin bloquear con peticiones HTTP)
+# KDE Plasma 6 — Gestión del Entorno Gráfico (Wayland/systemd)
 # ============================================================
-echo "¡Hola $(whoami)! 👋 — $(date '+%A, %d de %B de %Y - %H:%M')"
+# Reiniciar panel y widgets de forma limpia vía systemd
+alias krestart='systemctl --user restart plasma-plasmashell.service'
+
+# Recargar reglas visuales y efectos de KWin sin reiniciar sesión
+alias kwin-reload='command -v qdbus &>/dev/null && qdbus org.kde.KWin /KWin reconfigure'
+
+# Exportar ajustes limpios de KDE hacia el repositorio de Dotfiles
+dots-export-kde() {
+    local target_dir="${DOTFILES_DIR:-$HOME/dotfiles}/.config"
+    mkdir -p "$target_dir/Kvantum" "$target_dir/environment.d"
+    
+    [ -f "$HOME/.config/kdeglobals" ] && cp "$HOME/.config/kdeglobals" "$target_dir/"
+    [ -f "$HOME/.config/kglobalshortcutsrc" ] && cp "$HOME/.config/kglobalshortcutsrc" "$target_dir/"
+    [ -f "$HOME/.config/kwinrc" ] && cp "$HOME/.config/kwinrc" "$target_dir/"
+    [ -f "$HOME/.config/Kvantum/kvantum.kvconfig" ] && cp "$HOME/.config/Kvantum/kvantum.kvconfig" "$target_dir/Kvantum/"
+    [ -f "$HOME/.config/environment.d/qt.conf" ] && cp "$HOME/.config/environment.d/qt.conf" "$target_dir/environment.d/"
+    echo "✅ Configuraciones de KDE Plasma 6 exportadas a $target_dir"
+}
+
+# Wallpaper Manager (Estáticos y Animados)
+alias wall-next='$DOTFILES_DIR/scripts/change-wallpaper.sh'
+alias wall-download='$DOTFILES_DIR/scripts/download-wallpapers.sh'
 
 # ============================================================
 # Configuración local / personal (no versionada en git)
@@ -355,3 +376,4 @@ echo "¡Hola $(whoami)! 👋 — $(date '+%A, %d de %B de %Y - %H:%M')"
 # Ver plantilla: .zshrc.local.example
 # ============================================================
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
+

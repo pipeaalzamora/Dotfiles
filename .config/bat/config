@@ -1,0 +1,7 @@
+# Configuración global de Bat
+# Repositorio: pipeaalzamora/Dotfiles
+
+--theme="Catppuccin Mocha"
+--style="numbers,changes,header"
+--italic-text=always
+--paging=auto

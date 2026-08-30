@@ -1,0 +1,38 @@
+{
+  "input": {
+    "blocklist": [],
+    "plugins_order": [
+      "rnnoise",
+      "equalizer",
+      "autogain",
+      "limiter"
+    ],
+    "rnnoise": {
+      "bypass": false,
+      "enable-vad": true,
+      "vad-thres": 50.0,
+      "model-name": ""
+    },
+    "autogain": {
+      "bypass": false,
+      "target": -18.0,
+      "silence-threshold": -60.0
+    },
+    "equalizer": {
+      "bypass": false,
+      "input-gain": 0.0,
+      "output-gain": 0.0,
+      "left": {
+        "band0": { "type": "High-pass", "frequency": 80.0, "q": 0.7, "gain": 0.0, "mode": "RLC (BT)" },
+        "band1": { "type": "Bell", "frequency": 250.0, "q": 1.4, "gain": -2.0, "mode": "RLC (BT)" },
+        "band2": { "type": "Bell", "frequency": 3500.0, "q": 1.0, "gain": 2.5, "mode": "RLC (BT)" }
+      }
+    },
+    "limiter": {
+      "bypass": false,
+      "limit": -1.0,
+      "lookahead": 5.0,
+      "release": 20.0
+    }
+  }
+}

@@ -122,12 +122,12 @@ if ! command -v yay &>/dev/null; then
     rm -rf /tmp/yay
 fi
 
-# Detección y parche de GPU AMD Fiji / R9 Fury
-if lspci 2>/dev/null | grep -qiE "fiji|r9 fury|radeon R9 Fury"; then
-    if ask_install "Optimización GPU AMD GCN 3.0 (Fiji / R9 Fury)" \
-        "Activa el driver amdgpu en lugar de radeon en GRUB para permitir aceleración\nVulkan y compatibilidad completa con Wayland y Plasma 6."; then
-        if [ -f "$DOTFILES_DIR/scripts/setup-amd-gpu.sh" ]; then
-            bash "$DOTFILES_DIR/scripts/setup-amd-gpu.sh"
+# Detección y configuración de Snapshots Btrfs
+if [ "$(findmnt -n -o FSTYPE / 2>/dev/null)" = "btrfs" ]; then
+    if ask_install "Snapshots Automáticos del Sistema (Btrfs + Snapper + GRUB)" \
+        "Crea puntos de restauración instantáneos antes de cada actualización con pacman/yay\ny añade entradas automáticas en el menú de GRUB para arrancar si algo falla."; then
+        if [ -f "$DOTFILES_DIR/scripts/setup-btrfs-snapshots.sh" ]; then
+            bash "$DOTFILES_DIR/scripts/setup-btrfs-snapshots.sh"
         fi
     fi
 fi
@@ -475,14 +475,21 @@ if ask_install "fastfetch (Información rápida del sistema)" \
     print_success "fastfetch instalado"
 fi
 
-if pgrep -x "plasmashell" > /dev/null; then
-    if ask_install "Tema Catppuccin Mocha para KDE Plasma" \
-        "Aplica el tema visual oscuro global de Catppuccin a ventanas, panel y controles de KDE Plasma."; then
-        print_info "Instalando tema visual desde AUR..."
-        yay -S --needed --noconfirm catppuccin-kde-theme-mocha-git 2>/dev/null || true
-        if command -v plasma-apply-lookandfeel &>/dev/null; then
-            plasma-apply-lookandfeel -a Catppuccin-Mocha-Dark 2>/dev/null || true
-            print_success "Tema Catppuccin Mocha aplicado a KDE Plasma"
+INSTALL_EASYEFFECTS=false
+if ask_install "EasyEffects + Presets Catppuccin (PipeWire Audio)" \
+    "¿Qué hace?: Ecualización avanzada para mejorar sonido de auriculares y filtros de IA (RNNoise)\n   para suprimir el ruido de fondo de tu micrófono en llamadas y Discord."; then
+    INSTALL_EASYEFFECTS=true
+    pkg_install easyeffects lsp-plugins-lv2
+    print_success "EasyEffects instalado"
+fi
+
+INSTALL_KDE_CUSTOM=false
+if pgrep -x "plasmashell" > /dev/null || [ -d "/usr/share/plasma" ]; then
+    if ask_install "Personalización Completa de KDE Plasma 6 (Catppuccin Mocha + Kvantum + Klassy)" \
+        "¿Qué hace esta personalización?:\n   • Kvantum: Renderizado con transparencias y desenfoque (blur) real en apps Qt.\n   • Klassy: Decoraciones de ventana con esquinas redondeadas y botones modernos.\n   • Catppuccin Mocha: Tema global para paneles, ventanas, widgets y cursores.\n   • Atajos globales y reglas optimizadas de KWin."; then
+        INSTALL_KDE_CUSTOM=true
+        if [ -f "$DOTFILES_DIR/scripts/setup-kde.sh" ]; then
+            bash "$DOTFILES_DIR/scripts/setup-kde.sh"
         fi
     fi
 fi
@@ -495,15 +502,25 @@ print_header "Paso 9: Creación de Enlaces Simbólicos (Symlinks)"
 
 ROOT_FILES=(.zshrc .zprofile .gitconfig .gitignore_global .ripgreprc .editorconfig .tool-versions)
 
-CONFIG_ITEMS=(starship.toml)
+CONFIG_ITEMS=(starship.toml fontconfig)
 $INSTALL_KITTY && CONFIG_ITEMS+=(kitty)
+$INSTALL_NVIM && CONFIG_ITEMS+=(nvim)
 $INSTALL_LAZYGIT && CONFIG_ITEMS+=(lazygit)
 $INSTALL_BTOP && CONFIG_ITEMS+=(btop)
 $INSTALL_LSD && CONFIG_ITEMS+=(lsd)
+$INSTALL_BAT && CONFIG_ITEMS+=(bat)
+$INSTALL_YAZI && CONFIG_ITEMS+=(yazi)
+$INSTALL_FASTFETCH && CONFIG_ITEMS+=(fastfetch)
+$INSTALL_EASYEFFECTS && CONFIG_ITEMS+=(easyeffects)
 $INSTALL_ZATHURA && CONFIG_ITEMS+=(zathura)
 $INSTALL_YTDLP && CONFIG_ITEMS+=(yt-dlp)
 $INSTALL_FD && CONFIG_ITEMS+=(fd)
 $INSTALL_ZELLIJ && CONFIG_ITEMS+=(zellij)
+
+# Si se seleccionó personalización de KDE o interfaz gráfica
+if $INSTALL_KDE_CUSTOM; then
+    CONFIG_ITEMS+=(environment.d Kvantum kdeglobals kglobalshortcutsrc kwinrc gtk-3.0 gtk-4.0 rofi easyeffects)
+fi
 
 NEEDS_BACKUP=false
 for f in "${ROOT_FILES[@]}"; do
@@ -530,13 +547,16 @@ for f in "${ROOT_FILES[@]}"; do
 done
 
 mkdir -p "$HOME/.config"
-print_info "Enlazando directorios en ~/.config/..."
+print_info "Enlazando configuraciones en ~/.config/..."
 for item in "${CONFIG_ITEMS[@]}"; do
     if [ -e "$DOTFILES_DIR/.config/$item" ]; then
         ln -sf "$DOTFILES_DIR/.config/$item" "$HOME/.config/$item"
         echo "   .config/$item → ~/.config/$item"
     fi
 done
+
+# Activar Git hooks locales del repositorio
+git config core.hooksPath "$DOTFILES_DIR/.githooks" 2>/dev/null || true
 
 print_success "Todos los enlaces simbólicos han sido creados"
 
