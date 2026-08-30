@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================
-# Script de Personalización Visual para Arch Linux + KDE Plasma
-# Temas Catppuccin Mocha, Kvantum, Klassy, Iconos, Cursores, SDDM y GRUB
+# Script de Personalización Visual Multi-Tema para Arch Linux
+# Fuentes Nerd Fonts, Kvantum, Klassy, Iconos, Cursores, SDDM y GRUB
 # ============================================================
 
 set -e
@@ -102,25 +102,41 @@ fi
 # Inicio
 # ============================================================
 
-print_header "Personalización Visual — Arch Linux + KDE Plasma"
+print_header "Personalización Visual Multi-Tema — Arch Linux + KDE Plasma"
 echo -e "Sistema detectado: ${GREEN}$PRETTY_NAME${NC}"
 echo ""
-echo "Este script instala motores de temas, decoraciones, iconos, cursores y fondos."
-echo "En cada paso se detalla exactamente qué función cumple cada componente visual."
+echo "Este script instala la suite completa de fuentes Nerd Fonts, motores de temas,"
+echo "esquemas visuales (Catppuccin, Tokyo Night, Nord, Dracula, Gruvbox), iconos y cursores."
 echo ""
 echo -e "${YELLOW}─────────────────────────────────────────────────────${NC}"
+
+# ============================================================
+# FUENTES NERD FONTS
+# ============================================================
+
+print_header "1. Suite Completa de Fuentes y Emojis"
+
+INSTALL_FONTS=false
+if ask_install "Fuentes de Programación Nerd Fonts + Inter + Emojis" \
+    "¿Qué hace?: Instala JetBrainsMono Nerd Font, FiraCode Nerd Font, Cascadia Code,\n   fuente Inter para la interfaz gráfica y Noto Color Emoji para soporte completo de glifos."; then
+    INSTALL_FONTS=true
+    pkg_install ttf-jetbrains-mono-nerd ttf-fira-code-nerd ttf-cascadia-code-nerd inter-font noto-fonts-emoji
+    fc-cache -fv 2>/dev/null || true
+    print_success "Fuentes instaladas y caché actualizado"
+fi
 
 # ============================================================
 # MOTORES VISUALES Y DECORACIONES (KVANTUM + KLASSY)
 # ============================================================
 
-print_header "1. Motores Gráficos y Decoración de Ventanas"
+print_header "2. Motores Gráficos y Decoración de Ventanas"
 
 INSTALL_KVANTUM=false
-if ask_install "Kvantum Engine + Tema Catppuccin Mocha" \
-    "¿Qué hace?: Motor de renderizado basado en SVG para aplicaciones Qt.\n   Añade transparencias, desenfoque (blur) y estilo Catppuccin consistente a Dolphin, Kate y ajustes."; then
+if ask_install "Kvantum Engine + Temas SVG (Transparencias y Blur)" \
+    "¿Qué hace?: Motor de renderizado basado en SVG para aplicaciones Qt.\n   Añade transparencias, desenfoque (blur) y estilo moderno consistente a Dolphin, Kate y ajustes."; then
     INSTALL_KVANTUM=true
-    aur_install kvantum kvantum-theme-catppuccin-git
+    pkg_install kvantum
+    aur_install kvantum-theme-catppuccin-git || true
     print_success "Kvantum y temas instalados"
 fi
 
@@ -133,16 +149,16 @@ if ask_install "Klassy (Decoración de Ventanas Avanzada)" \
 fi
 
 INSTALL_ROFI=false
-if ask_install "Rofi-Wayland (Lanzador Rápido)" \
-    "¿Qué hace?: Lanzador de aplicaciones modal ultra-rápido compatible con Wayland.\n   Alternativa ligera y minimalista para abrir apps y comandos rápidamente." "n"; then
+if ask_install "Rofi-Wayland + Selector Dinámico de Temas" \
+    "¿Qué hace?: Lanzador modal ultra-rápido compatible con Wayland.\n   Permite abrir aplicaciones y cambiar de tema con Meta+Shift+T."; then
     INSTALL_ROFI=true
     pkg_install rofi-wayland
     print_success "Rofi-Wayland instalado"
 fi
 
 INSTALL_SPICETIFY=false
-if ask_install "Spicetify CLI (Spotify con Catppuccin Mocha)" \
-    "¿Qué hace?: Modificador de la interfaz del cliente oficial de Spotify para inyectar\n   la paleta de colores Catppuccin Mocha y extensiones de reproducción." "n"; then
+if ask_install "Spicetify CLI (Spotify con Temas)" \
+    "¿Qué hace?: Modificador de la interfaz del cliente oficial de Spotify para inyectar\n   la paleta de colores activa y extensiones de reproducción." "n"; then
     INSTALL_SPICETIFY=true
     aur_install spicetify-cli
     print_success "Spicetify instalado desde AUR"
@@ -152,11 +168,11 @@ fi
 # ICONOS
 # ============================================================
 
-print_header "2. Paquetes de Iconos"
+print_header "3. Paquetes de Iconos"
 
 INSTALL_PAPIRUS=false
-if ask_install "Papirus Icon Theme (Dark)" \
-    "¿Qué hace?: Iconos planos y modernos con soporte para miles de aplicaciones.\n   La versión Dark ofrece contraste ideal con fondos oscuros como Catppuccin."; then
+if ask_install "Papirus Icon Theme (Dark y Light)" \
+    "¿Qué hace?: Iconos planos y modernos con soporte para miles de aplicaciones.\n   Incluye variantes Dark y Light para adaptarse al modo día/noche."; then
     INSTALL_PAPIRUS=true
     pkg_install papirus-icon-theme
     print_success "Papirus instalado"
@@ -164,69 +180,69 @@ fi
 
 INSTALL_TELA=false
 if ask_install "Tela Circle Icon Theme (Dark)" \
-    "¿Qué hace?: Iconos circulares con estilo Material Design y paletas oscuras.\n   Alternativa estética para quienes prefieren iconos redondeados." "n"; then
+    "¿Qué hace?: Iconos circulares con estilo Material Design y acentos Tokyo Night / Nord." "n"; then
     INSTALL_TELA=true
-    aur_install tela-circle-icon-theme-dark
+    aur_install tela-circle-icon-theme-dark || aur_install tela-circle-icon-theme-git
     print_success "Tela Circle instalado desde AUR"
 fi
 
-INSTALL_CATPPUCCIN_ICONS=false
-if ask_install "Catppuccin Icons" \
-    "¿Qué hace?: Iconos oficiales de la comunidad Catppuccin adaptados a la paleta Mocha." "n"; then
-    INSTALL_CATPPUCCIN_ICONS=true
-    aur_install catppuccin-icons-git
-    print_success "Catppuccin Icons instalado desde AUR"
+INSTALL_NORDZY_ICONS=false
+if ask_install "Nordzy Icon Theme" \
+    "¿Qué hace?: Set de iconos diseñado específicamente para la paleta Nord." "n"; then
+    INSTALL_NORDZY_ICONS=true
+    aur_install nordzy-icon-theme || true
+    print_success "Nordzy Icons instalado desde AUR"
 fi
 
 # ============================================================
 # CURSORES
 # ============================================================
 
-print_header "3. Temas de Cursores"
+print_header "4. Temas de Cursores"
 
 INSTALL_CATPPUCCIN_CURSORS=false
-if ask_install "Catppuccin Cursors (Mocha Dark)" \
-    "¿Qué hace?: Tema de puntero del ratón con diseño limpio y los acentos de color de Catppuccin."; then
+if ask_install "Catppuccin Cursors (Mocha & Latte)" \
+    "¿Qué hace?: Puntero del ratón en variantes oscura (Mocha) y clara (Latte)."; then
     INSTALL_CATPPUCCIN_CURSORS=true
-    aur_install catppuccin-cursors-mocha || aur_install catppuccin-cursors-git
+    aur_install catppuccin-cursors-mocha || aur_install catppuccin-cursors-git || true
     print_success "Catppuccin Cursors instalado"
 fi
 
 INSTALL_BIBATA=false
-if ask_install "Bibata Modern Dark Cursors" \
-    "¿Qué hace?: Cursores redondeados de alta visibilidad con borde nítido y acentos modernos." "n"; then
+if ask_install "Bibata Modern Cursors (Dark, Ice & Classic)" \
+    "¿Qué hace?: Cursores redondeados de alta visibilidad para temas Tokyo Night, Nord y Dracula."; then
     INSTALL_BIBATA=true
     aur_install bibata-cursor-theme
     print_success "Bibata Cursors instalado desde AUR"
+fi
+
+INSTALL_CAPITAINE=false
+if ask_install "Capitaine Cursors" \
+    "¿Qué hace?: Cursores inspirados en macOS ideales para el tema Gruvbox." "n"; then
+    INSTALL_CAPITAINE=true
+    aur_install capitaine-cursors
+    print_success "Capitaine Cursors instalado desde AUR"
 fi
 
 # ============================================================
 # TEMAS DE VENTANAS Y GTK
 # ============================================================
 
-print_header "4. Temas de Plasma y Aplicaciones GTK"
+print_header "5. Paquetes Multi-Tema (Catppuccin, Nordic, Tokyo Night, Dracula)"
 
-INSTALL_CATPPUCCIN_KWIN=false
-if ask_install "Catppuccin Plasma Look & Feel (Mocha)" \
-    "¿Qué hace?: Aplica el esquema de colores global, pantalla de bloqueo y tema de widgets de Plasma."; then
-    INSTALL_CATPPUCCIN_KWIN=true
-    aur_install catppuccin-kde-theme-mocha-git
-    print_success "Catppuccin KDE Theme instalado"
-fi
-
-INSTALL_WHITESUR=false
-if ask_install "WhiteSur GTK Theme (Dark)" \
-    "¿Qué hace?: Tema oscuro para aplicaciones GTK (GIMP, Inkscape, etc.) asegurando coherencia visual." "n"; then
-    INSTALL_WHITESUR=true
-    aur_install whitesur-gtk-theme-dark
-    print_success "WhiteSur Dark instalado desde AUR"
+INSTALL_MULTI_THEMES=false
+if ask_install "Instalar paquetes de temas adicionales (Nord, Dracula, Tokyo Night)" \
+    "¿Qué hace?: Descarga los esquemas globales y temas GTK para poder alternar entre ellos sin reiniciar."; then
+    INSTALL_MULTI_THEMES=true
+    aur_install catppuccin-kde-theme-mocha-git nordic-theme-git full-dracula-theme-git tokyonight-gtk-theme-git 2>/dev/null || true
+    print_success "Paquetes multi-tema instalados"
 fi
 
 # ============================================================
 # SDDM (Pantalla de Login)
 # ============================================================
 
-print_header "5. SDDM — Pantalla de Inicio de Sesión"
+print_header "6. SDDM — Pantalla de Inicio de Sesión"
 
 INSTALL_CATPPUCCIN_SDDM=false
 if ask_install "Catppuccin SDDM Theme" \
@@ -247,7 +263,7 @@ fi
 # GRUB (Bootloader)
 # ============================================================
 
-print_header "6. GRUB — Gestor de Arranque"
+print_header "7. GRUB — Gestor de Arranque"
 
 INSTALL_CATPPUCCIN_GRUB=false
 if ask_install "Catppuccin GRUB Theme" \
@@ -263,60 +279,25 @@ fi
 # FONDOS DE ESCRITORIO
 # ============================================================
 
-print_header "7. Fondos de Escritorio Catppuccin"
+print_header "8. Colección de Wallpapers Multi-Tema"
 
-INSTALL_CATPPUCCIN_WALLPAPERS=false
-if ask_install "Catppuccin Wallpapers (4K)" \
-    "¿Qué hace?: Colección de fondos de pantalla en alta resolución optimizados para la paleta Mocha."; then
-    INSTALL_CATPPUCCIN_WALLPAPERS=true
-    aur_install catppuccin-wallpapers-git
-    print_info "Fondos disponibles en /usr/share/backgrounds/catppuccin/"
-    print_success "Fondos Catppuccin instalados"
-fi
-
-# ============================================================
-# APLICACIÓN AUTOMÁTICA EN PLASMA
-# ============================================================
-
-print_header "8. Aplicar Personalización a KDE Plasma"
-
-APPLY_CATPPUCCIN_PLASMA=false
-if ask_install "Aplicar Tema Global Ahora Mismo" \
-    "¿Qué hace?: Aplica de forma inmediata la paleta Catppuccin Mocha, cursores y motor Kvantum en Plasma."; then
-    APPLY_CATPPUCCIN_PLASMA=true
-    
-    if command -v plasma-apply-lookandfeel &>/dev/null; then
-        plasma-apply-lookandfeel -a Catppuccin-Mocha-Dark 2>/dev/null || true
+INSTALL_WALLPAPERS=false
+if ask_install "Descargar Colección de Fondos (Estáticos y Videos)" \
+    "¿Qué hace?: Clona fondos 4K categorizados por tema (Catppuccin, Tokyo Night, Nord, Gruvbox) en ~/Imágenes/Wallpapers."; then
+    INSTALL_WALLPAPERS=true
+    DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    if [ -f "$DOTFILES_DIR/scripts/download-wallpapers.sh" ]; then
+        bash "$DOTFILES_DIR/scripts/download-wallpapers.sh"
     fi
-    if command -v kvantummanager &>/dev/null; then
-        kvantummanager --set Catppuccin-Mocha-Dark 2>/dev/null || true
-    fi
-    if command -v plasma-apply-cursortheme &>/dev/null; then
-        plasma-apply-cursortheme Catppuccin-Mocha-Dark 2>/dev/null || true
-    fi
-    print_success "Temas aplicados a la sesión actual"
 fi
 
 # ============================================================
 # Resumen Final
 # ============================================================
 
-print_header "Instalación Visual Completada"
-echo -e "${GREEN}Componentes configurados:${NC}"
-$INSTALL_KVANTUM && echo "  ✅ Kvantum Engine + Tema Catppuccin"
-$INSTALL_KLASSY && echo "  ✅ Klassy Window Decoration"
-$INSTALL_ROFI && echo "  ✅ Rofi-Wayland"
-$INSTALL_SPICETIFY && echo "  ✅ Spicetify CLI"
-$INSTALL_PAPIRUS && echo "  ✅ Papirus Icon Theme"
-$INSTALL_TELA && echo "  ✅ Tela Circle Icons"
-$INSTALL_CATPPUCCIN_ICONS && echo "  ✅ Catppuccin Icons"
-$INSTALL_CATPPUCCIN_CURSORS && echo "  ✅ Catppuccin Cursors"
-$INSTALL_BIBATA && echo "  ✅ Bibata Cursors"
-$INSTALL_CATPPUCCIN_KWIN && echo "  ✅ Catppuccin Look & Feel"
-$INSTALL_WHITESUR && echo "  ✅ WhiteSur GTK"
-$INSTALL_CATPPUCCIN_SDDM && echo "  ✅ SDDM Catppuccin"
-$INSTALL_CATPPUCCIN_GRUB && echo "  ✅ GRUB Catppuccin"
-$INSTALL_CATPPUCCIN_WALLPAPERS && echo "  ✅ Wallpapers Catppuccin"
-
+print_header "Instalación Visual Multi-Tema Completada"
+echo -e "${GREEN}Componentes listos para usar:${NC}"
+echo -e " • ${BOLD}Selector dinámico:${NC} Pulsa ${CYAN}Meta+Shift+T${NC} o escribe ${CYAN}theme-switch${NC} para cambiar de tema al instante."
+echo -e " • ${BOLD}Cambiador de fondos:${NC} Pulsa ${CYAN}Meta+Alt+W${NC} o escribe ${CYAN}wall-next${NC} para rotar wallpapers."
 echo ""
-echo -e "${PURPLE}¡Disfruta tu entorno visual de KDE Plasma! 🎨🚀${NC}"
+echo -e "${PURPLE}¡Disfruta tu nuevo entorno visual personalizable! 🎨🚀${NC}"

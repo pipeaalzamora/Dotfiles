@@ -365,7 +365,8 @@ dots-export-kde() {
     echo "✅ Configuraciones de KDE Plasma 6 exportadas a $target_dir"
 }
 
-# Wallpaper Manager (Estáticos y Animados)
+# Wallpaper & Theme Manager
+alias theme-switch='$DOTFILES_DIR/scripts/theme-switcher.sh'
 alias wall-next='$DOTFILES_DIR/scripts/change-wallpaper.sh'
 alias wall-download='$DOTFILES_DIR/scripts/download-wallpapers.sh'
 

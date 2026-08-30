@@ -67,7 +67,10 @@ Dotfiles/
 ├── scripts/
 │   ├── check-dependencies  # Validador de comandos instalados
 │   ├── install-programs.sh # Instalador de aplicaciones y herramientas Open Source
-│   ├── install-themes.sh   # Instalador exhaustivo de temas visuales, SDDM, GRUB, iconos
+│   ├── install-themes.sh   # Instalador exhaustivo de temas visuales, fuentes, SDDM, GRUB, iconos
+│   ├── theme-switcher.sh   # Selector interactivo multi-tema para Rofi y Terminal
+│   ├── change-wallpaper.sh # Cambiador dinámico de fondos de pantalla (estáticos y videos)
+│   ├── download-wallpapers.sh # Descargador de colecciones de fondos Catppuccin 4K y videos
 │   ├── setup-kde.sh        # Automatización de KDE Plasma 6 (Kvantum, Klassy, atajos)
 │   ├── setup-btrfs-snapshots.sh # Configuración de Snapper + snap-pac + GRUB-Btrfs
 │   ├── manage-kde-profile.sh # Guardar/Restaurar perfil de escritorio completo con Konsave
@@ -86,15 +89,23 @@ Dotfiles/
 
 ---
 
-## 🎨 Gestión de KDE Plasma 6
+## 🎨 Atajos y Gestión de KDE Plasma 6
 
-El archivo `.zshrc` incluye funciones y atajos preparados para Wayland:
+| Atajo de Teclado | Acción | Descripción |
+| :--- | :--- | :--- |
+| **`Meta + Shift + T`** | `theme-switch` | Abre el menú interactivo en Rofi para cambiar entre 6 temas (Catppuccin, Tokyo Night, Nord, Dracula, Gruvbox, Latte). |
+| **`Meta + Alt + W`** | `wall-next` | Rota aleatoriamente el fondo de pantalla (soporta imágenes 4K y videos en bucle con `mpvpaper`). |
+| **`Meta + Return`** | Lanzar Kitty | Abre la terminal acelerada por GPU Kitty. |
+| **`Meta + Shift + S`** | Captura de Pantalla | Inicia la herramienta de recorte rectangular de Spectacle. |
+| **`Meta + C`** / **`Meta + F`** | Ventanas | Cierra la ventana activa (`Meta+C`) o la maximiza (`Meta+F`). |
 
-* `krestart`: Reinicia el panel y widgets de forma limpia vía systemd (`systemctl --user restart plasma-plasmashell.service`).
-* `kwin-reload`: Recarga las reglas y efectos de KWin al vuelo con D-Bus sin reiniciar sesión.
-* `dots-export-kde`: Exporta tus configuraciones activas de KDE hacia tu carpeta local de dotfiles.
-* `./scripts/manage-kde-profile.sh save`: Guarda un snapshot de tu escritorio (paneles, widgets, fondos) en un archivo `.knsv` listo para versionar.
-* `./scripts/manage-kde-profile.sh restore`: Restaura todo tu escritorio exactamente como lo guardaste.
+### Comandos útiles en terminal:
+* `theme-switch`: Abre el selector de temas desde la consola.
+* `wall-next` / `wall-download`: Cambia de wallpaper o descarga la colección.
+* `krestart`: Reinicia el panel y widgets de forma limpia vía systemd.
+* `kwin-reload`: Recarga las reglas y efectos de KWin al vuelo con D-Bus.
+* `dots-export-kde`: Exporta tus configuraciones activas de KDE hacia tu carpeta de dotfiles.
+* `./scripts/manage-kde-profile.sh save / restore`: Guarda y restaura snapshots completos de tu escritorio con Konsave.
 
 ---
 
