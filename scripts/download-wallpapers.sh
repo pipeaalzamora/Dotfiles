@@ -33,9 +33,9 @@ echo -e "📁 Destino: ${CYAN}$WALLPAPERS_DIR${NC}"
 echo ""
 
 # 1. Descargar colección de fondos estáticos (Shallow clone para máxima velocidad)
-if [ -d "$WALLPAPERS_DIR/.git" ]; then
+if [ -d "$WALLPAPERS_DIR/collection/.git" ]; then
     echo -e "🔄 Actualizando colección de fondos estáticos existente..."
-    git -C "$WALLPAPERS_DIR" pull --quiet 2>/dev/null || true
+    git -C "$WALLPAPERS_DIR/collection" pull --quiet 2>/dev/null || true
 else
     echo -e "⬇️  Clonando colección oficial y curada de fondos Catppuccin (4K / Minimal / Anime / Espacio)..."
     git clone --depth=1 https://github.com/zhichaoh/catppuccin-wallpapers.git "$WALLPAPERS_DIR/collection" 2>/dev/null || {
@@ -44,12 +44,16 @@ else
     }
 fi
 
-# 2. Descargar videos / live wallpapers de muestra
-echo -e "⬇️  Descargando fondos animados de muestra (.mp4 / .webm)..."
-
-# Sample 1: Catppuccin Lofi Rain (Loop 60fps)
-curl -fsSL -o "$WALLPAPERS_DIR/animated/catppuccin-rain.mp4" \
-    "https://raw.githubusercontent.com/Gogh-Co/Gogh/master/themes/catppuccin-mocha.yml" 2>/dev/null || true
+# 2. Fondos animados (videos en bucle para mpvpaper)
+# Nota: No existe una fuente oficial estable de video-wallpapers Catppuccin
+# de un solo archivo verificable, por lo que en vez de descargar un archivo
+# no confiable, dejamos instrucciones claras para que el usuario agregue los suyos.
+if [ -z "$(find "$WALLPAPERS_DIR/animated" -type f \( -iname "*.mp4" -o -iname "*.webm" \) 2>/dev/null)" ]; then
+    echo -e "${YELLOW}ℹ️  No se incluyen videos de muestra automáticamente (evita descargar archivos no verificados).${NC}"
+    echo -e "   Para usar fondos animados con ${BOLD}wall-next${NC}, coloca tus propios archivos .mp4/.webm en:"
+    echo -e "   ${CYAN}$WALLPAPERS_DIR/animated/${NC}"
+    echo -e "   Puedes buscar 'Catppuccin live wallpaper' en r/unixporn o Reddit para opciones curadas por la comunidad."
+fi
 
 # 3. Contar total de fondos descargados
 TOTAL_STATIC=$(find "$WALLPAPERS_DIR" -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) 2>/dev/null | wc -l)

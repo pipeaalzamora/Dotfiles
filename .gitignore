@@ -5,6 +5,11 @@
 # Backups generados por el instalador
 dotfiles_backup_*/
 
+# Perfiles de KDE Plasma (pueden contener rutas absolutas y datos personales)
+# Revisa el contenido manualmente antes de forzar su inclusión con git add -f
+*.knsv
+*.knsv.bak
+
 # Archivos con datos sensibles (nunca subir)
 cookies.txt
 *.token
