@@ -58,14 +58,26 @@ ask_yes_no() {
     done
 }
 
-print_header "Configuración de Snapshots Btrfs + Snapper + GRUB"
+# ------------------------------------------------------------
+# Detección del gestor de arranque activo
+# ------------------------------------------------------------
+detect_bootloader() {
+    if command -v bootctl &>/dev/null && bootctl is-installed &>/dev/null; then
+        echo "systemd-boot"
+    elif [ -d /boot/grub ] || [ -d /boot/grub2 ] || command -v grub-mkconfig &>/dev/null; then
+        echo "grub"
+    else
+        echo "unknown"
+    fi
+}
+
+print_header "Configuración de Snapshots Btrfs + Snapper"
 
 echo -e "Este script configurará copias de seguridad instantáneas automáticas."
 echo -e "${BOLD}¿Qué hace este sistema?:${NC}"
 echo -e " • ${CYAN}snapper:${NC} Administrador de instantáneas del sistema de archivos Btrfs."
 echo -e " • ${CYAN}snap-pac:${NC} Hook de pacman que crea un snapshot 'pre' y 'post' antes de cada actualización."
-echo -e " • ${CYAN}grub-btrfs:${NC} Genera entradas automáticas en el menú de inicio de GRUB para arrancar en snapshots anteriores si el sistema falla."
-echo -e " • ${CYAN}inotify-tools:${NC} Monitoriza el sistema para actualizar el menú de GRUB en tiempo real."
+echo -e " • ${CYAN}Integración con el bootloader:${NC} Permite arrancar en un snapshot anterior si el sistema falla."
 echo ""
 
 # 1. Comprobar si la raíz del sistema usa Btrfs
@@ -73,26 +85,50 @@ ROOT_FS=$(findmnt -n -o FSTYPE / 2>/dev/null || echo "")
 
 if [ "$ROOT_FS" != "btrfs" ]; then
     print_error "La partición raíz (/) no utiliza el sistema de archivos Btrfs (Detectado: '$ROOT_FS')."
-    echo "Snapper y grub-btrfs requieren una instalación sobre particiones formateadas en Btrfs."
+    echo "Snapper requiere una instalación sobre particiones formateadas en Btrfs."
     exit 1
 fi
 
 print_success "Sistema de archivos Btrfs detectado en la raíz (/)"
 
-if ! ask_yes_no "¿Deseas instalar y configurar Snapper + snap-pac + GRUB-Btrfs?"; then
+# 2. Detectar bootloader activo
+BOOTLOADER=$(detect_bootloader)
+
+case "$BOOTLOADER" in
+    grub)
+        print_success "Bootloader detectado: GRUB (se instalará grub-btrfs para menú de recuperación)"
+        ;;
+    systemd-boot)
+        print_warning "Bootloader detectado: systemd-boot"
+        echo -e "   ${DIM}grub-btrfs NO es compatible con systemd-boot. Se configurará Snapper de todas formas"
+        echo -e "   para crear snapshots automáticos, pero no se agregará un menú de arranque a snapshots.${NC}"
+        echo -e "   ${DIM}Alternativa manual: puedes explorar 'limine-snapper-sync' o restaurar snapshots"
+        echo -e "   con 'snapper rollback' desde una USB de rescate.${NC}"
+        ;;
+    *)
+        print_warning "No se pudo determinar el bootloader activo. Se omitirá la integración de menú de arranque."
+        ;;
+esac
+
+if ! ask_yes_no "¿Deseas instalar y configurar Snapper + snap-pac${BOOTLOADER:+ (bootloader: $BOOTLOADER)}?"; then
     echo "Operación cancelada."
     exit 0
 fi
 
-# 2. Instalación de paquetes
-print_info "Instalando paquetes (snapper, snap-pac, grub-btrfs, inotify-tools)..."
-if command -v yay &>/dev/null; then
-    yay -S --needed --noconfirm snapper snap-pac grub-btrfs inotify-tools
-else
-    sudo pacman -S --needed --noconfirm snapper snap-pac grub-btrfs inotify-tools
+# 3. Instalación de paquetes (grub-btrfs solo si el bootloader es GRUB)
+PACKAGES=(snapper snap-pac inotify-tools)
+if [ "$BOOTLOADER" = "grub" ]; then
+    PACKAGES+=(grub-btrfs)
 fi
 
-# 3. Configuración de Snapper para / (root)
+print_info "Instalando paquetes (${PACKAGES[*]})..."
+if command -v yay &>/dev/null; then
+    yay -S --needed --noconfirm "${PACKAGES[@]}"
+else
+    sudo pacman -S --needed --noconfirm "${PACKAGES[@]}"
+fi
+
+# 4. Configuración de Snapper para / (root)
 if [ ! -f /etc/snapper/configs/root ]; then
     print_info "Creando configuración de Snapper para la partición raíz..."
     # Si existe subvolumen /.snapshots montado, desmontar temporalmente para crear config
@@ -108,7 +144,7 @@ fi
 sudo snapper -c root set-config "ALLOW_USERS=$USER" "SYNC_ACL=yes"
 sudo chown -R :"$USER" /.snapshots 2>/dev/null || true
 
-# 4. Ajustar límites de retención de snapshots (para no saturar el disco)
+# 5. Ajustar límites de retención de snapshots (para no saturar el disco)
 print_info "Optimizando retención de snapshots (10 por hora, 7 diarios, 4 semanales)..."
 sudo snapper -c root set-config \
     NUMBER_LIMIT=10 \
@@ -119,24 +155,29 @@ sudo snapper -c root set-config \
     TIMELINE_LIMIT_MONTHLY=2 \
     TIMELINE_LIMIT_YEARLY=0
 
-# 5. Habilitar Timers de Snapper
+# 6. Habilitar Timers de Snapper
 print_info "Habilitando temporizadores de limpieza y mantenimiento de Snapper..."
 sudo systemctl enable --now snapper-timeline.timer
 sudo systemctl enable --now snapper-cleanup.timer
 
-# 6. Habilitar servicio de actualización automática de GRUB
-print_info "Habilitando servicio daemon de grub-btrfs..."
-sudo systemctl enable --now grub-btrfsd.service || sudo systemctl enable --now grub-btrfs.path || true
+# 7. Integración con el menú de arranque (solo GRUB)
+if [ "$BOOTLOADER" = "grub" ]; then
+    print_info "Habilitando servicio daemon de grub-btrfs..."
+    sudo systemctl enable --now grub-btrfsd.service || sudo systemctl enable --now grub-btrfs.path || true
 
-# 7. Actualizar GRUB inicialmente
-print_info "Actualizando menú de arranque de GRUB con los snapshots actuales..."
-if [ -f /boot/grub/grub.cfg ]; then
-    sudo grub-mkconfig -o /boot/grub/grub.cfg
+    print_info "Actualizando menú de arranque de GRUB con los snapshots actuales..."
+    if [ -f /boot/grub/grub.cfg ]; then
+        sudo grub-mkconfig -o /boot/grub/grub.cfg
+    fi
 fi
 
 print_header "¡Snapshots de Btrfs Configurados Exitosamente!"
 echo -e "${GREEN}Protección contra fallos activada:${NC}"
 echo -e " • Cada vez que ejecutes ${CYAN}pacman -Syu${NC} o ${CYAN}yay${NC}, se creará automáticamente un punto de restauración."
-echo -e " • Si una actualización rompe el sistema o los drivers, reinicia tu PC, entra al submenú ${BOLD}'Arch Linux snapshots'${NC} en GRUB y arranca en el estado anterior."
+if [ "$BOOTLOADER" = "grub" ]; then
+    echo -e " • Si una actualización rompe el sistema, reinicia tu PC, entra al submenú ${BOLD}'Arch Linux snapshots'${NC} en GRUB y arranca en el estado anterior."
+else
+    echo -e " • Con systemd-boot, restaura manualmente con: ${BOLD}sudo snapper rollback <número>${NC} desde una sesión en vivo o TTY si el sistema falla."
+fi
 echo -e " • Puedes listar tus snapshots con el comando: ${BOLD}snapper list${NC}"
 echo ""
