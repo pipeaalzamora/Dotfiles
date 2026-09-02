@@ -369,6 +369,7 @@ dots-export-kde() {
 alias theme-switch='$DOTFILES_DIR/scripts/theme-switcher.sh'
 alias wall-next='$DOTFILES_DIR/scripts/change-wallpaper.sh'
 alias wall-download='$DOTFILES_DIR/scripts/download-wallpapers.sh'
+alias monitors='$DOTFILES_DIR/scripts/manage-monitors.sh'
 
 # ============================================================
 # Configuración local / personal (no versionada en git)

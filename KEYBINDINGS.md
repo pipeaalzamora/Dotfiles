@@ -20,6 +20,7 @@
 | Atajo de Teclado | Acción | ¿Qué hace? |
 | :--- | :--- | :--- |
 | **`Meta + Return`** (Enter) | Lanzar Terminal | Abre la terminal acelerada por GPU **Kitty** con tema y transparencia. |
+| **`Meta + P`** | `monitors` | Abre el selector de perfiles multi-monitor (solo principal, solo externo, extender, duplicar). |
 | **`Meta + Space`** o **`Alt + Space`** | KRunner | Abre el buscador del sistema de KDE Plasma (búsqueda de archivos, cálculo rápido, apps). |
 | **`Meta + Shift + S`** | Captura de Pantalla | Inicia la captura de pantalla con selección de área rectangular mediante **Spectacle**. |
 | **`Meta + W`** | Visión General (Overview) | Muestra todas las ventanas abiertas en cuadrícula para cambiar de app rápidamente. |
@@ -83,4 +84,5 @@
 | **`cat <archivo>`** | Bat | Muestra el contenido del archivo con resaltado de sintaxis y tema activo. |
 | **`upd`** | Update-All | Actualiza todo el sistema en 1 paso (pacman, AUR yay, npm, rustup, pipx). |
 | **`krestart`** | KDE Plasma | Reinicia limpiamente el panel y widgets mediante systemd. |
+| **`monitors`** | KScreen | Selector interactivo de perfiles multi-monitor (principal, externo, extender, duplicar). |
 | **`dots-export-kde`** | Dotfiles | Exporta las configuraciones activas de KDE hacia tu repositorio local. |
