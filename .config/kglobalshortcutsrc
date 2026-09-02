@@ -10,6 +10,9 @@ _launch=Meta+Alt+W
 [theme-switcher.desktop]
 _launch=Meta+Shift+T
 
+[manage-monitors.desktop]
+_launch=Meta+P
+
 [kwin][Global Shortcuts]
 Kill Window=Meta+Shift+Q
 Overview=Meta+W
