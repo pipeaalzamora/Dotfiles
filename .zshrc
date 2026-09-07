@@ -371,6 +371,12 @@ alias wall-next='$DOTFILES_DIR/scripts/change-wallpaper.sh'
 alias wall-download='$DOTFILES_DIR/scripts/download-wallpapers.sh'
 alias monitors='$DOTFILES_DIR/scripts/manage-monitors.sh'
 
+# Versículo del Día — Reina Valera 1960
+alias verso='$DOTFILES_DIR/scripts/daily-verse.sh'
+alias salmo='$DOTFILES_DIR/scripts/daily-verse.sh salmo'
+alias proverbio='$DOTFILES_DIR/scripts/daily-verse.sh proverbio'
+alias verso-notif='$DOTFILES_DIR/scripts/daily-verse.sh random notify'
+
 # ============================================================
 # Configuración local / personal (no versionada en git)
 # Pon aquí paths y funciones específicas de tu máquina:

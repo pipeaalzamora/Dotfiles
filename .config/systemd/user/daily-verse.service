@@ -1,0 +1,10 @@
+[Unit]
+Description=Notificación de Versículo del Día (Reina Valera 1960)
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/daily-verse.sh random notify"
+
+[Install]
+WantedBy=default.target

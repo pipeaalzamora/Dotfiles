@@ -110,12 +110,14 @@ Ejecuta estos scripts únicamente si aplican a tu equipo o flujo:
 * `theme-switch`: Selector dinámico de temas desde la consola.
 * `wall-next` / `wall-download`: Cambia de wallpaper o descarga la colección de fondos.
 * `monitors`: Gestor interactivo multi-monitor con KScreen.
+* `verso` / `salmo` / `proverbio`: Muestra versículos de bendición y sabiduría (Reina Valera 1960) en la terminal o lanza notificación con `verso-notif`.
 * `krestart`: Reinicia el panel y widgets de KDE limpiamente vía systemd.
 * `kwin-reload`: Recarga las reglas y efectos de KWin al vuelo con D-Bus.
 * `dots-export-kde`: Exporta tus configuraciones activas de KDE hacia tu carpeta de dotfiles.
 * `manage-kde-profile.sh save / restore`: Guarda y restaura snapshots completos de tu escritorio con Konsave.
 * `upd`: Actualiza todo el sistema (pacman, AUR, npm, rustup, pipx) en un solo paso.
 * `check-dependencies`: Comprueba el estado y versión de todas las herramientas instaladas.
+* **Widget en KDE Plasma 6:** Incluye el widget plasmoid nativo *"Versículo Bíblico (RVR 1960)"* listo para agregar al escritorio o panel desde el menú de widgets de KDE.
 
 ---
 

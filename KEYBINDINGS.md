@@ -85,4 +85,7 @@
 | **`upd`** | Update-All | Actualiza todo el sistema en 1 paso (pacman, AUR yay, npm, rustup, pipx). |
 | **`krestart`** | KDE Plasma | Reinicia limpiamente el panel y widgets mediante systemd. |
 | **`monitors`** | KScreen | Selector interactivo de perfiles multi-monitor (principal, externo, extender, duplicar). |
+| **`verso`** | RVR1960 | Muestra un versículo del día en la terminal formateado en Catppuccin Mocha. |
+| **`salmo`** / **`proverbio`** | RVR1960 | Muestra un Salmo o Proverbio aleatorio de bendición y sabiduría. |
+| **`verso-notif`** | RVR1960 | Envía una notificación nativa al escritorio con el versículo actual. |
 | **`dots-export-kde`** | Dotfiles | Exporta las configuraciones activas de KDE hacia tu repositorio local. |

@@ -1,0 +1,22 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "pipeaalzamora@users.noreply.github.com",
+                "Name": "Pipe Alzamora"
+            }
+        ],
+        "Category": "Utilities",
+        "Description": "Versículo de bendición (Salmos y Proverbios RVR1960) para escritorio o panel",
+        "Icon": "bookmarks",
+        "Id": "org.dotfiles.dailyverse",
+        "Name": "Versículo Bíblico (RVR 1960)",
+        "ServiceTypes": [
+            "Plasma/Applet"
+        ],
+        "Version": "1.0",
+        "Website": "https://github.com/pipeaalzamora/Dotfiles"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

@@ -169,6 +169,28 @@ for desktop_file in change-wallpaper.desktop theme-switcher.desktop manage-monit
 done
 print_success "Lanzadores .desktop configurados en ~/.local/share/applications/ (atajos de scripts activos)"
 
+# Instalar Widget Plasmoid nativo de Versículo del Día (RVR1960)
+PLASMOIDS_DIR="$HOME/.local/share/plasma/plasmoids"
+mkdir -p "$PLASMOIDS_DIR"
+if [ -d "$DOTFILES_DIR/.local/share/plasma/plasmoids/org.dotfiles.dailyverse" ]; then
+    rm -rf "$PLASMOIDS_DIR/org.dotfiles.dailyverse"
+    cp -r "$DOTFILES_DIR/.local/share/plasma/plasmoids/org.dotfiles.dailyverse" "$PLASMOIDS_DIR/"
+    print_success "Widget de KDE Plasma 6 instalado: 'Versículo Bíblico (RVR 1960)'"
+fi
+
+# Inicializar versículo del día y habilitar timer de systemd
+if [ -f "$DOTFILES_DIR/scripts/daily-verse.sh" ]; then
+    bash "$DOTFILES_DIR/scripts/daily-verse.sh" raw >/dev/null 2>&1 || true
+fi
+
+mkdir -p "$HOME/.config/systemd/user"
+if [ -f "$DOTFILES_DIR/.config/systemd/user/daily-verse.timer" ]; then
+    cp "$DOTFILES_DIR/.config/systemd/user/daily-verse."* "$HOME/.config/systemd/user/"
+    systemctl --user daemon-reload 2>/dev/null || true
+    systemctl --user enable --now daily-verse.timer 2>/dev/null || true
+    print_success "Timer de notificaciones de versículos activado vía systemd"
+fi
+
 # ------------------------------------------------------------
 # PASO 5: Aplicación en Vivo de Temas con Herramientas Nativas
 # ------------------------------------------------------------
