@@ -18,66 +18,80 @@ El instalador es completamente interactivo: pregunta paso a paso qué componente
 
 ---
 
-## 🚦 Guía Paso a Paso: ¿Qué Instalar Primero y Qué es Opcional?
+## 🚦 Orden de Ejecución de Scripts: Paso a Paso
 
-Para que tu sistema quede perfectamente configurado sin sobrecargarlo innecesariamente, sigue este orden recomendado:
+Sigue este orden exacto para instalar y configurar tu entorno sin conflictos:
 
-### 1️⃣ Fase 1: Núcleo del Sistema (Obligatorio)
-Son los componentes fundamentales para que la terminal y los scripts funcionen correctamente:
-* **Paso 1 del instalador (Actualización + Base + AUR yay):** Sincroniza repositorios e instala `git`, `curl`, `base-devel` y el gestor de AUR `yay`.
-* **Paso 2 (Shell Zsh + Oh My Zsh):** Instala Zsh y los plugins esenciales (`zsh-autosuggestions`, `zsh-syntax-highlighting`).
-* **Paso 3 (Starship Prompt):** Prompt rápido en Rust que muestra ramas de Git, versiones y entorno.
-* **Paso 5 (Nerd Fonts - MesloLGS & JetBrains Mono):** **Fundamental.** Si no instalas las fuentes Nerd Fonts, verás iconos rotos o cuadrados vacíos en la terminal, Starship y los exploradores de archivos.
-
----
-
-### 2️⃣ Fase 2: Experiencia de Escritorio y KDE Plasma (Altamente Recomendado)
-Si estás en KDE Plasma 6 con Wayland, esta fase transforma el aspecto visual y la ergonomía:
-* **Personalización de KDE Plasma 6 (`scripts/setup-kde.sh`):**
-  * *Kvantum Engine:* Transparencias y desenfoque (blur) real en Dolphin y aplicaciones Qt.
-  * *Klassy:* Bordes de ventana con esquinas redondeadas y botones modernos.
-  * *Lanzadores `.desktop` y Atajos:* Configura `Meta+Return` (Kitty), `Meta+Shift+S` (Captura), `Meta+Shift+T` (Selector de temas), `Meta+Alt+W` (Wallpapers) y `Meta+P` (Monitores).
-* **Terminal Kitty (`kitty`):** Emulador acelerado por GPU con soporte de imágenes y transparencia nativa.
-* **Rofi-Wayland:** Menú lanzador modal ultrarrápido adaptado a Wayland.
-* **EasyEffects (Audio PipeWire):** Incluye presets listos para usar: cancelación de ruido en micrófono por IA (RNNoise) y ecualización de claridad sonora.
-* **Snapshots Btrfs (`scripts/setup-btrfs-snapshots.sh`):** *(Solo si usas partición Btrfs)* Puntos de restauración automáticos antes de cada actualización con pacman/yay accesibles desde el menú de GRUB.
+### 1️⃣ Paso 1 (Obligatorio) — Instalador Principal
+```bash
+./install.sh
+```
+* **¿Qué hace?:** Es el instalador interactivo central. Actualiza repositorios, instala `yay` (AUR), configura Zsh con Oh My Zsh, Starship, las fuentes **Nerd Fonts** (obligatorias para que los iconos no se vean rotos), herramientas CLI y crea todos los enlaces simbólicos (`symlinks`) y lanzadores `.desktop`.
+* **Prioridad:** **100% Obligatorio.** Todo lo demás depende de este paso.
 
 ---
 
-### 3️⃣ Fase 3: Utilidades Modernas de Terminal (Opcional según tu flujo)
-Herramientas CLI escritas en Rust/Go que reemplazan herramientas clásicas de Linux:
-* **Recomendadas para el día a día:**
-  * `lsd`: Reemplazo moderno de `ls` con colores e iconos.
-  * `bat`: Reemplazo de `cat` con sintaxis resaltada y números de línea.
-  * `zoxide`: Salto inteligente entre carpetas frecuentes con `j <carpeta>`.
-  * `fzf`: Búsqueda interactiva de archivos e historial con `Ctrl+R`.
-  * `yazi`: Explorador de archivos en consola con preview de imágenes y videos.
-  * `lazygit`: Interfaz TUI para Git (`lg`).
-  * `btop`: Monitor de recursos del sistema (`bp`).
-* **Específicas / Opcionales:**
-  * `zellij`: Multiplexor de terminal moderno (alternativa a tmux).
-  * `dust`, `procs`, `fx`, `tealdeer`, `yt-dlp`, `zathura`.
+### 2️⃣ Paso 2 (Altamente Recomendado) — KDE Plasma 6
+```bash
+./scripts/setup-kde.sh
+```
+* **¿Qué hace?:** Aplica la estética visual Catppuccin Mocha a KDE Plasma: motor **Kvantum** (transparencias y efecto blur real), decoraciones de ventana **Klassy** (esquinas redondeadas), cursores, iconos Papirus y enlaza los atajos de teclado globales.
+* **Nota:** `install.sh` te preguntará si deseas ejecutarlo automáticamente en el Paso 8, pero puedes correrlo manualmente cuando quieras reaplicar la configuración.
+* **Prioridad:** **Obligatorio si usas KDE Plasma 6.**
 
 ---
 
-### 4️⃣ Fase 4: Entornos de Desarrollo (Según tus lenguajes)
-Instala únicamente los lenguajes y herramientas que utilices activamente:
-* **Neovim:** Editor de código modular configurado en Lua con Lazy.nvim, LSP, Treesitter y Neo-tree.
-* **NVM / Node.js & Bun:** Para desarrollo frontend, backend y TypeScript.
-* **Python + pipx + poetry:** Entorno limpio para scripts y proyectos en Python.
-* **Go / Rust (rustup):** Compiladores y herramientas oficiales.
-* **Docker / Podman:** Para contenedores y virtualización.
+### 3️⃣ Paso 3 (Recomendado) — Fondos de Pantalla 4K
+```bash
+./scripts/download-wallpapers.sh
+```
+* **¿Qué hace?:** Descarga la colección curada de wallpapers estáticos 4K en `~/Imágenes/Wallpapers/Catppuccin`.
+* **Por qué ejecutarlo:** Permite que el atajo **`Meta + Alt + W`** (`wall-next`) tenga imágenes listas para rotar aleatoriamente desde el primer momento.
+* **Prioridad:** **Recomendado.**
 
 ---
 
-### 5️⃣ Fase 5: Personalización Visual Avanzada y Aplicaciones Extra
-* **Suite Multi-Tema (`scripts/install-themes.sh`):**
-  * Instala paquetes de iconos (Papirus, Tela, Nordzy), cursores (Catppuccin, Bibata, Capitaine), temas para SDDM (pantalla de inicio de sesión) y GRUB.
-  * Descarga colecciones de fondos de pantalla en 4K estáticos y videos en bucle (`scripts/download-wallpapers.sh`).
-* **Instalador de Programas Abiertos (`scripts/install-programs.sh`):**
-  * Navegadores (Firefox, Brave), IDEs (VS Code, Kiro), Bases de datos (DBeaver, Beekeeper), Multimedia (VLC, MPV), Comunicación (Telegram, Discord, Slack) y Notas (Obsidian, Joplin).
-* **Hardware AMD Antiguo (`scripts/setup-amd-gpu.sh`):**
-  * Habilita parámetros `amdgpu` en GRUB para tarjetas gráficas AMD GCN anteriores que requieran Vulkan y soporte Wayland.
+### 4️⃣ Paso 4 (Opcional) — Suite Multi-Tema Completa
+```bash
+./scripts/install-themes.sh
+```
+* **¿Qué hace?:** Si quieres alternar entre varios estilos con el atajo **`Meta + Shift + T`** (`theme-switch`), este script instala los paquetes para: **Tokyo Night**, **Nord**, **Dracula**, **Gruvbox** y **Catppuccin Latte**, además de packs de iconos (Papirus, Tela, Nordzy), cursores (Bibata, Capitaine) y temas para la pantalla de login (**SDDM**) y gestor de arranque (**GRUB**).
+* **Prioridad:** **Opcional.** Solo si te gusta cambiar de tema frecuentemente.
+
+---
+
+### 5️⃣ Paso 5 (Condicional / Según tu Hardware)
+Ejecuta estos scripts únicamente si aplican a tu equipo o flujo:
+
+* **Si tu sistema usa Btrfs:**
+  ```bash
+  ./scripts/setup-btrfs-snapshots.sh
+  ```
+  *Crea copias de seguridad instantáneas antes de cada actualización y añade entradas en el menú de GRUB para arrancar en un punto anterior si el sistema falla.*
+
+* **Si necesitas programas de uso diario (Navegadores, IDEs, Apps):**
+  ```bash
+  ./scripts/install-programs.sh
+  ```
+  *Instalador interactivo de software abierto: Firefox, Brave, VS Code, Kiro, DBeaver, Docker, MPV, VLC, Telegram, Obsidian, etc.*
+
+* **Si tienes una GPU AMD GCN antigua (Fiji / R9 Fury / Hawaii / Bonaire):**
+  ```bash
+  ./scripts/setup-amd-gpu.sh
+  ```
+  *Aplica los parámetros `amdgpu` en GRUB necesarios para compatibilidad total con Wayland y Vulkan (RADV).*
+
+---
+
+### 6️⃣ Paso 6 (Verificación y Mantenimiento)
+* **Comprobar que todo quedó instalado:**
+  ```bash
+  check-dependencies
+  ```
+* **Actualizar todo el sistema y herramientas en 1 solo paso:**
+  ```bash
+  upd
+  ```
 
 ---
 
