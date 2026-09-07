@@ -132,6 +132,16 @@ if [ "$(findmnt -n -o FSTYPE / 2>/dev/null)" = "btrfs" ]; then
     fi
 fi
 
+# Detección opcional de GPU AMD GCN para soporte Wayland/Vulkan
+if lspci 2>/dev/null | grep -qiE "fiji|r9 fury|radeon R9 Fury|hawaii|bonaire"; then
+    if ask_install "Optimización GPU AMD (amdgpu en GRUB para Vulkan y Wayland)" \
+        "Habilita el driver moderno amdgpu en GRUB para GPUs AMD GCN que lo requieran.\nIndispensable para soporte completo de Wayland y Vulkan RADV." "n"; then
+        if [ -f "$DOTFILES_DIR/scripts/setup-amd-gpu.sh" ]; then
+            bash "$DOTFILES_DIR/scripts/setup-amd-gpu.sh"
+        fi
+    fi
+fi
+
 print_success "Sistema base listo y repositorios sincronizados"
 
 # ============================================================
@@ -519,7 +529,7 @@ $INSTALL_ZELLIJ && CONFIG_ITEMS+=(zellij)
 
 # Si se seleccionó personalización de KDE o interfaz gráfica
 if $INSTALL_KDE_CUSTOM; then
-    CONFIG_ITEMS+=(environment.d Kvantum kdeglobals kglobalshortcutsrc kwinrc gtk-3.0 gtk-4.0 rofi easyeffects)
+    CONFIG_ITEMS+=(environment.d Kvantum kdeglobals kglobalshortcutsrc kwinrc gtk-3.0 gtk-4.0 rofi)
 fi
 
 NEEDS_BACKUP=false
@@ -555,10 +565,23 @@ for item in "${CONFIG_ITEMS[@]}"; do
     fi
 done
 
+# Asegurar permisos de ejecución en scripts
+chmod +x "$DOTFILES_DIR/scripts/"* "$DOTFILES_DIR/install.sh" 2>/dev/null || true
+
+# Instalar lanzadores .desktop para los atajos de teclado personalizados
+APPS_DIR="$HOME/.local/share/applications"
+mkdir -p "$APPS_DIR"
+for desktop_file in change-wallpaper.desktop theme-switcher.desktop manage-monitors.desktop; do
+    if [ -f "$DOTFILES_DIR/.local/share/applications/$desktop_file" ]; then
+        sed "s|\$HOME/dotfiles|$DOTFILES_DIR|g" "$DOTFILES_DIR/.local/share/applications/$desktop_file" > "$APPS_DIR/$desktop_file"
+        chmod +x "$APPS_DIR/$desktop_file"
+    fi
+done
+
 # Activar Git hooks locales del repositorio
 git config core.hooksPath "$DOTFILES_DIR/.githooks" 2>/dev/null || true
 
-print_success "Todos los enlaces simbólicos han sido creados"
+print_success "Todos los enlaces simbólicos y lanzadores .desktop han sido creados"
 
 if [ ! -f "$HOME/.zshrc.local" ] && [ -f "$DOTFILES_DIR/.zshrc.local.example" ]; then
     cp "$DOTFILES_DIR/.zshrc.local.example" "$HOME/.zshrc.local"

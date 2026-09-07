@@ -38,8 +38,12 @@ case "${EXTENSION,,}" in
         if command -v mpvpaper &>/dev/null; then
             # Matar instancias previas de mpvpaper
             killall mpvpaper 2>/dev/null || true
-            # Obtener nombre del monitor activo o usar '*'
-            MONITOR=$(wlr-randr 2>/dev/null | grep -o "^[A-Za-z0-9-]*" | head -n 1 || echo "*")
+            # Obtener nombre del monitor activo o usar '*' (compatible con mpvpaper en KDE Wayland)
+            MONITOR="*"
+            if command -v kscreen-doctor &>/dev/null; then
+                DETECTED_MONITOR=$(kscreen-doctor -j 2>/dev/null | jq -r '.outputs[] | select(.connected==true) | .name' 2>/dev/null | head -n 1)
+                [ -n "$DETECTED_MONITOR" ] && MONITOR="$DETECTED_MONITOR"
+            fi
             mpvpaper -vs -o "no-audio --loop" "$MONITOR" "$SELECTED_WALL" &
             notify-send -a "Wallpaper" "Fondo Animado Activo" "Reproduciendo: $FILENAME" 2>/dev/null || true
         else

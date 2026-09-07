@@ -4,15 +4,10 @@
 # Repositorio: pipeaalzamora/Dotfiles
 # Atajo: Meta+Shift+T (o comando 'theme-switch')
 #
-# NOTA DE DISEÑO: kitty.conf siempre incluye el archivo fijo
-# 'themes/catppuccin-mocha.conf' (ver .config/kitty/kitty.conf).
-# Este script SOBRESCRIBE el contenido de ese archivo con la
-# paleta del tema elegido en cada cambio, en vez de editar la
-# directiva 'include' de kitty.conf. Esto evita tener que
-# reiniciar Kitty y permite aplicar el cambio en caliente via
-# 'kitty @ set-colors'. El nombre del archivo no representa el
-# tema activo real; usa 'cat ~/.cache/current-theme' para saber
-# cuál está aplicado.
+# NOTA DE DISEÑO: kitty.conf incluye el archivo 'current-theme.conf'.
+# Este script actualiza el contenido de 'current-theme.conf' con la
+# paleta del tema elegido en cada cambio y aplica el color en caliente
+# vía 'kitty @ set-colors' sin modificar los archivos base en themes/.
 # ============================================================
 
 set -e
@@ -115,11 +110,10 @@ esac
 
 echo "🎨 Aplicando tema: $THEME_NAME..."
 
-# 1. Aplicar paleta en Terminal Kitty (sobrescribe el archivo fijo
-#    que kitty.conf incluye siempre: themes/catppuccin-mocha.conf)
+# 1. Aplicar paleta en Terminal Kitty (actualiza current-theme.conf)
 if [ -f "$DOTFILES_DIR/.config/kitty/themes/$KITTY_THEME.conf" ]; then
-    mkdir -p "$HOME/.config/kitty/themes"
-    cp "$DOTFILES_DIR/.config/kitty/themes/$KITTY_THEME.conf" "$HOME/.config/kitty/themes/catppuccin-mocha.conf" 2>/dev/null || true
+    mkdir -p "$HOME/.config/kitty"
+    cp "$DOTFILES_DIR/.config/kitty/themes/$KITTY_THEME.conf" "$HOME/.config/kitty/current-theme.conf" 2>/dev/null || true
     kitty @ set-colors --all "$DOTFILES_DIR/.config/kitty/themes/$KITTY_THEME.conf" 2>/dev/null || true
 fi
 

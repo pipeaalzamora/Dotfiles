@@ -158,6 +158,17 @@ if [ -f "$DOTFILES_DIR/.config/Kvantum/kvantum.kvconfig" ]; then
     print_success "Configuración de Kvantum aplicada: ~/.config/Kvantum/kvantum.kvconfig"
 fi
 
+# Instalar lanzadores .desktop para los atajos de teclado personalizados
+APPS_DIR="$HOME/.local/share/applications"
+mkdir -p "$APPS_DIR"
+for desktop_file in change-wallpaper.desktop theme-switcher.desktop manage-monitors.desktop; do
+    if [ -f "$DOTFILES_DIR/.local/share/applications/$desktop_file" ]; then
+        sed "s|\$HOME/dotfiles|$DOTFILES_DIR|g" "$DOTFILES_DIR/.local/share/applications/$desktop_file" > "$APPS_DIR/$desktop_file"
+        chmod +x "$APPS_DIR/$desktop_file"
+    fi
+done
+print_success "Lanzadores .desktop configurados en ~/.local/share/applications/ (atajos de scripts activos)"
+
 # ------------------------------------------------------------
 # PASO 5: Aplicación en Vivo de Temas con Herramientas Nativas
 # ------------------------------------------------------------

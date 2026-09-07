@@ -1,6 +1,9 @@
 # Configuración local / personal (no compartir)
 .zshrc.local
 *.local
+!.local/
+!.local/**
+.config/kitty/current-theme.conf
 
 # Backups generados por el instalador
 dotfiles_backup_*/

@@ -20,11 +20,13 @@ export GOPATH="$HOME/go"
 export CARGO_HOME="$HOME/.cargo"
 export RUSTUP_HOME="$HOME/.rustup"
 
+# Dotfiles
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+
 # PATH
-export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH"
+export PATH="$DOTFILES_DIR/scripts:$HOME/scripts:$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH"
 export PATH="$GOPATH/bin:$PATH"
 export PATH="$CARGO_HOME/bin:$PATH"
-export PATH="$HOME/scripts:$PATH"
 export PATH="$PATH:/usr/local/go/bin"
 
 # Bat — compatible Ubuntu (batcat) y otros (bat)
@@ -61,6 +63,3 @@ export LESSHISTFILE=-
 # Man pages con bat
 export MANPAGER="sh -c 'col -bx | $BAT_CMD -l man -p'"
 export MANROFFOPT="-c"
-
-# Dotfiles
-export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
