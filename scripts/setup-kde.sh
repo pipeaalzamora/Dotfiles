@@ -7,6 +7,11 @@
 
 set -e
 
+# Sanitizar locale si el configurado genera advertencias en el sistema
+if [[ -n "${LC_ALL:-}" ]] && ! locale -a 2>/dev/null | tr -d '._-' | grep -qi "$(echo "${LC_ALL}" | tr -d '._-')"; then
+    export LC_ALL="C.UTF-8"
+fi
+
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONFIG_DIR="$HOME/.config"
 
@@ -23,9 +28,9 @@ NC='\033[0m'
 
 print_header() {
     echo ""
-    echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}╔══════════════════════════════════════════════════╗${NC}"
     echo -e "${BLUE}║${NC}   ${BOLD}$1${NC}"
-    echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════╝${NC}"
     echo ""
 }
 
@@ -129,8 +134,13 @@ print_step "Paso 3: Integración de Kvantum en el Sistema" \
 
 mkdir -p "$CONFIG_DIR/environment.d" "$CONFIG_DIR/Kvantum"
 if [ -f "$DOTFILES_DIR/.config/environment.d/qt.conf" ]; then
-    cp "$DOTFILES_DIR/.config/environment.d/qt.conf" "$CONFIG_DIR/environment.d/qt.conf"
-    print_success "Variables de entorno Qt/Kvantum configuradas en ~/.config/environment.d/qt.conf"
+    if [ -L "$CONFIG_DIR/environment.d/qt.conf" ] && [ "$(readlink -f "$CONFIG_DIR/environment.d/qt.conf" 2>/dev/null)" = "$(readlink -f "$DOTFILES_DIR/.config/environment.d/qt.conf" 2>/dev/null)" ]; then
+        print_success "Variables de entorno Qt/Kvantum ya enlazadas en ~/.config/environment.d/qt.conf"
+    else
+        rm -f "$CONFIG_DIR/environment.d/qt.conf"
+        cp "$DOTFILES_DIR/.config/environment.d/qt.conf" "$CONFIG_DIR/environment.d/qt.conf"
+        print_success "Variables de entorno Qt/Kvantum configuradas en ~/.config/environment.d/qt.conf"
+    fi
 fi
 
 # ------------------------------------------------------------
@@ -147,15 +157,26 @@ KDE_CONFIGS=("kdeglobals" "kglobalshortcutsrc" "kwinrc")
 
 for config in "${KDE_CONFIGS[@]}"; do
     if [ -f "$DOTFILES_DIR/.config/$config" ]; then
-        [ -f "$CONFIG_DIR/$config" ] && cp "$CONFIG_DIR/$config" "$CONFIG_DIR/$config.bak"
-        cp "$DOTFILES_DIR/.config/$config" "$CONFIG_DIR/$config"
-        print_success "Configuración aplicada: ~/.config/$config (respaldo guardado en .bak)"
+        if [ -L "$CONFIG_DIR/$config" ] && [ "$(readlink -f "$CONFIG_DIR/$config" 2>/dev/null)" = "$(readlink -f "$DOTFILES_DIR/.config/$config" 2>/dev/null)" ]; then
+            print_success "Configuración ya enlazada: ~/.config/$config"
+        else
+            [ -e "$CONFIG_DIR/$config" ] && [ ! -L "$CONFIG_DIR/$config" ] && cp "$CONFIG_DIR/$config" "$CONFIG_DIR/$config.bak" 2>/dev/null || true
+            rm -f "$CONFIG_DIR/$config"
+            cp "$DOTFILES_DIR/.config/$config" "$CONFIG_DIR/$config"
+            print_success "Configuración aplicada: ~/.config/$config (respaldo guardado en .bak)"
+        fi
     fi
 done
 
 if [ -f "$DOTFILES_DIR/.config/Kvantum/kvantum.kvconfig" ]; then
-    cp "$DOTFILES_DIR/.config/Kvantum/kvantum.kvconfig" "$CONFIG_DIR/Kvantum/kvantum.kvconfig"
-    print_success "Configuración de Kvantum aplicada: ~/.config/Kvantum/kvantum.kvconfig"
+    mkdir -p "$CONFIG_DIR/Kvantum"
+    if [ -L "$CONFIG_DIR/Kvantum/kvantum.kvconfig" ] && [ "$(readlink -f "$CONFIG_DIR/Kvantum/kvantum.kvconfig" 2>/dev/null)" = "$(readlink -f "$DOTFILES_DIR/.config/Kvantum/kvantum.kvconfig" 2>/dev/null)" ]; then
+        print_success "Kvantum ya enlazado: ~/.config/Kvantum/kvantum.kvconfig"
+    else
+        rm -f "$CONFIG_DIR/Kvantum/kvantum.kvconfig"
+        cp "$DOTFILES_DIR/.config/Kvantum/kvantum.kvconfig" "$CONFIG_DIR/Kvantum/kvantum.kvconfig"
+        print_success "Configuración de Kvantum aplicada: ~/.config/Kvantum/kvantum.kvconfig"
+    fi
 fi
 
 # Instalar lanzadores .desktop para los atajos de teclado personalizados
@@ -185,7 +206,7 @@ fi
 
 mkdir -p "$HOME/.config/systemd/user"
 if [ -f "$DOTFILES_DIR/.config/systemd/user/daily-verse.timer" ]; then
-    cp "$DOTFILES_DIR/.config/systemd/user/daily-verse."* "$HOME/.config/systemd/user/"
+    cp "$DOTFILES_DIR/.config/systemd/user/daily-verse."* "$HOME/.config/systemd/user/" 2>/dev/null || true
     systemctl --user daemon-reload 2>/dev/null || true
     systemctl --user enable --now daily-verse.timer 2>/dev/null || true
     print_success "Timer de notificaciones de versículos activado vía systemd"

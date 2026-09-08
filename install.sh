@@ -618,5 +618,69 @@ if $INSTALL_YTDLP || command -v yt-dlp &>/dev/null; then
     mkdir -p "$HOME/Vídeos/youtube"
 fi
 
-print_header "¡Instalación y Configuración Completada!"
-echo -e "${PURPLE}¡Disfruta tu entorno de trabajo en Arch Linux / EndeavourOS! 🚀${NC}"
+print_header "¡Instalación y Configuración Base Completada!"
+echo -e "${PURPLE}¡Todo tu entorno base ha sido instalado y configurado! 🚀${NC}"
+
+# ============================================================
+# Menú de Navegación y Derivación a Otros Módulos
+# ============================================================
+
+show_modules_menu() {
+    while true; do
+        echo ""
+        echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${BLUE}║${NC}   ${BOLD}Menú de Módulos y Personalización de Dotfiles${NC}"
+        echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+        echo -e "  ${CYAN}1)${NC} Personalización de KDE Plasma 6 (${DIM}setup-kde.sh${NC})"
+        echo -e "  ${CYAN}2)${NC} Selector de Tema y Fondos de Pantalla (${DIM}theme.sh${NC})"
+        echo -e "  ${CYAN}3)${NC} Gestor Multi-Monitor (${DIM}manage-monitors.sh${NC})"
+        echo -e "  ${CYAN}4)${NC} Guardar / Restaurar Perfil de KDE (${DIM}manage-kde-profile.sh${NC})"
+        echo -e "  ${CYAN}5)${NC} Instalador de Programas Open Source (${DIM}install-programs.sh${NC})"
+        echo -e "  ${CYAN}6)${NC} Configuración Interactiva de Git (${DIM}configure-git.sh${NC})"
+        echo -e "  ${CYAN}7)${NC} Diagnóstico de Salud del Sistema (${DIM}dotfiles doctor${NC})"
+        echo -e "  ${CYAN}8)${NC} Actualizar todo el sistema y dotfiles (${DIM}dotfiles update${NC})"
+        echo -e "  ${CYAN}9)${NC} Salir del instalador"
+        echo ""
+        read -r -p "Selecciona una opción [1-9]: " choice
+        case "$choice" in
+            1)
+                [ -f "$DOTFILES_DIR/scripts/setup-kde.sh" ] && bash "$DOTFILES_DIR/scripts/setup-kde.sh"
+                ;;
+            2)
+                if [ -f "$DOTFILES_DIR/scripts/theme.sh" ]; then
+                    bash "$DOTFILES_DIR/scripts/theme.sh" toggle
+                elif [ -f "$DOTFILES_DIR/scripts/theme-switcher.sh" ]; then
+                    bash "$DOTFILES_DIR/scripts/theme-switcher.sh"
+                fi
+                ;;
+            3)
+                [ -f "$DOTFILES_DIR/scripts/manage-monitors.sh" ] && bash "$DOTFILES_DIR/scripts/manage-monitors.sh"
+                ;;
+            4)
+                [ -f "$DOTFILES_DIR/scripts/manage-kde-profile.sh" ] && bash "$DOTFILES_DIR/scripts/manage-kde-profile.sh"
+                ;;
+            5)
+                [ -f "$DOTFILES_DIR/scripts/install-programs.sh" ] && bash "$DOTFILES_DIR/scripts/install-programs.sh"
+                ;;
+            6)
+                [ -f "$DOTFILES_DIR/configure-git.sh" ] && bash "$DOTFILES_DIR/configure-git.sh"
+                ;;
+            7)
+                [ -f "$DOTFILES_DIR/bin/dotfiles" ] && bash "$DOTFILES_DIR/bin/dotfiles" doctor
+                ;;
+            8)
+                [ -f "$DOTFILES_DIR/bin/dotfiles" ] && bash "$DOTFILES_DIR/bin/dotfiles" update
+                ;;
+            9|"")
+                echo -e "${GREEN}¡Configuración finalizada! Que disfrutes tu entorno. 🚀${NC}"
+                break
+                ;;
+            *)
+                echo -e "${RED}Opción no válida. Por favor selecciona entre 1 y 9.${NC}"
+                ;;
+        esac
+    done
+}
+
+show_modules_menu
