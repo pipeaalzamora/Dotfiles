@@ -1,89 +1,231 @@
 #!/usr/bin/env bash
-# Selector de temas de Kitty/KDE. El tema inicial es Black & Orange.
+#
+# theme-switcher.sh — Cambia tema de Plasma, esquema de colores, iconos, cursores, fondo y Kvantum
+#
+# Uso:
+#   theme-switcher.sh [--theme <tema>] [--icon <icono>] [--cursor <cursor>] [--wallpaper <archivo>] [--kvantum <tema>] [--help]
+#
+# Si no se indica ningún tema, se listan los temas disponibles y se elige uno.
+
 set -euo pipefail
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-KITTY_CONFIG_DIR="$HOME/.config/kitty"
-KITTY_CURRENT_THEME="$KITTY_CONFIG_DIR/current-theme.conf"
-CACHE_FILE="$HOME/.cache/current-theme"
+# ============================================================
+# Ayuda
+# ============================================================
+show_help() {
+    cat <<EOF
+Uso: $(basename "$0") [OPCIONES]
 
-THEMES=(
-    "🔥 Catppuccin Black & Orange"
-    "🟣 Catppuccin Mocha"
-    "☀️ Catppuccin Latte (Modo Claro)"
-    "🌃 Tokyo Night"
-    "❄️ Nord (Artico)"
-    "🦠 Dracula"
-    "🪵 Gruvbox Dark"
-)
+Opciones:
+  --theme <tema>       Tema de Plasma (look-and-feel). Ej: KlassyDark, KvFlat, KvArcDark
+  --icon <icono>       Tema de iconos. Ej: Tela-circle-dark, Papirus-Dark, breeze-dark
+  --cursor <cursor>    Tema de cursores. Ej: catppuccin-mocha-dark-cursors, breeze_cursors
+  --wallpaper <archivo>  Ruta al fondo de pantalla
+  --kvantum <tema>     Tema Kvantum. Ej: KvFlat, KvArcDark
+  --help               Muestra esta ayuda y sale
 
-if [ -n "${1:-}" ]; then
-    CHOICE="$*"
-elif command -v rofi &>/dev/null && [ -n "${WAYLAND_DISPLAY:-$DISPLAY}" ]; then
-    CHOICE=$(printf '%s\n' "${THEMES[@]}" | rofi -dmenu -i -p "Seleccionar Tema Visual" -theme "$DOTFILES_DIR/.config/rofi/config.rasi" 2>/dev/null || true)
+Ejemplos:
+  $(basename "$0") --theme KvFlat --icon Papirus-Dark --cursor catppuccin-mocha-dark-cursors
+  $(basename "$0") --kvantum KvArcDark
+  $(basename "$0") --wallpaper ~/Imagenes/fondo.jpg
+EOF
+    exit 0
+}
+
+# ============================================================
+# Parseo de argumentos
+# ============================================================
+THEME=""
+ICON=""
+CURSOR=""
+WALLPAPER=""
+KVANTUM=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --theme) THEME="$2"; shift 2 ;;
+        --icon)  ICON="$2"; shift 2 ;;
+        --cursor) CURSOR="$2"; shift 2 ;;
+        --wallpaper) WALLPAPER="$2"; shift 2 ;;
+        --kvantum) KVANTUM="$2"; shift 2 ;;
+        --help) show_help ;;
+        *) echo "Opcion desconocida: $1" >&2; exit 1 ;;
+    esac
+done
+
+# ============================================================
+# Utilidades
+# ============================================================
+log() { echo "[theme-switcher] $*"; }
+warn() { echo "[theme-switcher] ADVERTENCIA: $*" >&2; }
+die() { echo "[theme-switcher] ERROR: $*" >&2; exit 1; }
+
+# Verifica si un tema de Plasma está disponible
+plasma_theme_exists() {
+    local t="$1"
+    lookandfeeltool -l 2>/dev/null | grep -qxF "$t"
+}
+
+# Verifica si un tema de iconos está disponible
+icon_theme_exists() {
+    local t="$1"
+    # Busca en las rutas estándar de iconos
+    [[ -d "/usr/share/icons/$t" || -d "$HOME/.icons/$t" || -d "/usr/share/pixmaps/$t" ]]
+}
+
+# Verifica si un tema de cursores está disponible
+cursor_theme_exists() {
+    local t="$1"
+    [[ -d "/usr/share/icons/$t" || -d "$HOME/.icons/$t" ]]
+}
+
+# Verifica si un tema Kvantum está disponible
+kvantum_theme_exists() {
+    local t="$1"
+    [[ -f "$HOME/.config/Kvantum/$t/$t.kvconfig" || -f "/usr/share/Kvantum/$t/$t.kvconfig" ]]
+}
+
+# ============================================================
+# Temas de Plasma disponibles
+# ============================================================
+list_plasma_themes() {
+    log "Temas de Plasma disponibles:"
+    lookandfeeltool -l 2>/dev/null || warn "No se pudo listar temas de Plasma"
+}
+
+# ============================================================
+# Aplicar tema de Plasma
+# ============================================================
+apply_plasma_theme() {
+    local theme="$1"
+
+    if [[ -z "$theme" ]]; then
+        log "No se especificó···tema de Plasma. Saltando..."
+        return 0
+    fi
+
+    if ! plasma_theme_exists "$theme"; then
+        warn "El tema de Plasma '$theme' no está disponible."
+        list_plasma_themes
+        die "Usa uno de los temas listados arriba."
+    fi
+
+    log "Aplicando tema de Plasma: $theme"
+    lookandfeeltool -a "$theme"
+}
+
+# ============================================================
+# Aplicar tema de iconos
+# ============================================================
+apply_icon_theme() {
+    local icon="$1"
+
+    if [[ -z "$icon" ]]; then
+        log "No se especificó···tema de iconos. Saltando..."
+        return 0
+    fi
+
+    if ! icon_theme_exists "$icon"; then
+        warn "El tema de iconos '$icon' no está disponible en /usr/share/icons, ~/.icons o /usr/share/pixmaps"
+        die "Instala el tema o elige uno disponible."
+    fi
+
+    log "Aplicando tema de iconos: $icon"
+    plasmashell --replace &>/dev/null || true
+    kwriteconfig5 --file ~/.config/kdeglobals --group Icons --key Theme "$icon"
+    qdbus org.kde.KWin /KWin reconfigure 2>/dev/null || true
+}
+
+# ============================================================
+# Aplicar tema de cursores
+# ============================================================
+apply_cursor_theme() {
+    local cursor="$1"
+
+    if [[ -z "$cursor" ]]; then
+        log "No se especificó···tema de cursores. Saltando..."
+        return 0
+    fi
+
+    if ! cursor_theme_exists "$cursor"; then
+        warn "El tema de cursores '$cursor' no está disponible en /usr/share/icons o ~/.icons"
+        die "Instala el tema o elige uno disponible."
+    fi
+
+    log "Aplicando tema de cursores: $cursor"
+    kwriteconfig5 --file ~/.config/kdeglobals --group KDE --key cursorTheme "$cursor"
+    qdbus org.kde.KWin /KWin reconfigure 2>/dev/null || true
+}
+
+# ============================================================
+# Aplicar tema Kvantum
+# ============================================================
+apply_kvantum_theme() {
+    local kvantum="$1"
+
+    if [[ -z "$kvantum" ]]; then
+        log "No se especificó···tema Kvantum. Saltando..."
+        return 0
+    fi
+
+    if ! kvantum_theme_exists "$kvantum"; then
+        warn "El tema Kvantum '$kvantum' no está disponible."
+        log "Temas Kvantum disponibles en ~/.config/Kvantum:"
+        [[ -d "$HOME/.config/Kvantum" ]] && ls -1 "$HOME/.config/Kvantum" 2>/dev/null || warn "No hay temas Kvantum en ~/.config/Kvantum"
+        die "Instala el tema o elige uno disponible."
+    fi
+
+    log "Aplicando tema Kvantum: $kvantum"
+    kvantummanager --set "$kvantum" 2>/dev/null || \
+        kwriteconfig5 --file ~/.config/Kvantum/kvantum.kvconfig --group General --key theme "$kvantum"
+}
+
+# ============================================================
+# Cambiar fondo de pantalla
+# ============================================================
+apply_wallpaper() {
+    local wp="$1"
+
+    if [[ -z "$wp" ]]; then
+        log "No se especificó···fondo de pantalla. Saltando..."
+        return 0
+    fi
+
+    if [[ ! -f "$wp" ]]; then
+        die "El archivo de fondo de pantalla '$wp' no existe."
+    fi
+
+    log "Aplicando fondo de pantalla: $wp"
+    # Plasma 5
+    qdbus org.kde.plasmashell /PlasmaShell org.kde.plasmashell.evaluateScript \
+        "var allDesktops = desktops(); print(main); for (i=0;i<allDesktops.length;i++) { d=allDesktops[i]; d.wallpaperPlugin='org.kde.image'; d.currentConfigGroup = ['Wallpaper', 'org.kde.image', 'General']; d.writeConfig('Image', 'file://$wp'); }" 2>/dev/null || \
+    warn "No se pudo cambiar el fondo con qdbus. Intenta manualmente desde Preferencias del Sistema."
+}
+
+# ============================================================
+# Recargar Plasma
+# ============================================================
+reload_plasma() {
+    log "Recargando Plasma..."
+    qdbus org.kde.KWin /KWin reconfigure 2>/dev/null || true
+    kquitapp5 plasmashell 2>/dev/null || kquitapp plasmashell 2>/dev/null || true
+    sleep 1
+    kstart5 plasmashell 2>/dev/null || kstart plasmashell 2>/dev/null || plasmashell &>/dev/null &
+}
+
+# ============================================================
+# Ejecutar cambios
+# ============================================================
+if [[ -n "$THEME" || -n "$ICON" || -n "$CURSOR" || -n "$WALLPAPER" || -n "$KVANTUM" ]]; then
+    apply_plasma_theme "$THEME"
+    apply_icon_theme "$ICON"
+    apply_cursor_theme "$CURSOR"
+    apply_kvantum_theme "$KVANTUM"
+    apply_wallpaper "$WALLPAPER"
+    reload_plasma
+    log "✅ Tema aplicado correctamente."
 else
-    echo "Temas disponibles:"
-    select choice in "${THEMES[@]}"; do CHOICE="$choice"; break; done
+    log "No se especificaron opciones. Mostrando temas disponibles..."
+    list_plasma_themes
+    log "Usa --help para ver cómo cambiar el tema."
 fi
-
-[ -z "${CHOICE:-}" ] && exit 0
-
-case "$CHOICE" in
-    *"Black & Orange"*|*orange*|*naranjo*)
-        THEME_NAME="Catppuccin Black & Orange"
-        KITTY_THEME="catppuccin-black-orange"
-        ACCENT_COLOR="250,179,135"
-        GTK_DARK=1
-        ;;
-    *"Catppuccin Mocha"*|mocha)
-        THEME_NAME="Catppuccin Mocha"
-        KITTY_THEME="catppuccin-mocha"
-        ACCENT_COLOR="137,180,250"
-        GTK_DARK=1
-        ;;
-    *"Catppuccin Latte"*|latte|light)
-        THEME_NAME="Catppuccin Latte"
-        KITTY_THEME="catppuccin-latte"
-        ACCENT_COLOR="30,102,245"
-        GTK_DARK=0
-        ;;
-    *)
-        printf 'Tema no reconocido: %s\n' "$CHOICE" >&2
-        printf 'Usa: theme-switch, theme-switch orange, theme-switch mocha o theme-switch latte\n' >&2
-        exit 2
-        ;;
-esac
-
-THEME_FILE="$DOTFILES_DIR/.config/kitty/themes/$KITTY_THEME.conf"
-if [ ! -f "$THEME_FILE" ]; then
-    printf 'No existe el archivo de tema: %s\n' "$THEME_FILE" >&2
-    exit 1
-fi
-
-printf '🎨 Aplicando tema: %s...\n' "$THEME_NAME"
-mkdir -p "$KITTY_CONFIG_DIR" "$(dirname "$CACHE_FILE")"
-cp "$THEME_FILE" "$KITTY_CURRENT_THEME"
-
-# Actualiza sesiones de Kitty abiertas; una sesión nueva siempre lee current-theme.conf.
-if command -v kitty &>/dev/null; then
-    kitty @ set-colors --all "$THEME_FILE" 2>/dev/null || true
-fi
-
-# KDE conserva BreezeDark para estructura y recibe el acento del tema.
-if command -v plasma-apply-colorscheme &>/dev/null; then
-    plasma-apply-colorscheme BreezeDark 2>/dev/null || true
-fi
-if command -v kwriteconfig6 &>/dev/null; then
-    kwriteconfig6 --file "$HOME/.config/kdeglobals" --group General --key AccentColor "$ACCENT_COLOR" 2>/dev/null || true
-fi
-
-if [ -f "$HOME/.config/gtk-3.0/settings.ini" ]; then
-    sed -i "s/gtk-application-prefer-dark-theme=.*/gtk-application-prefer-dark-theme=$GTK_DARK/" "$HOME/.config/gtk-3.0/settings.ini" 2>/dev/null || true
-fi
-if [ -f "$HOME/.config/gtk-4.0/settings.ini" ]; then
-    sed -i "s/gtk-application-prefer-dark-theme=.*/gtk-application-prefer-dark-theme=$GTK_DARK/" "$HOME/.config/gtk-4.0/settings.ini" 2>/dev/null || true
-fi
-
-printf '%s\n' "$THEME_NAME" > "$CACHE_FILE"
-notify-send -a "Theme Switcher" -i preferences-desktop-theme "Tema Visual Cambiado" "Esquema activo: $THEME_NAME" 2>/dev/null || true
-printf '✅ Kitty actualizado: %s\n' "$THEME_NAME"
