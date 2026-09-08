@@ -1,155 +1,111 @@
-# 🎨 Dotfiles pipeaalzamora
+# ⚡ Pipe's Dotfiles
 
-Entorno moderno para **Arch Linux / EndeavourOS** con tema **Catppuccin Mocha**, shell Zsh optimizado y herramientas CLI de última generación.
+> Entorno de desarrollo optimizado, modular y reproducible para Linux (KDE Plasma, Zsh, gestión de GPU AMD y snapshots Btrfs).
+
+Este repositorio centraliza mis configuraciones personales, utilidades CLI y scripts de aprovisionamiento para estaciones de trabajo orientadas al desarrollo full-stack, DevOps y alto rendimiento en terminal.
 
 ---
 
-## ⚡ Instalación Rápida
+## 🛠️ Stack Tecnológico
+
+| Componente | Herramienta / Configuración |
+|---|---|
+| **Shell** | [Zsh](https://www.zsh.org/) con configuración modular y soporte para `.zshrc.local` |
+| **Entorno de Escritorio** | KDE Plasma (perfiles, gestión de monitores y temas dinámicos) |
+| **Control de Versiones** | Git + Githooks automatizados + configuración global |
+| **Version Manager** | `.tool-versions` (Node.js, Go, Python, etc.) |
+| **Búsqueda & Navegación** | ripgrep (`.ripgreprc`), fzf, utilidades modernas de terminal |
+| **Resiliencia & Sistema** | Btrfs snapshots automatizados y optimización para GPU AMD |
+
+---
+
+## 📂 Estructura del Repositorio
+
+```text
+Dotfiles/
+├── .config/                  # Configuraciones XDG de aplicaciones
+├── .githooks/                # Hooks de Git preconfigurados
+├── scripts/                  # Colección de scripts y utilidades modulares
+│   ├── check-dependencies    # Verificador de requisitos del sistema
+│   ├── update-all            # Actualizador unificado del sistema y paquetes
+│   ├── install-programs.sh   # Instalador desatendido de software base
+│   ├── install-themes.sh     # Gestor de temas y estética
+│   ├── theme-switcher.sh     # Selector rápido de tema claro/oscuro
+│   ├── setup-kde.sh          # Automatización de atajos y paneles KDE
+│   ├── setup-btrfs-snapshots.sh # Configuración de Snapper/Btrfs
+│   ├── setup-amd-gpu.sh      # Ajustes específicos para controladores AMD
+│   ├── manage-monitors.sh    # Perfiles de monitores y resolución
+│   └── change-wallpaper.sh   # Gestor de fondos de pantalla
+├── .bashrc / .zshrc          # Configuración de shells y alias
+├── .editorconfig             # Estándar de formato para editores de código
+├── .gitconfig                # Alias y directrices de Git
+├── .tool-versions            # Versiones fijadas de lenguajes de desarrollo
+├── configure-git.sh          # Script interactivo de identidad Git
+├── install.sh                # Instalador principal del entorno
+├── setup.sh                  # Orquestador de configuración inicial
+└── KEYBINDINGS.md            # Referencia rápida de atajos de teclado
+```
+
+---
+
+## 🚀 Instalación
+
+### Requisitos previos
+
+- Sistema operativo Linux (optimizado para distribuciones basadas en Arch / Debian / Fedora con soporte systemd).
+- `git` y `curl` instalados.
+
+### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/pipeaalzamora/Dotfiles.git ~/dotfiles
-cd ~/dotfiles
-chmod +x setup.sh
-./setup.sh
+git clone https://github.com/pipeaalzamora/Dotfiles.git ~/Dotfiles
+cd ~/Dotfiles
 ```
 
----
+### 2. Ejecutar la instalación guiada
 
-## 📂 Estructura
-
-```
-~/dotfiles/
-├── setup.sh                 # 🚀 INSTALADOR ÚNICO
-├── install.sh              # Instalador original
-├── configure-git.sh        # Configura Git interactivamente
-├── push-dotfiles.sh        # Automatiza push a GitHub
-│
-├── .zshrc                  # Shell (65 alias + 14 funciones)
-├── .zprofile               # Perfil de shell
-├── .gitconfig              # Git configurado
-├── .gitignore_global       # Gitignore global
-│
-├── .config/
-│   ├── starship.toml       # Prompt personalizado
-│   ├── kitty/              # Terminal emulator
-│   ├── nvim/               # Neovim configurado
-│   ├── lazygit/            # Git visual
-│   ├── btop/               # Monitor de recursos
-│   ├── yazi/               # File manager
-│   ├── zathura/            # PDF viewer
-│   ├── kdeglobals          # KDE tema
-│   ├── kglobalshortcutsrc  # KDE atajos
-│   └── Kvantum/            # Motor gráfico
-│
-├── scripts/                # Utilidades opcionales
-├── data/                   # Datos (biblia, etc)
-└── .local/share/           # Lanzadores y widgets KDE
-```
-
----
-
-## 🚀 Flujo de Instalación
-
-El script `setup.sh` automáticamente:
-
-1. **Valida** - Verifica que todos los archivos estén presentes
-2. **Instala** - Pregunta qué instalar (interactivo)
-3. **Aplica** - Crea symlinks y configura servicios
-4. **Listo** - Muestra próximos pasos
-
----
-
-## 📌 Primeros Pasos
-
-1. **Reinicia sesión**
-   ```bash
-   exit  # o Ctrl+D
-   ```
-
-2. **Verifica instalación**
-   ```bash
-   ~/dotfiles/scripts/check-dependencies
-   ```
-
-3. **Personaliza KDE (opcional)**
-   ```bash
-   ~/dotfiles/scripts/setup-kde.sh
-   ```
-
-4. **Descarga wallpapers 4K (opcional)**
-   ```bash
-   ~/dotfiles/scripts/download-wallpapers.sh
-   ```
-
-5. **Lee los atajos de teclado**
-   ```bash
-   cat ~/dotfiles/KEYBINDINGS.md
-   ```
-
----
-
-## 🎨 Catppuccin Mocha
-
-Tema coherente aplicado en: Terminal, Shell, Prompt, Neovim, Lazygit, Bat, KDE Plasma, GTK, Kvantum.
-
-**Paleta de colores:**
-```
-Rosewater: #f5e0dc  |  Red: #f38181      |  Green: #a6e3a1
-Flamingo:  #f2cdcd  |  Maroon: #eba0ac   |  Teal: #94e2d5
-Pink:      #f5c2e7  |  Peach: #fab387    |  Sky: #89dceb
-Mauve:     #cba6f7  |  Yellow: #f9e2af   |  Sapphire: #74c7ec
-```
-
----
-
-## 🆘 Problemas Comunes
-
-**"El shell sigue siendo bash"**
 ```bash
-chsh -s /usr/bin/zsh && exit
+chmod +x install.sh
+./install.sh
 ```
 
-**"Los comandos lsd, bat, etc. no se encuentran"**
+El asistente creará los enlaces simbólicos correspondientes, respaldará cualquier configuración previa en caso de colisión y ofrecerá instalar dependencias base.
+
+### 3. Configuración personal (opcional)
+
+Copia la plantilla local para definir variables y secretos específicos de tu máquina sin comprometerlos en Git:
+
 ```bash
-sudo pacman -S lsd bat ripgrep fd fzf zoxide btop yazi
+cp .zshrc.local.example ~/.zshrc.local
 ```
 
-**"KDE no cambió de tema"**
-```bash
-~/dotfiles/scripts/setup-kde.sh
-```
+Configura tu identidad de Git de forma asistida:
 
-**"Descarga incompleta"**
 ```bash
-rm -rf ~/dotfiles
-git clone https://github.com/pipeaalzamora/Dotfiles.git ~/dotfiles
-cd ~/dotfiles && ./setup.sh
+./configure-git.sh
 ```
 
 ---
 
-## 📚 Documentación
+## ⚙️ Uso y Mantenimiento Diario
 
-- **KEYBINDINGS.md** - Todos los atajos de teclado
-- **.zshrc** - Alias y funciones disponibles
-- **.gitconfig** - Configuración de Git
-- **setup.sh** - Ver el script para entender qué instala
+- **Actualizar todo el sistema y herramientas:**
+  ```bash
+  ./scripts/update-all
+  ```
+- **Cambiar tema del escritorio:**
+  ```bash
+  ./scripts/theme-switcher.sh
+  ```
+- **Verificar dependencias faltantes:**
+  ```bash
+  ./scripts/check-dependencies
+  ```
+- **Consultar atajos de teclado:**
+  Revisa la guía detallada en [KEYBINDINGS.md](KEYBINDINGS.md).
 
 ---
 
-## ✨ Qué Obtienes
+## 🛡️ Licencia y Buenas Prácticas
 
-✅ **Terminal ultrarrápida** - Zsh + Starship + Kitty + Catppuccin Mocha
-✅ **Herramientas CLI modernas** - lsd, bat, ripgrep, fzf, btop, yazi, lazygit, etc.
-✅ **Desarrollo listo** - Neovim, Git, Node.js, Python, Rust, Go configurados
-✅ **KDE Plasma personalizado** - Tema coherente, atajos, efectos visuales
-✅ **65 alias + 14 funciones** - Productividad al máximo
-✅ **Instalación automática** - Seguro con backups
-
----
-
-## 📝 Autor
-
-**@pipeaalzamora** - Configuración personal para Arch Linux / EndeavourOS
-
-Repositorio: https://github.com/pipeaalzamora/Dotfiles
+Distribuido para uso personal y referencia comunitaria. Antes de ejecutar scripts que alteren particiones (como `setup-btrfs-snapshots.sh`) o controladores de GPU (`setup-amd-gpu.sh`), verifica la compatibilidad con tu hardware.

@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Pipe's Dotfiles - Unified CLI Manager
+# ==============================================================================
+set -euo pipefail
+
+# Sanitizar locale si el configurado genera advertencias
+if [[ -n "${LC_ALL:-}" ]] && ! locale -a 2>/dev/null | tr -d '._-' | grep -qi "$(echo "${LC_ALL}" | tr -d '._-')"; then
+    export LC_ALL="C.UTF-8"
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=scripts/lib/utils.sh
+source "${SCRIPT_DIR}/scripts/lib/utils.sh"
+
+show_help() {
+    cat <<EOF
+${COLOR_BOLD}Uso:${COLOR_RESET} dotfiles <comando> [opciones]
+
+${COLOR_BOLD}Comandos disponibles:${COLOR_RESET}
+  ${COLOR_GREEN}install${COLOR_RESET}        Ejecuta la instalación y aprovisionamiento completo
+  ${COLOR_GREEN}theme${COLOR_RESET}          Gestión de temas claro/oscuro y fondos de pantalla
+  ${COLOR_GREEN}desktop${COLOR_RESET}        Configuración de entorno KDE Plasma y monitores
+  ${COLOR_GREEN}system${COLOR_RESET}         Ajustes de hardware (GPU AMD, Btrfs snapshots)
+  ${COLOR_GREEN}update${COLOR_RESET}         Actualiza paquetes del sistema, gestores y repos
+  ${COLOR_GREEN}doctor${COLOR_RESET}         Verifica la salud de dependencias y enlaces
+  ${COLOR_GREEN}help${COLOR_RESET}           Muestra este mensaje de ayuda
+
+EOF
+}
+
+cmd="${1:-help}"
+shift || true
+
+case "$cmd" in
+    install)
+        log_step "Iniciando instalación de Dotfiles"
+        if [[ -f "${SCRIPT_DIR}/install.sh" ]]; then
+            "${SCRIPT_DIR}/install.sh" "$@"
+        else
+            log_error "No se encontró el instalador principal en ${SCRIPT_DIR}/install.sh"
+            exit 1
+        fi
+        ;;
+    theme)
+        if [[ -f "${SCRIPT_DIR}/scripts/theme.sh" ]]; then
+            "${SCRIPT_DIR}/scripts/theme.sh" "$@"
+        elif [[ -f "${SCRIPT_DIR}/scripts/theme-switcher.sh" ]]; then
+            "${SCRIPT_DIR}/scripts/theme-switcher.sh" "$@"
+        else
+            log_error "Módulo de temas no encontrado."
+            exit 1
+        fi
+        ;;
+    desktop)
+        if [[ -f "${SCRIPT_DIR}/scripts/setup-kde.sh" ]]; then
+            "${SCRIPT_DIR}/scripts/setup-kde.sh" "$@"
+        else
+            log_error "Módulo de escritorio KDE no encontrado."
+            exit 1
+        fi
+        ;;
+    system)
+        log_step "Verificación de hardware y sistema"
+        if has_cmd lspci && lspci | grep -qi "AMD"; then
+            log_info "GPU AMD detectada."
+            [[ -f "${SCRIPT_DIR}/scripts/setup-amd-gpu.sh" ]] && "${SCRIPT_DIR}/scripts/setup-amd-gpu.sh" "$@"
+        fi
+        if has_cmd findmnt && findmnt -no FSTYPE / | grep -qi "btrfs"; then
+            log_info "Sistema de archivos Btrfs detectado."
+            [[ -f "${SCRIPT_DIR}/scripts/setup-btrfs-snapshots.sh" ]] && "${SCRIPT_DIR}/scripts/setup-btrfs-snapshots.sh" "$@"
+        fi
+        ;;
+    update)
+        if [[ -f "${SCRIPT_DIR}/scripts/update.sh" ]]; then
+            "${SCRIPT_DIR}/scripts/update.sh" "$@"
+        elif [[ -f "${SCRIPT_DIR}/scripts/update-all" ]]; then
+            "${SCRIPT_DIR}/scripts/update-all" "$@"
+        else
+            log_error "Módulo de actualización no encontrado."
+            exit 1
+        fi
+        ;;
+    doctor)
+        log_step "Diagnóstico del entorno (Dotfiles Doctor)"
+        deps=("git:git" "zsh:zsh" "curl:curl" "rg:ripgrep" "tmux:tmux" "bat:bat" "fzf:fzf" "zoxide:zoxide" "lazygit:lazygit")
+        missing=0
+        for item in "${deps[@]}"; do
+            binary="${item%%:*}"
+            label="${item##*:}"
+            if has_cmd "$binary"; then
+                log_info "$label ($binary): instalado ($(command -v "$binary"))"
+            else
+                log_warn "$label ($binary): NO instalado"
+                ((missing++))
+            fi
+        done
+        if [[ $missing -eq 0 ]]; then
+            log_info "Todas las dependencias esenciales están presentes."
+        else
+            log_warn "Hay $missing dependencias pendientes. Ejecuta 'dotfiles install' para resolverlas."
+        fi
+        ;;
+    help|--help|-h)
+        show_help
+        ;;
+    *)
+        log_error "Comando desconocido: '$cmd'"
+        show_help
+        exit 1
+        ;;
+esac

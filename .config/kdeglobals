@@ -1,22 +1,23 @@
 [General]
-ColorScheme=CatppuccinMochaDark
-Name=Catppuccin Mocha Dark
+AccentColor=250,179,135
+ColorScheme=BreezeDark
+Name=Catppuccin Black & Orange
 widgetStyle=kvantum
 
 [Icons]
 Theme=Papirus-Dark
 
 [KDE]
-Contrast=7
+Contrast=8
 SingleClick=false
 
 [KShortcutsDialog Settings]
 Dialog Size=634,480
 
 [WM]
-activeBackground=30,30,46
-activeBlend=205,214,244
-activeForeground=205,214,244
-inactiveBackground=18,18,24
-inactiveBlend=108,112,134
+activeBackground=17,17,27
+activeBlend=250,179,135
+activeForeground=250,179,135
+inactiveBackground=0,0,0
+inactiveBlend=88,91,112
 inactiveForeground=166,173,200

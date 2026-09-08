@@ -1,4 +1,4 @@
-name: Lint Scripts
+name: Lint Shell Scripts
 
 on:
   push:
@@ -16,4 +16,8 @@ jobs:
 
       - name: Run ShellCheck
         run: |
-          shellcheck install.sh scripts/*
+          echo "Scanning shell scripts..."
+          find . -type f \( -name "*.sh" -o -path "*/scripts/*" \) \
+            ! -path "*/.git/*" \
+            -exec file {} + | grep -i "shell script" | cut -d: -f1 | \
+            xargs -r shellcheck --severity=warning
