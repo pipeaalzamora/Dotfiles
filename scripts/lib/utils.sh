@@ -5,6 +5,11 @@
 
 set -euo pipefail
 
+# Sanitizar locale automáticamente si el actual no existe en el sistema
+if [[ -n "${LC_ALL:-}" ]] && ! locale -a 2>/dev/null | tr -d '._-' | grep -qi "$(echo "${LC_ALL}" | tr -d '._-')"; then
+    export LC_ALL="C.UTF-8"
+fi
+
 # Colores y formato
 readonly COLOR_RESET="\033[0m"
 readonly COLOR_BOLD="\033[1m"

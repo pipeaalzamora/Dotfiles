@@ -4,6 +4,11 @@
 # ==============================================================================
 set -euo pipefail
 
+# Sanitizar locale si el configurado genera advertencias
+if [[ -n "${LC_ALL:-}" ]] && ! locale -a 2>/dev/null | tr -d '._-' | grep -qi "$(echo "${LC_ALL}" | tr -d '._-')"; then
+    export LC_ALL="C.UTF-8"
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=scripts/lib/utils.sh
 source "${SCRIPT_DIR}/scripts/lib/utils.sh"
@@ -78,13 +83,15 @@ case "$cmd" in
         ;;
     doctor)
         log_step "Diagnóstico del entorno (Dotfiles Doctor)"
-        deps=("git" "zsh" "curl" "ripgrep" "tmux")
+        deps=("git:git" "zsh:zsh" "curl:curl" "rg:ripgrep" "tmux:tmux" "bat:bat" "fzf:fzf" "zoxide:zoxide" "lazygit:lazygit")
         missing=0
-        for dep in "${deps[@]}"; do
-            if has_cmd "$dep"; then
-                log_info "$dep: instalado ($(command -v "$dep"))"
+        for item in "${deps[@]}"; do
+            binary="${item%%:*}"
+            label="${item##*:}"
+            if has_cmd "$binary"; then
+                log_info "$label ($binary): instalado ($(command -v "$binary"))"
             else
-                log_warn "$dep: NO instalado"
+                log_warn "$label ($binary): NO instalado"
                 ((missing++))
             fi
         done
