@@ -13,8 +13,6 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
-El script `setup.sh` hace TODO automáticamente: valida, instala, configura y aplica.
-
 ---
 
 ## 📂 Estructura
@@ -150,30 +148,8 @@ cd ~/dotfiles && ./setup.sh
 
 ---
 
-## 🔗 Enlaces
-
-- [Catppuccin](https://catppuccin.com/)
-- [Arch Linux](https://archlinux.org/)
-- [Zsh](https://www.zsh.org/)
-- [Neovim](https://neovim.io/)
-- [Starship](https://starship.rs/)
-- [KDE Plasma](https://kde.org/plasma/)
-
----
-
 ## 📝 Autor
 
 **@pipeaalzamora** - Configuración personal para Arch Linux / EndeavourOS
 
----
-
-## 🎉 ¡Empezar Ya!
-
-```bash
-git clone https://github.com/pipeaalzamora/Dotfiles.git ~/dotfiles && \
-cd ~/dotfiles && \
-chmod +x setup.sh && \
-./setup.sh
-```
-
-¡Disfruta tu nuevo entorno! 🚀
+Repositorio: https://github.com/pipeaalzamora/Dotfiles
