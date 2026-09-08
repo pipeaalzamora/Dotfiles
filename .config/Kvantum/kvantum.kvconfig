@@ -1,5 +1,5 @@
 [General]
-theme=Catppuccin-Mocha-Dark
+theme=catppuccin-mocha-yellow
 
 [Applications]
-Catppuccin-Mocha-Dark=dolphin, kded5, kded6, konsole, systemsettings
+catppuccin-mocha-yellow=dolphin, kate, konsole, systemsettings

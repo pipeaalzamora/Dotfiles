@@ -1,46 +1,43 @@
 #!/usr/bin/env bash
 # ============================================================
-# Configuración KDE Plasma 6: Black & Orange, Dolphin y Ark
+# Configuración KDE Plasma 6: Catppuccin Mocha Yellow / Dolphin
 # Repositorio: pipeaalzamora/Dotfiles
 # ============================================================
 set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONFIG_DIR="$HOME/.config"
+KVANTUM_THEME="catppuccin-mocha-yellow"
 ACCENT_COLOR="250,179,135" # Catppuccin Peach / Orange
 
-ask_yes_no() {
-    local answer
-    read -r -p "$1 [S/n]: " answer
-    [[ -z "$answer" || "$answer" =~ ^[SsYy]$ ]]
-}
+printf '🎨 Aplicando apariencia Catppuccin Mocha Yellow (negro y naranjo)...\n'
+mkdir -p "$CONFIG_DIR" "$CONFIG_DIR/Kvantum"
 
-printf '🎨 Aplicando apariencia KDE Black & Orange...\n'
-mkdir -p "$CONFIG_DIR"
-
-# KDE no tiene instalado un esquema Catppuccin; BreezeDark sirve de base estable.
+# Plasma mantiene BreezeDark como esquema estructural, mientras Kvantum pinta Dolphin/Qt.
 if command -v plasma-apply-colorscheme &>/dev/null; then
     plasma-apply-colorscheme BreezeDark 2>/dev/null || true
 fi
 
-# Aplicar el acento Peach directamente en kdeglobals.
+# Selecciona el tema Kvantum que ya aparece instalado/activo en el sistema del usuario.
+if command -v kvantummanager &>/dev/null; then
+    kvantummanager --set "$KVANTUM_THEME" 2>/dev/null || true
+fi
+
 if command -v kwriteconfig6 &>/dev/null; then
     kwriteconfig6 --file "$CONFIG_DIR/kdeglobals" --group General --key ColorScheme BreezeDark
     kwriteconfig6 --file "$CONFIG_DIR/kdeglobals" --group General --key AccentColor "$ACCENT_COLOR"
+    kwriteconfig6 --file "$CONFIG_DIR/kdeglobals" --group General --key widgetStyle kvantum
     kwriteconfig6 --file "$CONFIG_DIR/kdeglobals" --group Icons --key Theme Papirus-Dark
 fi
 
-# Dolphin hereda BreezeDark + AccentColor; esto aplica preferencias de navegación/previews.
+# Dolphin hereda Kvantum. Estas preferencias solo definen navegación y previsualización.
 if [ -f "$DOTFILES_DIR/.config/dolphinrc" ]; then
     cp "$DOTFILES_DIR/.config/dolphinrc" "$CONFIG_DIR/dolphinrc"
     printf '✅ Preferencias de Dolphin aplicadas.\n'
 fi
 
-if ask_yes_no "¿Instalar Ark y soporte para ZIP, RAR, 7z y tar en Dolphin?"; then
-    bash "$DOTFILES_DIR/scripts/install-archives.sh"
-fi
-
-# Recargar apps para que lean los nuevos valores.
+# Recargar Dolphin y Plasma para leer tema, acento y preferencias nuevos.
 kquitapp6 dolphin 2>/dev/null || true
 systemctl --user restart plasma-plasmashell.service 2>/dev/null || true
-printf '✅ KDE/Dolphin configurados con fondo oscuro y acento naranjo.\n'
+printf '✅ Dolphin usa Kvantum %s con fondo Mocha oscuro y acento naranjo Peach.\n' "$KVANTUM_THEME"
+printf '✅ Ark ya se instala desde install.sh: clic derecho en Dolphin → Extraer / Comprimir.\n'
