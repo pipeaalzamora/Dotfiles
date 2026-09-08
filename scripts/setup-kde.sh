@@ -10,6 +10,10 @@ CONFIG_DIR="$HOME/.config"
 KVANTUM_THEME="catppuccin-mocha-yellow"
 ACCENT_COLOR="250,179,135" # Catppuccin Peach / Orange
 
+same_file() {
+    [ -e "$1" ] && [ -e "$2" ] && [ "$(readlink -f "$1")" = "$(readlink -f "$2")" ]
+}
+
 printf '🎨 Aplicando apariencia Catppuccin Mocha Yellow (negro y naranjo)...\n'
 mkdir -p "$CONFIG_DIR" "$CONFIG_DIR/Kvantum"
 
@@ -30,10 +34,16 @@ if command -v kwriteconfig6 &>/dev/null; then
     kwriteconfig6 --file "$CONFIG_DIR/kdeglobals" --group Icons --key Theme Papirus-Dark
 fi
 
-# Dolphin hereda Kvantum. Estas preferencias solo definen navegación y previsualización.
-if [ -f "$DOTFILES_DIR/.config/dolphinrc" ]; then
-    cp "$DOTFILES_DIR/.config/dolphinrc" "$CONFIG_DIR/dolphinrc"
-    printf '✅ Preferencias de Dolphin aplicadas.\n'
+# Dolphin hereda Kvantum. Si dolphinrc ya es el symlink hacia Dotfiles, no copiar sobre sí mismo.
+DOLPHIN_SOURCE="$DOTFILES_DIR/.config/dolphinrc"
+DOLPHIN_TARGET="$CONFIG_DIR/dolphinrc"
+if [ -f "$DOLPHIN_SOURCE" ]; then
+    if same_file "$DOLPHIN_SOURCE" "$DOLPHIN_TARGET"; then
+        printf '✅ Dolphin ya usa la configuración enlazada del repositorio.\n'
+    else
+        cp "$DOLPHIN_SOURCE" "$DOLPHIN_TARGET"
+        printf '✅ Preferencias de Dolphin aplicadas.\n'
+    fi
 fi
 
 # Recargar Dolphin y Plasma para leer tema, acento y preferencias nuevos.
