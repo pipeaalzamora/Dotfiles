@@ -272,7 +272,7 @@ fi
 # ============================================================
 # Actualización y KDE
 # ============================================================
-alias upd="$DOTFILES_DIR/scripts/update-all"
+alias upd="dotfiles update"
 
 LAST_UPDATE_FILE="$HOME/.cache/last_update"
 _needs_update=true
@@ -299,14 +299,14 @@ dots-export-kde() {
 }
 
 # Scripts de dotfiles
-alias theme-switch='$DOTFILES_DIR/scripts/theme-switcher.sh'
-alias wall-next='$DOTFILES_DIR/scripts/change-wallpaper.sh'
-alias wall-download='$DOTFILES_DIR/scripts/download-wallpapers.sh'
-alias monitors='$DOTFILES_DIR/scripts/manage-monitors.sh'
-alias verso='$DOTFILES_DIR/scripts/daily-verse.sh'
-alias salmo='$DOTFILES_DIR/scripts/daily-verse.sh salmo'
-alias proverbio='$DOTFILES_DIR/scripts/daily-verse.sh proverbio'
-alias verso-notif='$DOTFILES_DIR/scripts/daily-verse.sh random notify'
+alias theme-switch='dotfiles theme'
+alias wall-next='dotfiles wallpaper'
+alias wall-download='dotfiles wallpaper download'
+alias monitors='dotfiles monitors'
+alias verso='dotfiles verse'
+alias salmo='dotfiles verse salmo'
+alias proverbio='dotfiles verse proverbio'
+alias verso-notif='dotfiles verse random notify'
 
 # Configuración personal no versionada
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
