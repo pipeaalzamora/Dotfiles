@@ -15,6 +15,6 @@ contrastEnabled=true
 
 [Windows]
 BorderColor=30,30,46
-BorderlessMaximizedWindows=true
+BorderlessMaximizedWindows=false
 ElectricBorders=0
 CornerBarrier=false
