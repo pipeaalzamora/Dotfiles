@@ -45,8 +45,9 @@ case "$CHOICE" in
     *"Black & Orange"*|*"black-orange"*|*"orange"*|*"naranjo"*)
         THEME_NAME="Catppuccin Black & Orange"
         KITTY_THEME="catppuccin-black-orange"
-        KDE_SCHEMES=("CatppuccinMochaDark" "BreezeDark")
-        KVANTUM_THEMES=("Catppuccin-Mocha-Dark" "CatppuccinMochaDark")
+        # Catppuccin Mocha Dark es el esquema base para ambos temas
+        KDE_SCHEMES=("Catppuccin-Mocha-Dark" "KlassyDark" "BreezeDark")
+        KVANTUM_THEMES=("Catppuccin-Mocha-Dark" "KlassyDark" "KvDark")
         CURSOR_THEME="Catppuccin-Mocha-Dark"
         ICON_THEME="Papirus-Dark"
         GTK_DARK="1"
@@ -55,8 +56,8 @@ case "$CHOICE" in
     *"Catppuccin Mocha"*)
         THEME_NAME="Catppuccin Mocha"
         KITTY_THEME="catppuccin-mocha"
-        KDE_SCHEMES=("CatppuccinMochaDark" "CatppuccinMocha" "BreezeDark")
-        KVANTUM_THEMES=("Catppuccin-Mocha-Dark" "CatppuccinMochaDark")
+        KDE_SCHEMES=("Catppuccin-Mocha-Dark" "KlassyDark" "BreezeDark")
+        KVANTUM_THEMES=("Catppuccin-Mocha-Dark" "KlassyDark" "KvDark")
         CURSOR_THEME="Catppuccin-Mocha-Dark"
         ICON_THEME="Papirus-Dark"
         GTK_DARK="1"
@@ -65,8 +66,8 @@ case "$CHOICE" in
     *"Catppuccin Latte"*)
         THEME_NAME="Catppuccin Latte"
         KITTY_THEME="catppuccin-latte"
-        KDE_SCHEMES=("CatppuccinLatteLight" "CatppuccinLatte" "BreezeLight")
-        KVANTUM_THEMES=("Catppuccin-Latte-Light" "CatppuccinLatteLight")
+        KDE_SCHEMES=("Catppuccin-Latte-Light" "KlassyLight" "BreezeLight")
+        KVANTUM_THEMES=("Catppuccin-Latte-Light" "KlassyLight" "KvFlatLight")
         CURSOR_THEME="Catppuccin-Latte-Light"
         ICON_THEME="Papirus-Light"
         GTK_DARK="0"
@@ -75,8 +76,8 @@ case "$CHOICE" in
     *"Tokyo Night"*)
         THEME_NAME="Tokyo Night"
         KITTY_THEME="tokyo-night"
-        KDE_SCHEMES=("TokyoNight" "TokyoNightDark" "BreezeDark")
-        KVANTUM_THEMES=("TokyoNight" "Catppuccin-Mocha-Dark")
+        KDE_SCHEMES=("TokyoNight" "TokyoNightDark" "KlassyDark" "BreezeDark")
+        KVANTUM_THEMES=("TokyoNight" "Catppuccin-Mocha-Dark" "KlassyDark")
         CURSOR_THEME="Bibata-Modern-Ice"
         ICON_THEME="Papirus-Dark"
         GTK_DARK="1"
@@ -85,8 +86,8 @@ case "$CHOICE" in
     *"Nord"*)
         THEME_NAME="Nord"
         KITTY_THEME="nord"
-        KDE_SCHEMES=("Nordic" "NordicDarker" "BreezeDark")
-        KVANTUM_THEMES=("Nordic" "NordicDarker")
+        KDE_SCHEMES=("Nordic" "NordicDarker" "KlassyDark" "BreezeDark")
+        KVANTUM_THEMES=("Nordic" "NordicDarker" "KvDark")
         CURSOR_THEME="Bibata-Modern-Classic"
         ICON_THEME="Papirus-Dark"
         GTK_DARK="1"
@@ -95,8 +96,8 @@ case "$CHOICE" in
     *"Dracula"*)
         THEME_NAME="Dracula"
         KITTY_THEME="dracula"
-        KDE_SCHEMES=("Dracula" "DraculaPlasma" "BreezeDark")
-        KVANTUM_THEMES=("Dracula" "DraculaPlasma")
+        KDE_SCHEMES=("Dracula" "DraculaPlasma" "KlassyDark" "BreezeDark")
+        KVANTUM_THEMES=("Dracula" "DraculaPlasma" "KvDark")
         CURSOR_THEME="Bibata-Modern-Dark"
         ICON_THEME="Papirus-Dark"
         GTK_DARK="1"
@@ -105,8 +106,8 @@ case "$CHOICE" in
     *"Gruvbox Dark"*)
         THEME_NAME="Gruvbox Dark"
         KITTY_THEME="gruvbox-dark"
-        KDE_SCHEMES=("Gruvbox" "GruvboxDark" "BreezeDark")
-        KVANTUM_THEMES=("Gruvbox" "KvGruvbox")
+        KDE_SCHEMES=("Gruvbox" "GruvboxDark" "KlassyDark" "BreezeDark")
+        KVANTUM_THEMES=("Gruvbox" "KvGruvbox" "KvDark")
         CURSOR_THEME="Capitaine-cursors"
         ICON_THEME="Papirus-Dark"
         GTK_DARK="1"
@@ -115,8 +116,8 @@ case "$CHOICE" in
     *)
         THEME_NAME="Catppuccin Black & Orange"
         KITTY_THEME="catppuccin-black-orange"
-        KDE_SCHEMES=("CatppuccinMochaDark" "BreezeDark")
-        KVANTUM_THEMES=("Catppuccin-Mocha-Dark" "BreezeDark")
+        KDE_SCHEMES=("Catppuccin-Mocha-Dark" "KlassyDark" "BreezeDark")
+        KVANTUM_THEMES=("Catppuccin-Mocha-Dark" "KlassyDark" "KvDark")
         CURSOR_THEME="Catppuccin-Mocha-Dark"
         ICON_THEME="Papirus-Dark"
         GTK_DARK="1"
