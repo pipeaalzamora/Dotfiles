@@ -1,273 +1,122 @@
-# Integración de Kvantum en KDE Plasma
+# Kvantum Integration - KDE Plasma 7
 
-## ¿Qué es Kvantum y cómo funciona?
+## ¿Qué es Kvantum?
 
-### La estructura
+Kvantum es un motor de temas para aplicaciones Qt (independiente de KDE).
 
-```
-Kvantum es un sistema de CAPAS:
+## ¿Por qué necesita "activación"?
 
-┌─────────────────────────────────────────────────────────────┐
-│                    APLICACIONES Qt                          │
-│         (Kate, Dolphin, Konsole, KDE Plasma, etc)          │
-└──────────────────────────────────────┬──────────────────────┘
-                                       │
-                    ¿Cómo me veo visual?
-                                       │
-                                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│            KDE PLASMA (Application Style)                   │
-│                                                              │
-│  Opciones: Breeze, Oxygen, Kvantum, QtCurve, Plastique    │
-│                                                              │
-│  ← AQUÍ es donde seleccionas "Kvantum"                     │
-└──────────────────────────────────────┬──────────────────────┘
-                                       │
-          ¿Qué estilo debería usar?
-                                       │
-                                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   KVANTUM MANAGER                           │
-│                                                              │
-│  Tema seleccionado: Catppuccin-Mocha-Blue                  │
-│                                                              │
-│  └─ Archivos: ~/.config/Kvantum/Catppuccin-Mocha-Blue/   │
-│     ├─ Catppuccin-Mocha-Blue.kvconfig (configuración)     │
-│     └─ Catppuccin-Mocha-Blue.svg (gráficos SVG)           │
-└──────────────────────────────────────┬──────────────────────┘
-                                       │
-                      Renderizar tema
-                                       │
-                                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    PANTALLA VISUAL                          │
-│                                                              │
-│  Botones, ventanas, barras con el estilo del tema          │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### El flujo de configuración
-
-```
-1. INSTALAR TEMA
-   └─ bash install-catppuccin-kvantum.sh
-   └─ Descarga y copia archivos a ~/.config/Kvantum/
-
-2. ACTIVAR KVANTUM (Este es el paso que faltaba)
-   └─ bash enable-kvantum.sh
-   └─ Configura KDE para usar Kvantum como Application Style
-   └─ Modifica: ~/.config/kdeglobals → widgetStyle = "kvantum"
-
-3. SELECCIONAR TEMA
-   └─ Abre Kvantum Manager
-   └─ Selecciona el tema instalado
-   └─ Hace clic en "Apply"
-   └─ El archivo ~/.config/Kvantum/kvantum.conf se actualiza
-
-4. APLICAR A SISTEMA
-   └─ Las aplicaciones Qt leen la configuración
-   └─ Se renderizan con el tema seleccionado
-```
-
-## ¿Por qué necesitas "activar" Kvantum?
+Kvantum es independiente de KDE Plasma. Necesita ser configurado como **Application Style** para que KDE use sus temas.
 
 ### Sin activación:
-- Kvantum está instalado pero **inactivo**
-- Los temas están en `~/.config/Kvantum/` pero **se ignoran**
-- KDE sigue usando Breeze (el estilo por defecto)
-- Kvantum Manager funciona pero los cambios **no se aplican**
+- Temas instalados pero inactivos
+- KDE usa Breeze (por defecto)
 
 ### Con activación:
-- KDE Plasma sabe que debe usar Kvantum
-- Los temas instalados **se aplican al sistema**
-- Todos los cambios en Kvantum Manager se **ven inmediatamente**
-- Las aplicaciones Qt se renderizan con el tema seleccionado
+- KDE sabe que debe usar Kvantum
+- Los temas se aplican correctamente
 
-## Cómo funciona la activación
+## Instalación y Activación
 
-### Método 1: Script automático (RECOMENDADO)
+### 1. Instalar tema
 
 ```bash
-bash ~/dotfiles/scripts/enable-kvantum.sh
-```
-
-**¿Qué hace?**
-- Ejecuta: `kwriteconfig5 --file ~/.config/kdeglobals --group General --key "widgetStyle" "kvantum"`
-- Esto configura KDE Plasma para usar Kvantum
-- Es completamente reversible
-
-### Método 2: GUI (KDE System Settings)
-
-1. Abre **System Settings**
-2. Ve a **Appearance** (Apariencia)
-3. Selecciona **Application Style** (Estilo de Aplicación)
-4. En el menú desplegable, elige **Kvantum**
-5. Se abrirá Kvantum Manager automáticamente
-6. Selecciona un tema y aplica
-
-### Método 3: Editar config manualmente
-
-```bash
-# Abrir archivo de configuración
-nano ~/.config/kdeglobals
-
-# Buscar la sección [General]
-# Cambiar o agregar:
-[General]
-widgetStyle=kvantum
-```
-
-## Archivos involucrados
-
-```
-~/.config/
-├── kdeglobals                    ← Configuración general de KDE
-│   └─ [General] widgetStyle=kvantum
-│
-└── Kvantum/
-    ├── kvantum.conf             ← Configuración de Kvantum
-    │   └─ theme=Catppuccin-Mocha-Blue
-    │
-    └── Catppuccin-Mocha-Blue/   ← Tema instalado
-        ├─ Catppuccin-Mocha-Blue.kvconfig
-        └─ Catppuccin-Mocha-Blue.svg
-```
-
-## Diagrama de flujo completo
-
-```
-INSTALACIÓN Y ACTIVACIÓN:
-
-┌─────────────────────────────────────┐
-│  1. Ejecutar instalador de tema     │
-│  bash install-catppuccin-kvantum.sh│
-└────────────────┬────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────┐
-│  2. Archivos se copian a:           │
-│  ~/.config/Kvantum/Tema/            │
-└────────────────┬────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────┐
-│  3. Ejecutar activador (IMPORTANTE) │
-│  bash enable-kvantum.sh             │
-└────────────────┬────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────┐
-│  4. KDE Plasma se configura para:   │
-│  widgetStyle=kvantum (en kdeglobals)│
-└────────────────┬────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────┐
-│  5. Abrir Kvantum Manager           │
-│  kvantummanager                     │
-└────────────────┬────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────┐
-│  6. Seleccionar tema y Apply        │
-└────────────────┬────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────┐
-│  7. ¡Tema aplicado al sistema!      │
-│  Todas las apps Qt lo ven           │
-└─────────────────────────────────────┘
-```
-
-## Pasos recomendados para usar Catppuccin
-
-```bash
-# Paso 1: Instalar tema
 bash ~/dotfiles/scripts/install-catppuccin-kvantum.sh
-
-# Paso 2: Activar Kvantum (IMPORTANTE)
-bash ~/dotfiles/scripts/enable-kvantum.sh
-
-# Paso 3: Abrir Kvantum Manager
-kvantummanager
-
-# Paso 4: En Kvantum Manager:
-#   - Selecciona "Catppuccin-Mocha-Blue"
-#   - Haz clic en "Apply"
-
-# ¡Listo! Tu sistema ahora usa Catppuccin Kvantum
 ```
+
+Elige sabor (Mocha, Latte, Frappé, Macchiato) y acento (Blue, Purple, Pink, etc).
+
+### 2. Activar Kvantum
+
+```bash
+bash ~/dotfiles/scripts/enable-kvantum.sh
+```
+
+Este script modifica `~/.config/kdeglobals` para activar Kvantum como Application Style.
+
+Soporta KDE Plasma 5 (kwriteconfig5) y Plasma 7 (kwriteconfig6).
+
+### 3. Seleccionar y aplicar el tema
+
+```bash
+kvantummanager
+```
+
+- Selecciona el tema instalado
+- Haz clic en "Apply"
 
 ## Verificación
 
-### Comprobar que Kvantum está activado:
+### ¿Está Kvantum activado?
 
 ```bash
-# Leer la configuración actual
-kreadconfig5 --file ~/.config/kdeglobals --group General --key widgetStyle
-
-# Debería mostrar:
-# kvantum
+kreadconfig6 --file ~/.config/kdeglobals --group General --key widgetStyle
+# Debería mostrar: kvantum
 ```
 
-### Listar temas instalados:
+### ¿Cuál tema está seleccionado?
 
 ```bash
-ls ~/.config/Kvantum/ | grep -v "^kvantum"
+kreadconfig6 --file ~/.config/Kvantum/kvantum.conf --key theme
+# Debería mostrar: Catppuccin-Mocha-Blue (o similar)
 ```
 
-### Ver tema actualmente seleccionado:
+## Flujo Técnico
 
-```bash
-kreadconfig5 --file ~/.config/Kvantum/kvantum.conf --key theme
+```
+Aplicación Qt → ¿Cuál es mi estilo?
+              → ~/.config/kdeglobals [widgetStyle=kvantum]
+              → ~/.config/Kvantum/kvantum.conf [theme=...]
+              → ~/.config/Kvantum/Tema/Tema.svg
+              → Se renderiza con ese tema
 ```
 
 ## Troubleshooting
 
-### "No veo cambios después de aplicar el tema"
+### Los temas no se ven después de aplicar
 
 1. Verifica que Kvantum está activado:
    ```bash
    bash ~/dotfiles/scripts/enable-kvantum.sh
    ```
 
-2. Reinicia las aplicaciones:
+2. Reinicia Plasma:
    ```bash
    killall -9 plasmashell && plasmashell &
    ```
 
-3. O reinicia sesión de KDE
+### Kvantum Manager está vacío
 
-### "Kvantum Manager dice 'Apply' pero nada cambia"
+Asegúrate de que los temas están en `~/.config/Kvantum/`:
 
-- Kvantum probablemente no está activado como Application Style
-- Ejecuta el script `enable-kvantum.sh`
-- Verifica en System Settings → Application Style que dice "Kvantum"
+```bash
+ls ~/.config/Kvantum/
+```
 
-### "Veo 'Kvantum' en Application Style pero los temas no están en Kvantum Manager"
+Estructura esperada:
+```
+~/.config/Kvantum/NombreTema/
+├── NombreTema.kvconfig
+└── NombreTema.svg
+```
 
-- Verifica que los temas están en `~/.config/Kvantum/`
-- Comprueba que la estructura es correcta:
-  ```
-  ~/.config/Kvantum/NombreTema/
-  ├── NombreTema.kvconfig
-  └── NombreTema.svg
-  ```
-- Si no, reinstala el tema
+### Volver al estilo por defecto
 
-## Resumen rápido
+```bash
+kwriteconfig6 --file ~/.config/kdeglobals --group General --key widgetStyle "breeze"
+```
 
-| Paso | Qué | Comando |
-|------|-----|---------|
-| 1 | Instalar tema | `bash install-catppuccin-kvantum.sh` |
-| 2 | **Activar Kvantum** | `bash enable-kvantum.sh` |
-| 3 | Abrir manager | `kvantummanager` |
-| 4 | Seleccionar y aplicar | (en la GUI) |
+## Sabores Catppuccin disponibles
 
-**La clave es el Paso 2**: Sin activar Kvantum, los temas no se aplican aunque estén instalados.
+- **Mocha** (recomendado) — Oscuro y profundo
+- **Macchiato** — Suave y oscuro
+- **Frappé** — Neutro y cálido
+- **Latte** — Claro y fresco
 
-## Referencias
+Cada uno con múltiples acentos: Blue, Purple, Pink, Green, etc.
 
-- [Kvantum GitHub](https://github.com/tsujan/Kvantum)
-- [Catppuccin Kvantum](https://github.com/catppuccin/kvantum)
-- [KDE Application Styles](https://docs.kde.org/stable/en/kcontrol/style/index.html)
+## Scripts
+
+- `install-catppuccin-kvantum.sh` — Instala un tema (interactivo)
+- `install-all-catppuccin-kvantum.sh` — Instala todos los 40 temas
+- `enable-kvantum.sh` — Activa Kvantum en KDE
