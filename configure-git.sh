@@ -69,7 +69,7 @@ echo ""
 # USUARIO
 # ============================================================
 
-read -p "$(echo -e ${YELLOW}?${NC} Ingresa tu nombre (Enter para mantener actual): " USER_NAME
+read -p "$(echo -e "${YELLOW}?${NC} Ingresa tu nombre (Enter para mantener actual): ")" USER_NAME
 USER_NAME="${USER_NAME:-$CURRENT_NAME}"
 
 if [ -z "$USER_NAME" ]; then
@@ -81,7 +81,7 @@ fi
 # EMAIL
 # ============================================================
 
-read -p "$(echo -e ${YELLOW}?${NC} Ingresa tu email (Enter para mantener actual): " USER_EMAIL
+read -p "$(echo -e "${YELLOW}?${NC} Ingresa tu email (Enter para mantener actual): ")" USER_EMAIL
 USER_EMAIL="${USER_EMAIL:-$CURRENT_EMAIL}"
 
 if [ -z "$USER_EMAIL" ]; then
@@ -93,7 +93,7 @@ fi
 # EDITOR
 # ============================================================
 
-read -p "$(echo -e ${YELLOW}?${NC} Ingresa editor por defecto [nvim/vim/nano/code] (Enter para $CURRENT_EDITOR): " USER_EDITOR
+read -p "$(echo -e "${YELLOW}?${NC} Ingresa editor por defecto [nvim/vim/nano/code] (Enter para $CURRENT_EDITOR): ")" USER_EDITOR
 USER_EDITOR="${USER_EDITOR:-$CURRENT_EDITOR}"
 
 # ============================================================
@@ -128,7 +128,7 @@ fi
 
 echo ""
 echo -e "${BOLD}¿Guardar contraseñas de GitHub?${NC}"
-read -p "$(echo -e ${YELLOW}?${NC} Usar credential.helper cache? [s/n] (default: s): " SAVE_CREDS
+read -p "$(echo -e "${YELLOW}?${NC} Usar credential.helper cache? [s/n] (default: s): ")" SAVE_CREDS
 SAVE_CREDS="${SAVE_CREDS:-s}"
 
 if [[ "$SAVE_CREDS" =~ ^[Ss]$ ]]; then

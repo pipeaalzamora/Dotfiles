@@ -28,4 +28,4 @@ export NVM_DIR="$HOME/.nvm"
 export BUN_INSTALL="$HOME/.bun"
 [ -d "$BUN_INSTALL" ] && export PATH="$BUN_INSTALL/bin:$PATH"
 
-export PATH=$PATH:/home/pipeaalzamora/.spicetify
+export PATH="$HOME/.spicetify:$PATH"

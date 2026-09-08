@@ -8,8 +8,8 @@ export LANG="es_CL.UTF-8"
 export LC_CTYPE="es_CL.UTF-8"
 unset LC_ALL
 
-# Directorio de dotfiles: instalación habitual en Documentos.
-export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/Documentos/Dotfiles}"
+# Directorio de dotfiles: ubicación actual del repositorio.
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/Dotfiles}"
 
 # Directorios locales de usuario
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"

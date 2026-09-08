@@ -2,7 +2,7 @@
 # Dotfiles — Zsh completo
 # ============================================================
 
-export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/Documentos/Dotfiles}"
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/Dotfiles}"
 export STARSHIP_CONFIG="${STARSHIP_CONFIG:-$HOME/.config/starship.toml}"
 
 # Compatibilidad de nombres en Arch y otras distribuciones.
