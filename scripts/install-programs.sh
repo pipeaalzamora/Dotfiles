@@ -1,398 +1,545 @@
 #!/usr/bin/env bash
-# ============================================================
-# Script de Instalador de Programas Open Source para Arch Linux
-# Enfocado en aplicaciones nativas de Linux
-# ============================================================
+#
+# install-programs.sh — Instala programas esenciales para el sistema
+#
+# Uso:
+#   install-programs.sh [--all] [--system] [--dev] [--multimedia] [--image-viewer] [--editor]
+#
+# Si no se especifica ninguna opción, muestra un menú interactivo.
 
-set -e
+set -euo pipefail
 
-# Colores y estilos
+# ============================================================
+# Colores para salida
+# ============================================================
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
-BOLD='\033[1m'
-DIM='\033[2m'
-NC='\033[0m'
+NC='\033[0m' # No Color
 
-print_header() {
-    echo ""
-    echo -e "${BLUE}╔══════════════════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║${NC}   ${BOLD}$1${NC}"
-    echo -e "${BLUE}╚══════════════════════════════════════════════════╝${NC}"
-    echo ""
+log() { echo -e "${BLUE}[install-programs]${NC} $*"; }
+info() { echo -e "${GREEN}[INFO]${NC} $*"; }
+warn() { echo -e "${YELLOW}[WARN]${NC} $*" >&2; }
+die() { echo -e "${RED}[ERROR]${NC} $*" >&2; exit 1; }
+header() { echo -e "\n${CYAN}==>${NC} $*"; }
+
+# ============================================================
+# Detectar distribución
+# ============================================================
+detect_distro() {
+    if [[ -f /etc/arch-release ]]; then
+        echo "arch"
+    elif [[ -f /etc/fedora-release ]]; then
+        echo "fedora"
+    elif [[ -f /etc/debian_version ]]; then
+        echo "debian"
+    elif [[ -f /etc/opensuse-release ]] || [[ -f /etc/SuSE-release ]]; then
+        echo "opensuse"
+    else
+        echo "unknown"
+    fi
 }
 
-print_info() {
-    echo -e "${CYAN}ℹ️   $1${NC}"
+DISTRO=$(detect_distro)
+log "DistribuciÃ³n detectada: $DISTRO"
+
+# ============================================================
+# Funciones de instalaciÃ³n
+# ============================================================
+
+# -------------------------------------------------------------
+# Programas del sistema
+# -------------------------------------------------------------
+install_system() {
+    header "Instalando programas del sistema..."
+
+    case "$DISTRO" in
+        arch)
+            if command -v yay >/dev/null 2>&1; then
+                yay -S --noconfirm \
+                    btop \
+                    dust \
+                    eza \
+                    fd \
+                    fzf \
+                    git \
+                    htop \
+                    jq \
+                    lsd \
+                    neovim \
+                    ripgrep \
+                    tldr \
+                    tree \
+                    zoxide \
+                    zsh \
+                    zsh-completions
+            elif command -v paru >/dev/null 2>&1; then
+                paru -S --noconfirm \
+                    btop \
+                    dust \
+                    eza \
+                    fd \
+                    fzf \
+                    git \
+                    htop \
+                    jq \
+                    lsd \
+                    neovim \
+                    ripgrep \
+                    tldr \
+                    tree \
+                    zoxide \
+                    zsh \
+                    zsh-completions
+            else
+                sudo pacman -S --noconfirm \
+                    btop \
+                    dust \
+                    eza \
+                    fd \
+                    fzf \
+                    git \
+                    htop \
+                    jq \
+                    lsd \
+                    neovim \
+                    ripgrep \
+                    tldr \
+                    tree \
+                    zoxide \
+                    zsh \
+                    zsh-completions
+            fi
+            ;;
+        debian)
+            sudo apt update
+            sudo apt install -y \
+                btop \
+                dust \
+                fd-find \
+                fzf \
+                git \
+                htop \
+                jq \
+                lsd \
+                neovim \
+                ripgrep \
+                tree \
+                zoxide \
+                zsh
+            ;;
+        fedora)
+            sudo dnf install -y \
+                btop \
+                dust \
+                fd-find \
+                fzf \
+                git \
+                htop \
+                jq \
+                lsd \
+                neovim \
+                ripgrep \
+                tree \
+                zoxide \
+                zsh
+            ;;
+        opensuse)
+            sudo zypper install -y \
+                btop \
+                dust \
+                fd \
+                fzf \
+                git \
+                htop \
+                jq \
+                lsd \
+                neovim \
+                ripgrep \
+                tree \
+                zoxide \
+                zsh
+            ;;
+        *)
+            warn "DistribuciÃ³n no reconocida. Instala programas manualmente."
+            return 1
+            ;;
+    esac
+
+    info "â¡¡â¡¡â¡¡ Programas del sistema instalados!"
 }
 
-print_success() {
-    echo -e "${GREEN}✅ $1${NC}"
+# -------------------------------------------------------------
+# Herramientas de desarrollo
+# -------------------------------------------------------------
+install_dev() {
+    header "Instalando herramientas de desarrollo..."
+
+    case "$DISTRO" in
+        arch)
+            if command -v yay >/dev/null 2>&1; then
+                yay -S --noconfirm \
+                    docker \
+                    docker-compose \
+                    go \
+                    nodejs \
+                    npm \
+                    python \
+                    python-pip \
+                    rust
+            elif command -v paru >/dev/null 2>&1; then
+                paru -S --noconfirm \
+                    docker \
+                    docker-compose \
+                    go \
+                    nodejs \
+                    npm \
+                    python \
+                    python-pip \
+                    rust
+            else
+                sudo pacman -S --noconfirm \
+                    docker \
+                    docker-compose \
+                    go \
+                    nodejs \
+                    npm \
+                    python \
+                    python-pip \
+                    rust
+            fi
+            ;;
+        debian)
+            sudo apt update
+            sudo apt install -y \
+                docker.io \
+                docker-compose \
+                golang-go \
+                nodejs \
+                npm \
+                python3 \
+                python3-pip \
+                rustc
+            ;;
+        fedora)
+            sudo dnf install -y \
+                docker \
+                docker-compose \
+                golang \
+                nodejs \
+                npm \
+                python3 \
+                python3-pip \
+                rust
+            ;;
+        opensuse)
+            sudo zypper install -y \
+                docker \
+                docker-compose \
+                go \
+                nodejs \
+                npm \
+                python3 \
+                python3-pip \
+                rust
+            ;;
+        *)
+            warn "DistribuciÃ³n no reconocida. Instala herramientas de desarrollo manualmente."
+            return 1
+            ;;
+    esac
+
+    info "â¡¡â¡¡â¡¡ Herramientas de desarrollo instaladas!"
 }
 
-print_warning() {
-    echo -e "${YELLOW}⚠️   $1${NC}"
+# -------------------------------------------------------------
+# Multimedia
+# -------------------------------------------------------------
+install_multimedia() {
+    header "Instalando herramientas multimedia..."
+
+    case "$DISTRO" in
+        arch)
+            if command -v yay >/dev/null 2>&1; then
+                yay -S --noconfirm \
+                    ffmpeg \
+                    mpv \
+                    vlc \
+                    yt-dlp
+            elif command -v paru >/dev/null 2>&1; then
+                paru -S --noconfirm \
+                    ffmpeg \
+                    mpv \
+                    vlc \
+                    yt-dlp
+            else
+                sudo pacman -S --noconfirm \
+                    ffmpeg \
+                    mpv \
+                    vlc \
+                    yt-dlp
+            fi
+            ;;
+        debian)
+            sudo apt update
+            sudo apt install -y \
+                ffmpeg \
+                mpv \
+                vlc \
+                yt-dlp
+            ;;
+        fedora)
+            sudo dnf install -y \
+                ffmpeg \
+                mpv \
+                vlc \
+                yt-dlp
+            ;;
+        opensuse)
+            sudo zypper install -y \
+                ffmpeg \
+                mpv \
+                vlc \
+                yt-dlp
+            ;;
+        *)
+            warn "DistribuciÃ³n no reconocida. Instala herramientas multimedia manualmente."
+            return 1
+            ;;
+    esac
+
+    info "â¡¡â¡¡â¡¡ Herramientas multimedia instaladas!"
 }
 
-print_error() {
-    echo -e "${RED}❌ $1${NC}"
+# -------------------------------------------------------------
+# Visor de imágenes (feh)
+# -------------------------------------------------------------
+install_image_viewer() {
+    header "Instalando visor de imágenes (feh)..."
+
+    case "$DISTRO" in
+        arch)
+            if command -v yay >/dev/null 2>&1; then
+                yay -S --noconfirm feh
+            elif command -v paru >/dev/null 2>&1; then
+                paru -S --noconfirm feh
+            else
+                sudo pacman -S --noconfirm feh
+            fi
+            ;;
+        debian)
+            sudo apt update
+            sudo apt install -y feh
+            ;;
+        fedora)
+            sudo dnf install -y feh
+            ;;
+        opensuse)
+            sudo zypper install -y feh
+            ;;
+        *)
+            warn "DistribuciÃ³n no reconocida. Instala feh manualmente."
+            return 1
+            ;;
+    esac
+
+    info "â¡¡â¡¡â¡¡ Feh instalado!"
+    info "Uso: feh ~/ImÃ¡genes/foto.jpg"
+    info "Slideshow: feh --slideshow-delay 5 --fullscreen ~/ImÃ¡genes/"
 }
 
-ask_yes_no() {
-    local prompt="$1"
-    local default="${2:-y}"
-    local yn_hint="[S/n]"
-    [ "$default" = "n" ] && yn_hint="[s/N]"
+# -------------------------------------------------------------
+# Editor de texto (Kate - KDE)
+# -------------------------------------------------------------
+install_editor() {
+    header "Instalando editor de texto (Kate - KDE)..."
 
+    case "$DISTRO" in
+        arch)
+            if command -v yay >/dev/null 2>&1; then
+                yay -S --noconfirm kate
+            elif command -v paru >/dev/null 2>&1; then
+                paru -S --noconfirm kate
+            else
+                sudo pacman -S --noconfirm kate
+            fi
+            ;;
+        debian)
+            sudo apt update
+            sudo apt install -y kate
+            ;;
+        fedora)
+            sudo dnf install -y kate
+            ;;
+        opensuse)
+            sudo zypper install -y kate
+            ;;
+        *)
+            warn "DistribuciÃ³n no reconocida. Instala Kate manualmente."
+            return 1
+            ;;
+    esac
+
+    info "â¡¡â¡¡â¡¡ Kate instalado!"
+    info "Uso: kate archivo.txt"
+}
+
+# -------------------------------------------------------------
+# Instalar todo
+# -------------------------------------------------------------
+install_all() {
+    install_system
+    install_dev
+    install_multimedia
+    install_image_viewer
+    install_editor
+
+    header "â¡¡â¡¡â¡¡ â Todos los programas instalados"
+}
+
+# ============================================================
+# MenÃº interactivo
+# ============================================================
+show_menu() {
+    cat <<EOF
+
+${CYAN}=====================================${NC}
+${CYAN}      Instalador de Programas        ${NC}
+${CYAN}=====================================${NC}
+
+Selecciona quÃ© instalar:
+
+  1) Programas del sistema (btop, fd, fzf, git, neovim, etc.)
+  2) Herramientas de desarrollo (Docker, Node, Python, Rust, etc.)
+  3) Multimedia (ffmpeg, mpv, vlc, yt-dlp)
+  4) Visor de imÃ¡genes (feh)
+  5) Editor de texto (Kate - KDE)
+  6) â Instalar todo
+  0) Salir
+
+EOF
+}
+
+interactive_mode() {
     while true; do
-        read -r -p "$(echo -e "${YELLOW}?${NC} $prompt $yn_hint: ")" answer
-        answer="${answer:-$default}"
-        case "$answer" in
-            [SsYy]*) return 0 ;;
-            [Nn]*) return 1 ;;
-            *) echo "Por favor responde sí (s) o no (n)." ;;
+        show_menu
+        read -rp "OpciÃ³n [0-6]: " choice
+
+        case "$choice" in
+            1)
+                install_system
+                ;;
+            2)
+                install_dev
+                ;;
+            3)
+                install_multimedia
+                ;;
+            4)
+                install_image_viewer
+                ;;
+            5)
+                install_editor
+                ;;
+            6)
+                install_all
+                break
+                ;;
+            0)
+                info "Saliendo..."
+                exit 0
+                ;;
+            *)
+                warn "OpciÃ³n no vÃ¡lida. Intenta de nuevo."
+                ;;
         esac
+
+        echo
+        read -rp "Â¿Continuar? [s/N]: " cont
+        [[ "$cont" =~ ^[SsYy]$ ]] || break
     done
 }
 
-ask_install() {
-    local name="$1"
-    local desc="$2"
-    local default="${3:-y}"
+# ============================================================
+# Parseo de argumentos
+# ============================================================
+INSTALL_ALL=false
+INSTALL_SYSTEM=false
+INSTALL_DEV=false
+INSTALL_MULTIMEDIA=false
+INSTALL_IMAGE_VIEWER=false
+INSTALL_EDITOR=false
 
-    echo ""
-    echo -e "${BOLD}${PURPLE}▶ ${name}${NC}"
-    echo -e "${DIM}${desc}${NC}"
-    ask_yes_no "Instalar este programa?" "$default"
-}
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --all)
+            INSTALL_ALL=true
+            shift
+            ;;
+        --system)
+            INSTALL_SYSTEM=true
+            shift
+            ;;
+        --dev)
+            INSTALL_DEV=true
+            shift
+            ;;
+        --multimedia)
+            INSTALL_MULTIMEDIA=true
+            shift
+            ;;
+        --image-viewer)
+            INSTALL_IMAGE_VIEWER=true
+            shift
+            ;;
+        --editor)
+            INSTALL_EDITOR=true
+            shift
+            ;;
+        --help)
+            cat <<EOF
+Uso: $(basename "$0") [OPCIONES]
 
-pkg_install() {
-    sudo pacman -S --needed --noconfirm "$@"
-}
+Opciones:
+  --all            Instalar todo (sistema, dev, multimedia, visor, editor)
+  --system         Instalar programas del sistema
+  --dev            Instalar herramientas de desarrollo
+  --multimedia     Instalar herramientas multimedia
+  --image-viewer   Instalar visor de imÃ¡genes (feh)
+  --editor         Instalar editor de texto (Kate)
+  --help           Muestra esta ayuda
 
-aur_install() {
-    if ! command -v yay &>/dev/null; then
-        print_error "yay no esta instalado. Instalando yay primero..."
-        git clone https://aur.archlinux.org/yay.git /tmp/yay
-        (cd /tmp/yay && makepkg -si --noconfirm)
-        rm -rf /tmp/yay
-    fi
-    yay -S --needed --noconfirm "$@"
-}
+Sin opciones: muestra un menÃº interactivo.
+
+Ejemplos:
+  $(basename "$0") --all
+  $(basename "$0") --image-viewer --editor
+EOF
+            exit 0
+            ;;
+        *)
+            die "OpciÃ³n desconocida: $1. Usa --help para ver ayuda."
+            ;;
+    esac
+done
 
 # ============================================================
-# Verificar Arch Linux / EndeavourOS
+# Ejecutar instalaciÃ³n
 # ============================================================
-
-if [[ ! -f /etc/os-release ]]; then
-    print_error "No se pudo detectar la distribucion Linux."
-    exit 1
+if [[ "$INSTALL_ALL" == true ]]; then
+    install_all
+elif [[ "$INSTALL_SYSTEM" == true ]]; then
+    install_system
+elif [[ "$INSTALL_DEV" == true ]]; then
+    install_dev
+elif [[ "$INSTALL_MULTIMEDIA" == true ]]; then
+    install_multimedia
+elif [[ "$INSTALL_IMAGE_VIEWER" == true ]]; then
+    install_image_viewer
+elif [[ "$INSTALL_EDITOR" == true ]]; then
+    install_editor
+else
+    interactive_mode
 fi
-
-source /etc/os-release
-if [[ "$ID" != "arch" && "$ID_LIKE" != *"arch"* && "$ID" != "endeavouros" ]]; then
-    print_error "Este script esta diseñado para Arch Linux / EndeavourOS. Detectado: $ID"
-    exit 1
-fi
-
-# ============================================================
-# Inicio
-# ============================================================
-
-print_header "Instalador de Programas Open Source — Arch Linux"
-echo -e "Sistema detectado: ${GREEN}$PRETTY_NAME${NC}"
-echo ""
-echo "Este script instala aplicaciones nativas de Linux priorizando software open source."
-echo "Cada programa incluye una descripcion de su utilidad."
-echo ""
-echo -e "${YELLOW}─────────────────────────────────────────────────────${NC}"
-
-# ============================================================
-# NAVEGADORES WEB
-# ============================================================
-
-print_header "Navegadores Web"
-
-INSTALL_FIREFOX=false
-if ask_install "Mozilla Firefox" \
-    "Navegador web open source de Mozilla. Privacidad, extensiones y sincronizacion.\n   Establecido como predeterminado en la mayoria de distribuciones Linux."; then
-    INSTALL_FIREFOX=true
-    pkg_install firefox
-    print_success "Firefox instalado"
-fi
-
-INSTALL_BRAVE=false
-if ask_install "Brave Browser" \
-    "Navegador basado en Chromium con bloqueo de anuncios y trackers integrado.\n   Compatible con extensiones de Chrome y enfocado en privacidad." "n"; then
-    INSTALL_BRAVE=true
-    aur_install brave-bin
-    print_success "Brave instalado desde AUR"
-fi
-
-# ============================================================
-# IDEs Y EDITORES DE CÓDIGO
-# ============================================================
-
-print_header "IDEs y Editores de Codigo"
-
-INSTALL_KIRO=false
-if ask_install "Kiro IDE" \
-    "IDE moderno y ligero diseñado para desarrollo full-stack.\n   Soporte nativo para TypeScript, React, Node.js y herramientas de IA."; then
-    INSTALL_KIRO=true
-    aur_install kiro-bin
-    print_success "Kiro IDE instalado desde AUR"
-fi
-
-INSTALL_VSCODE=false
-if ask_install "Visual Studio Code" \
-    "Editor de codigo de Microsoft ampliamente usado en la industria.\n   Ecosistema masivo de extensiones, debugging integrado y Git." "n"; then
-    INSTALL_VSCODE=true
-    aur_install visual-studio-code-bin
-    print_success "VS Code instalado desde AUR"
-fi
-
-INSTALL_DATABASER=false
-if ask_install "DBeaver Community" \
-    "Cliente universal de bases de datos. Soporta PostgreSQL, MySQL,\n   MariaDB, Oracle, SQL Server, MongoDB y mas con interfaz grafica." "n"; then
-    INSTALL_DATABASER=true
-    aur_install dbeaver
-    print_success "DBeaver instalado desde AUR"
-fi
-
-INSTALL_BEEKEEPER=false
-if ask_install "Beekeeper Studio" \
-    "Cliente SQL moderno y ligero para PostgreSQL, MySQL, SQLite y SQL Server.\n   Interfaz limpia, autocompletado y export/import de datos." "n"; then
-    INSTALL_BEEKEEPER=true
-    aur_install beekeeper-studio
-    print_success "Beekeeper Studio instalado desde AUR"
-fi
-
-INSTALL_INSOMNIA=false
-if ask_install "Insomnia" \
-    "Cliente de API REST y GraphQL con soporte para autenticaciones,\n   variables de entorno, plugins y documentacion de endpoints." "n"; then
-    INSTALL_INSOMNIA=true
-    aur_install insomnia
-    print_success "Insomnia instalado desde AUR"
-fi
-
-# ============================================================
-# CONTENEDORES Y VIRTUALIZACION
-# ============================================================
-
-print_header "Contenedores y Virtualizacion"
-
-INSTALL_DOCKER=false
-if ask_install "Docker + Docker Compose" \
-    "Plataforma estandar para crear, desplegar y gestionar contenedores.\n   Incluye Docker CLI, Docker Compose y soporte para Dockerfiles."; then
-    INSTALL_DOCKER=true
-    pkg_install docker docker-compose
-    print_info "Habilitando servicio de Docker..."
-    sudo systemctl enable docker
-    sudo systemctl start docker
-    print_success "Docker instalado y servicio habilitado"
-    print_info "Para usar Docker sin sudo, ejecuta: sudo usermod -aG docker $USER"
-fi
-
-INSTALL_PODMAN=false
-if ask_install "Podman + Podman Desktop" \
-    "Alternativa a Docker sin daemon. Compatible con contenedores OCI.\n   Podman Desktop ofrece interfaz grafica similar a Docker Desktop." "n"; then
-    INSTALL_PODMAN=true
-    pkg_install podman podman-desktop
-    print_success "Podman y Podman Desktop instalados"
-fi
-
-# ============================================================
-# MULTIMEDIA
-# ============================================================
-
-print_header "Multimedia y Reproduccion"
-
-INSTALL_MPV=false
-if ask_install "MPV" \
-    "Reproductor de video minimalista y de alto rendimiento.\n   Soporta codecs modernos, subtitulos, scripts Lua y configuracion avanzada."; then
-    INSTALL_MPV=true
-    pkg_install mpv
-    print_success "MPV instalado"
-fi
-
-INSTALL_VLC=false
-if ask_install "VLC Media Player" \
-    "Reproductor multimedia universal que reproduce cualquier formato.\n   Incluye herramientas de conversion, streaming y captura de pantalla."; then
-    INSTALL_VLC=true
-    pkg_install vlc
-    print_success "VLC instalado"
-fi
-
-INSTALL_AUDACIOUS=false
-if ask_install "Audacious" \
-    "Reproductor de audio ligero tipo Winamp. Soporta MP3, FLAC, OGG,\n   WAV, AAC, WMA, visualizaciones y temas personalizables." "n"; then
-    INSTALL_AUDACIOUS=true
-    pkg_install audacious audacious-plugins
-    print_success "Audacious instalado"
-fi
-
-INSTALL_STRAWBERRY=false
-if ask_install "Strawberry Music Player" \
-    "Reproductor de musica orientado a coleccionistas.\n   Soporta tags avanzados, letras, caratulas, Last.fm y biblioteca organizada." "n"; then
-    INSTALL_STRAWBERRY=true
-    pkg_install strawberry
-    print_success "Strawberry instalado"
-fi
-
-# ============================================================
-# COMUNICACION
-# ============================================================
-
-print_header "Comunicacion y Mensajeria"
-
-INSTALL_ELEMENT=false
-if ask_install "Element Desktop" \
-    "Cliente de mensajeria descentralizada basado en Matrix.\n   Cifrado de extremo a extremo, salas, videollamadas y puentes a otras redes." "n"; then
-    INSTALL_ELEMENT=true
-    pkg_install element-desktop
-    print_success "Element Desktop instalado"
-fi
-
-INSTALL_TELEGRAM=false
-if ask_install "Telegram Desktop" \
-    "Cliente oficial de Telegram para Linux.\n   Mensajes, canales, grupos, bots, llamadas y sincronizacion multiplataforma."; then
-    INSTALL_TELEGRAM=true
-    pkg_install telegram-desktop
-    print_success "Telegram Desktop instalado"
-fi
-
-INSTALL_SLACK=false
-if ask_install "Slack Desktop" \
-    "Cliente oficial de Slack para comunicacion en equipos de trabajo.\n   Canales, hilos, integraciones con GitHub, Jira y otras herramientas." "n"; then
-    INSTALL_SLACK=true
-    aur_install slack-desktop
-    print_success "Slack instalado desde AUR"
-fi
-
-# ============================================================
-# PRODUCTIVIDAD Y NOTAS
-# ============================================================
-
-print_header "Productividad y Gestion de Notas"
-
-INSTALL_OBSIDIAN=false
-if ask_install "Obsidian" \
-    "Gestor de notas basado en Markdown con enlaces bidireccionales.\n   Ideal para documentacion tecnica, Zettelkasten y grafos de conocimiento." "n"; then
-    INSTALL_OBSIDIAN=true
-    aur_install obsidian
-    print_success "Obsidian instalado desde AUR"
-fi
-
-INSTALL_JOPLIN=false
-if ask_install "Joplin" \
-    "Aplicacion de notas open source con cifrado de extremo a extremo.\n   Soporta Markdown, sincronizacion con Nextcloud, Dropbox y mas."; then
-    INSTALL_JOPLIN=true
-    pkg_install joplin
-    print_success "Joplin instalado"
-fi
-
-INSTALL_LOGSEQ=false
-if ask_install "Logseq" \
-    "Plataforma de gestion de conocimiento con enfoque en enlaces.\n   Notas en Markdown/org-mode, grafos, PDF annotation y queries." "n"; then
-    INSTALL_LOGSEQ=true
-    aur_install logseq
-    print_success "Logseq instalado desde AUR"
-fi
-
-# ============================================================
-# UTILIDADES DEL SISTEMA
-# ============================================================
-
-print_header "Utilidades del Sistema"
-
-INSTALL_TIMESHIFT=false
-if ask_install "Timeshift" \
-    "Herramienta de backup del sistema tipo 'Restaurar Sistema'.\n   Crea snapshots del sistema para restaurar ante fallos o errores."; then
-    INSTALL_TIMESHIFT=true
-    pkg_install timeshift
-    print_success "Timeshift instalado"
-fi
-
-INSTALL_BALENAETCHER=false
-if ask_install "BalenaEtcher" \
-    "Herramienta para crear USBs booteables desde ISOs.\n   Interfaz simple, validacion de escritura y soporte para imagenes comprimidas." "n"; then
-    INSTALL_BALENAETCHER=true
-    aur_install balena-etcher
-    print_success "BalenaEtcher instalado desde AUR"
-fi
-
-INSTALL_FLAMESHOT=false
-if ask_install "Flameshot" \
-    "Capturador de pantalla con editor integrado.\n   Anotaciones, flechas, texto, desenfoque y subida a imgur."; then
-    INSTALL_FLAMESHOT=true
-    pkg_install flameshot
-    print_success "Flameshot instalado"
-fi
-
-# ============================================================
-# GESTION DE MUSICA
-# ============================================================
-
-print_header "Gestion de Musica"
-
-INSTALL_LOLLYPOP=false
-if ask_install "Lollypop" \
-    "Reproductor de musica moderno para GNOME.\n   Interfaz limpia, letras, radio, sincronizacion con Android y modo fiesta." "n"; then
-    INSTALL_LOLLYPOP=true
-    pkg_install lollypop
-    print_success "Lollypop instalado"
-fi
-
-INSTALL_TAUON=false
-if ask_install "Tauon Music Box" \
-    "Reproductor de musica minimalista y altamente personalizable.\n   Soporta temas, letras, radio, podcasts y biblioteca inteligente." "n"; then
-    INSTALL_TAUON=true
-    aur_install tauon
-    print_success "Tauon instalado desde AUR"
-fi
-
-# ============================================================
-# Resumen Final
-# ============================================================
-
-print_header "Instalacion Completada"
-
-echo -e "${GREEN}Programas instalados:${NC}"
-echo ""
-$INSTALL_FIREFOX && echo "  ✅ Firefox"
-$INSTALL_BRAVE && echo "  ✅ Brave Browser"
-$INSTALL_KIRO && echo "  ✅ Kiro IDE"
-$INSTALL_VSCODE && echo "  ✅ Visual Studio Code"
-$INSTALL_DATABASER && echo "  ✅ DBeaver"
-$INSTALL_BEEKEEPER && echo "  ✅ Beekeeper Studio"
-$INSTALL_INSOMNIA && echo "  ✅ Insomnia"
-$INSTALL_DOCKER && echo "  ✅ Docker + Docker Compose"
-$INSTALL_PODMAN && echo "  ✅ Podman + Podman Desktop"
-$INSTALL_MPV && echo "  ✅ MPV"
-$INSTALL_VLC && echo "  ✅ VLC"
-$INSTALL_AUDACIOUS && echo "  ✅ Audacious"
-$INSTALL_STRAWBERRY && echo "  ✅ Strawberry"
-$INSTALL_ELEMENT && echo "  ✅ Element Desktop"
-$INSTALL_TELEGRAM && echo "  ✅ Telegram Desktop"
-$INSTALL_SLACK && echo "  ✅ Slack Desktop"
-$INSTALL_OBSIDIAN && echo "  ✅ Obsidian"
-$INSTALL_JOPLIN && echo "  ✅ Joplin"
-$INSTALL_LOGSEQ && echo "  ✅ Logseq"
-$INSTALL_TIMESHIFT && echo "  ✅ Timeshift"
-$INSTALL_BALENAETCHER && echo "  ✅ BalenaEtcher"
-$INSTALL_FLAMESHOT && echo "  ✅ Flameshot"
-$INSTALL_LOLLYPOP && echo "  ✅ Lollypop"
-$INSTALL_TAUON && echo "  ✅ Tauon"
-
-echo ""
-if $INSTALL_DOCKER; then
-    echo -e "${YELLOW}Nota: Para usar Docker sin sudo, ejecuta:${NC}"
-    echo "  sudo usermod -aG docker $USER"
-    echo "  (requiere cerrar sesion y volver a entrar)"
-    echo ""
-fi
-
-echo -e "${PURPLE}Disfruta tu nuevo entorno de software open source! 🚀${NC}"
