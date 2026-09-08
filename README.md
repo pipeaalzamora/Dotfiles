@@ -16,6 +16,7 @@ Este repositorio centraliza mis configuraciones personales, utilidades CLI y scr
 | **Version Manager** | `.tool-versions` (Node.js, Go, Python, etc.) |
 | **Búsqueda & Navegación** | ripgrep (`.ripgreprc`), fzf, utilidades modernas de terminal |
 | **Resiliencia & Sistema** | Btrfs snapshots automatizados y optimización para GPU AMD |
+| **Temas & Personalización** | [Catppuccin](https://catppuccin.com/) con Kvantum + Starship |
 
 ---
 
@@ -30,6 +31,9 @@ Dotfiles/
 │   ├── update-all            # Actualizador unificado del sistema y paquetes
 │   ├── install-programs.sh   # Instalador desatendido de software base
 │   ├── install-themes.sh     # Gestor de temas y estética
+│   ├── install-catppuccin-kvantum.sh        # Instala temas Catppuccin (interactivo)
+│   ├── install-all-catppuccin-kvantum.sh    # Instala todos los temas Catppuccin
+│   ├── enable-kvantum.sh                    # Activa Kvantum en KDE Plasma
 │   ├── theme-switcher.sh     # Selector rápido de tema claro/oscuro
 │   ├── setup-kde.sh          # Automatización de atajos y paneles KDE
 │   ├── setup-btrfs-snapshots.sh # Configuración de Snapper/Btrfs
@@ -106,6 +110,35 @@ Configura tu identidad de Git de forma asistida:
 
 ---
 
-## 🛡️ Licencia y Buenas Prácticas
+## 🎨 Catppuccin - Temas Harmonizados
+
+Este dotfiles incluye soporte completo para [Catppuccin](https://catppuccin.com/), una paleta de colores pastel coherente:
+
+### Instalación rápida de Catppuccin Kvantum
+
+```bash
+# 1. Instalar un tema específico (interactivo)
+./scripts/install-catppuccin-kvantum.sh
+
+# 2. Activar Kvantum en KDE Plasma (IMPORTANTE)
+./scripts/enable-kvantum.sh
+
+# 3. Abrir Kvantum Manager y aplicar
+kvantummanager
+```
+
+### Documentación
+
+- **[CATPPUCCIN_KVANTUM_SETUP.md](docs/CATPPUCCIN_KVANTUM_SETUP.md)** — Guía de instalación de temas
+- **[KVANTUM_INTEGRATION.md](docs/KVANTUM_INTEGRATION.md)** — Cómo funciona la integración Kvantum/KDE
+
+### Características
+
+- ✅ **4 sabores** — Latte, Frappé, Macchiato, Mocha
+- ✅ **10 acentos cada uno** — Rosewater, Flamingo, Pink, Mauve, Red, Maroon, Peach, Yellow, Green, Teal, Sky, Sapphire, Blue, Lavender
+- ✅ **Starship integrado** — Prompt configurado con paleta Mocha
+- ✅ **Scripts automatizados** — Instala fácilmente un tema o todos
+
+---
 
 Distribuido para uso personal y referencia comunitaria. Antes de ejecutar scripts que alteren particiones (como `setup-btrfs-snapshots.sh`) o controladores de GPU (`setup-amd-gpu.sh`), verifica la compatibilidad con tu hardware.
