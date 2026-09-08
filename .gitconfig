@@ -1,6 +1,6 @@
 [user]
-	name = Tu Nombre
-	email = tu.email@ejemplo.com
+	name = pipeaalzamora
+	email = pipeaalzamora@gmail.com
 
 [core]
 	editor = nvim
@@ -74,3 +74,5 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+[credential]
+	helper = cache
