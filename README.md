@@ -53,6 +53,7 @@ Dotfiles/
 ✅ **Rápido** - Sin automatización innecesaria  
 ✅ **Mantenible** - Código limpio  
 ✅ **Manual** - Personalización según quieras  
+✅ **Widget de Versículos** - Widget para Plasma 6  
 
 ---
 
@@ -62,6 +63,21 @@ Dotfiles/
 - **Fondos:** `plasma-apply-wallpaperimage`
 - **Git:** `dotfiles git`
 - **Monitores:** KDE System Settings → Display and Monitor
+- **Widget de Versículos:** Botón derecho → Añadir widget → "Verse Widget"
+
+---
+
+## 📖 Widget de Versículos
+
+Widget para KDE Plasma 6 que muestra versículos aleatorios de la Biblia RVR 1960.
+
+**Instalación:**
+1. Botón derecho en panel o escritorio
+2. "Añadir widget..."
+3. Buscar "Verse Widget"
+
+El widget está en: `~/.local/share/plasma/plasmoids/org.kde.plasma.versewidget/`  
+Datos en: `~/Dotfiles/data/bible-rvr1960.json`
 
 ---
 
