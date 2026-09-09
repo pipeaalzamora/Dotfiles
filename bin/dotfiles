@@ -17,28 +17,13 @@ show_help() {
     cat <<EOF
 ${COLOR_BOLD}Uso:${COLOR_RESET} dotfiles <comando> [opciones]
 
-${COLOR_BOLD}Comandos principales:${COLOR_RESET}
-  ${COLOR_GREEN}install${COLOR_RESET}        Ejecuta la instalación y aprovisionamiento completo
+${COLOR_BOLD}Comandos:${COLOR_RESET}
+  ${COLOR_GREEN}install${COLOR_RESET}        Instala todo de cero (paquetes, enlaces, configuración)
   ${COLOR_GREEN}update${COLOR_RESET}         Actualiza paquetes del sistema, gestores y repos
   ${COLOR_GREEN}doctor${COLOR_RESET}         Verifica la salud de dependencias y enlaces
-
-${COLOR_BOLD}Gestión de interfaz:${COLOR_RESET}
-  ${COLOR_GREEN}theme${COLOR_RESET}          Gestiona temas (claro/oscuro) y aplicaciones
-  ${COLOR_GREEN}wallpaper${COLOR_RESET}      Cambia fondo de pantalla aleatorio
-  ${COLOR_GREEN}monitors${COLOR_RESET}       Gestor de monitores (perfiles de pantalla)
-
-${COLOR_BOLD}Configuración del sistema:${COLOR_RESET}
-  ${COLOR_GREEN}desktop${COLOR_RESET}        Configura KDE Plasma 6 con Catppuccin
-  ${COLOR_GREEN}system${COLOR_RESET}         Configura hardware (GPU AMD, Btrfs snapshots)
-  ${COLOR_GREEN}profiles${COLOR_RESET}       Gestiona perfiles de KDE (guardar/restaurar)
-
-${COLOR_BOLD}Instaladores:${COLOR_RESET}
-  ${COLOR_GREEN}programs${COLOR_RESET}       Instalador interactivo de programas
-  ${COLOR_GREEN}themes${COLOR_RESET}         Instalador interactivo de temas y cursores
+  ${COLOR_GREEN}programs${COLOR_RESET}       Instala programas esenciales
   ${COLOR_GREEN}git${COLOR_RESET}            Configura Git globalmente
-
-${COLOR_BOLD}Utilidades:${COLOR_RESET}
-  ${COLOR_GREEN}verse${COLOR_RESET}          Muestra versículos aleatorios de la Biblia
+  ${COLOR_GREEN}system${COLOR_RESET}         Configura Btrfs snapshots (si aplica)
   ${COLOR_GREEN}help${COLOR_RESET}           Muestra este mensaje de ayuda
 
 EOF
@@ -57,61 +42,11 @@ case "$cmd" in
             exit 1
         fi
         ;;
-    theme)
-        if [[ -f "${SCRIPT_DIR}/scripts/theme.sh" ]]; then
-            "${SCRIPT_DIR}/scripts/theme.sh" "$@"
-        elif [[ -f "${SCRIPT_DIR}/scripts/theme-switcher.sh" ]]; then
-            "${SCRIPT_DIR}/scripts/theme-switcher.sh" "$@"
-        else
-            log_error "Módulo de temas no encontrado."
-            exit 1
-        fi
-        ;;
-    wallpaper)
-        if [[ -f "${SCRIPT_DIR}/scripts/change-wallpaper.sh" ]]; then
-            "${SCRIPT_DIR}/scripts/change-wallpaper.sh" "$@"
-        else
-            log_error "Módulo de fondos no encontrado."
-            exit 1
-        fi
-        ;;
-    monitors)
-        if [[ -f "${SCRIPT_DIR}/scripts/manage-monitors.sh" ]]; then
-            "${SCRIPT_DIR}/scripts/manage-monitors.sh" "$@"
-        else
-            log_error "Módulo de monitores no encontrado."
-            exit 1
-        fi
-        ;;
-    desktop)
-        if [[ -f "${SCRIPT_DIR}/scripts/setup-kde.sh" ]]; then
-            "${SCRIPT_DIR}/scripts/setup-kde.sh" "$@"
-        else
-            log_error "Módulo de escritorio KDE no encontrado."
-            exit 1
-        fi
-        ;;
-    profiles)
-        if [[ -f "${SCRIPT_DIR}/scripts/manage-kde-profile.sh" ]]; then
-            "${SCRIPT_DIR}/scripts/manage-kde-profile.sh" "$@"
-        else
-            log_error "Módulo de perfiles no encontrado."
-            exit 1
-        fi
-        ;;
     programs)
         if [[ -f "${SCRIPT_DIR}/scripts/install-programs.sh" ]]; then
             "${SCRIPT_DIR}/scripts/install-programs.sh" "$@"
         else
             log_error "Módulo de instalación de programas no encontrado."
-            exit 1
-        fi
-        ;;
-    themes)
-        if [[ -f "${SCRIPT_DIR}/scripts/install-themes.sh" ]]; then
-            "${SCRIPT_DIR}/scripts/install-themes.sh" "$@"
-        else
-            log_error "Módulo de instalación de temas no encontrado."
             exit 1
         fi
         ;;
@@ -123,23 +58,13 @@ case "$cmd" in
             exit 1
         fi
         ;;
-    verse)
-        if [[ -f "${SCRIPT_DIR}/scripts/daily-verse.sh" ]]; then
-            "${SCRIPT_DIR}/scripts/daily-verse.sh" "$@"
-        else
-            log_error "Módulo de versículos no encontrado."
-            exit 1
-        fi
-        ;;
     system)
-        log_step "Verificación de hardware y sistema"
-        if has_cmd lspci && lspci | grep -qi "AMD"; then
-            log_info "GPU AMD detectada."
-            [[ -f "${SCRIPT_DIR}/scripts/setup-amd-gpu.sh" ]] && "${SCRIPT_DIR}/scripts/setup-amd-gpu.sh" "$@"
-        fi
+        log_step "Configuración de Btrfs (si aplica)"
         if has_cmd findmnt && findmnt -no FSTYPE / | grep -qi "btrfs"; then
             log_info "Sistema de archivos Btrfs detectado."
             [[ -f "${SCRIPT_DIR}/scripts/setup-btrfs-snapshots.sh" ]] && "${SCRIPT_DIR}/scripts/setup-btrfs-snapshots.sh" "$@"
+        else
+            log_info "No se detectó Btrfs. No hay nada que configurar."
         fi
         ;;
     update)

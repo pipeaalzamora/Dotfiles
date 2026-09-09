@@ -9,12 +9,16 @@ NoiseStrength=0
 [Effect-Overview]
 BorderActivate=0
 
+[NightColor]
+Active=true
+
 [Plugins]
 blurEnabled=true
 contrastEnabled=true
+shakecursorEnabled=false
 
 [Windows]
 BorderColor=30,30,46
 BorderlessMaximizedWindows=false
-ElectricBorders=0
 CornerBarrier=false
+ElectricBorders=0

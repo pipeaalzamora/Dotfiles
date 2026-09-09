@@ -4,6 +4,7 @@
 
 export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/Dotfiles}"
 export STARSHIP_CONFIG="${STARSHIP_CONFIG:-$HOME/.config/starship.toml}"
+export PATH="$HOME/Dotfiles/bin:$PATH"
 
 # Compatibilidad de nombres en Arch y otras distribuciones.
 if command -v bat >/dev/null 2>&1; then
@@ -270,7 +271,7 @@ if command -v starship >/dev/null 2>&1; then
 fi
 
 # ============================================================
-# Actualización y KDE
+# Actualización del sistema
 # ============================================================
 alias upd="dotfiles update"
 
@@ -298,15 +299,8 @@ dots-export-kde() {
     echo "✅ Configuraciones de KDE Plasma exportadas a $target_dir"
 }
 
-# Scripts de dotfiles
-alias theme-switch='dotfiles theme'
-alias wall-next='dotfiles wallpaper'
-alias wall-download='dotfiles wallpaper download'
-alias monitors='dotfiles monitors'
-alias verso='dotfiles verse'
-alias salmo='dotfiles verse salmo'
-alias proverbio='dotfiles verse proverbio'
-alias verso-notif='dotfiles verse random notify'
+# Herramientas útiles
+# (Sin alias, ya no hay scripts de personalización)
 
 # Configuración personal no versionada
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"

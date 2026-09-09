@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 #
-# install-programs.sh — Instala programas esenciales para el sistema
+# install-programs.sh — Instala todos los programas esenciales para el sistema
 #
-# Uso:
-#   install-programs.sh [--all] [--system] [--dev] [--multimedia] [--image-viewer] [--editor]
-#
-# Si no se especifica ninguna opción, muestra un menú interactivo.
+# Este script instala automáticamente todos los programas de una sola vez.
+# Resuelve conflictos de dependencias y salta programas ya instalados.
 
 set -euo pipefail
 
@@ -20,10 +18,10 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 log() { echo -e "${BLUE}[install-programs]${NC} $*"; }
-info() { echo -e "${GREEN}[INFO]${NC} $*"; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $*" >&2; }
-die() { echo -e "${RED}[ERROR]${NC} $*" >&2; exit 1; }
-header() { echo -e "\n${CYAN}==>${NC} $*"; }
+info() { echo -e "${GREEN}[✓]${NC} $*"; }
+warn() { echo -e "${YELLOW}[⚠]${NC} $*" >&2; }
+error() { echo -e "${RED}[✗]${NC} $*" >&2; }
+header() { echo -e "\n${CYAN}════════════════════════════════════════${NC}"; echo -e "${CYAN}$*${NC}"; echo -e "${CYAN}════════════════════════════════════════${NC}\n"; }
 
 # ============================================================
 # Detectar distribución
@@ -42,504 +40,413 @@ detect_distro() {
     fi
 }
 
+# Comprobar si un programa está instalado
+is_installed() {
+    command -v "$1" >/dev/null 2>&1
+}
+
 DISTRO=$(detect_distro)
-log "DistribuciÃ³n detectada: $DISTRO"
+log "Distribución detectada: $DISTRO"
 
 # ============================================================
-# Funciones de instalaciÃ³n
+# Instaladores por distribución
 # ============================================================
 
-# -------------------------------------------------------------
-# Programas del sistema
-# -------------------------------------------------------------
-install_system() {
-    header "Instalando programas del sistema..."
+install_arch() {
+    header "Instalando programas en Arch Linux"
 
-    case "$DISTRO" in
-        arch)
-            if command -v yay >/dev/null 2>&1; then
-                yay -S --noconfirm \
-                    btop \
-                    dust \
-                    eza \
-                    fd \
-                    fzf \
-                    git \
-                    htop \
-                    jq \
-                    lsd \
-                    neovim \
-                    ripgrep \
-                    tldr \
-                    tree \
-                    zoxide \
-                    zsh \
-                    zsh-completions
-            elif command -v paru >/dev/null 2>&1; then
-                paru -S --noconfirm \
-                    btop \
-                    dust \
-                    eza \
-                    fd \
-                    fzf \
-                    git \
-                    htop \
-                    jq \
-                    lsd \
-                    neovim \
-                    ripgrep \
-                    tldr \
-                    tree \
-                    zoxide \
-                    zsh \
-                    zsh-completions
-            else
-                sudo pacman -S --noconfirm \
-                    btop \
-                    dust \
-                    eza \
-                    fd \
-                    fzf \
-                    git \
-                    htop \
-                    jq \
-                    lsd \
-                    neovim \
-                    ripgrep \
-                    tldr \
-                    tree \
-                    zoxide \
-                    zsh \
-                    zsh-completions
-            fi
-            ;;
-        debian)
-            sudo apt update
-            sudo apt install -y \
-                btop \
-                dust \
-                fd-find \
-                fzf \
-                git \
-                htop \
-                jq \
-                lsd \
-                neovim \
-                ripgrep \
-                tree \
-                zoxide \
-                zsh
-            ;;
-        fedora)
-            sudo dnf install -y \
-                btop \
-                dust \
-                fd-find \
-                fzf \
-                git \
-                htop \
-                jq \
-                lsd \
-                neovim \
-                ripgrep \
-                tree \
-                zoxide \
-                zsh
-            ;;
-        opensuse)
-            sudo zypper install -y \
-                btop \
-                dust \
-                fd \
-                fzf \
-                git \
-                htop \
-                jq \
-                lsd \
-                neovim \
-                ripgrep \
-                tree \
-                zoxide \
-                zsh
-            ;;
-        *)
-            warn "DistribuciÃ³n no reconocida. Instala programas manualmente."
-            return 1
-            ;;
-    esac
+    # Determinar gestor de paquetes AUR disponible
+    local aur_helper="pacman"
+    if command -v yay >/dev/null 2>&1; then
+        aur_helper="yay"
+    elif command -v paru >/dev/null 2>&1; then
+        aur_helper="paru"
+    fi
 
-    info "â¡¡â¡¡â¡¡ Programas del sistema instalados!"
-}
+    # Actualizar base de datos
+    log "Actualizando base de datos de paquetes..."
+    if [[ "$aur_helper" != "pacman" ]]; then
+        "$aur_helper" -Sy --noconfirm
+    else
+        sudo pacman -Sy --noconfirm
+    fi
 
-# -------------------------------------------------------------
-# Herramientas de desarrollo
-# -------------------------------------------------------------
-install_dev() {
-    header "Instalando herramientas de desarrollo..."
+    # Array de paquetes a instalar
+    local packages=(
+        # Sistema
+        "btop"
+        "eza"
+        "fd"
+        "fzf"
+        "git"
+        "htop"
+        "jq"
+        "lsd"
+        "neovim"
+        "ripgrep"
+        "tldr"
+        "tree"
+        "zoxide"
+        "zsh"
+        "zsh-completions"
+        # Desarrollo
+        "docker"
+        "docker-compose"
+        "go"
+        "nodejs"
+        "npm"
+        "python"
+        "python-pip"
+        "rust"
+        # Multimedia
+        "ffmpeg"
+        "vlc"
+        "yt-dlp"
+        # Visor de imágenes
+        "feh"
+        # Editor
+        "kate"
+    )
 
-    case "$DISTRO" in
-        arch)
-            if command -v yay >/dev/null 2>&1; then
-                yay -S --noconfirm \
-                    docker \
-                    docker-compose \
-                    go \
-                    nodejs \
-                    npm \
-                    python \
-                    python-pip \
-                    rust
-            elif command -v paru >/dev/null 2>&1; then
-                paru -S --noconfirm \
-                    docker \
-                    docker-compose \
-                    go \
-                    nodejs \
-                    npm \
-                    python \
-                    python-pip \
-                    rust
-            else
-                sudo pacman -S --noconfirm \
-                    docker \
-                    docker-compose \
-                    go \
-                    nodejs \
-                    npm \
-                    python \
-                    python-pip \
-                    rust
-            fi
-            ;;
-        debian)
-            sudo apt update
-            sudo apt install -y \
-                docker.io \
-                docker-compose \
-                golang-go \
-                nodejs \
-                npm \
-                python3 \
-                python3-pip \
-                rustc
-            ;;
-        fedora)
-            sudo dnf install -y \
-                docker \
-                docker-compose \
-                golang \
-                nodejs \
-                npm \
-                python3 \
-                python3-pip \
-                rust
-            ;;
-        opensuse)
-            sudo zypper install -y \
-                docker \
-                docker-compose \
-                go \
-                nodejs \
-                npm \
-                python3 \
-                python3-pip \
-                rust
-            ;;
-        *)
-            warn "DistribuciÃ³n no reconocida. Instala herramientas de desarrollo manualmente."
-            return 1
-            ;;
-    esac
-
-    info "â¡¡â¡¡â¡¡ Herramientas de desarrollo instaladas!"
-}
-
-# -------------------------------------------------------------
-# Multimedia
-# -------------------------------------------------------------
-install_multimedia() {
-    header "Instalando herramientas multimedia..."
-
-    case "$DISTRO" in
-        arch)
-            if command -v yay >/dev/null 2>&1; then
-                yay -S --noconfirm \
-                    ffmpeg \
-                    mpv \
-                    vlc \
-                    yt-dlp
-            elif command -v paru >/dev/null 2>&1; then
-                paru -S --noconfirm \
-                    ffmpeg \
-                    mpv \
-                    vlc \
-                    yt-dlp
-            else
-                sudo pacman -S --noconfirm \
-                    ffmpeg \
-                    mpv \
-                    vlc \
-                    yt-dlp
-            fi
-            ;;
-        debian)
-            sudo apt update
-            sudo apt install -y \
-                ffmpeg \
-                mpv \
-                vlc \
-                yt-dlp
-            ;;
-        fedora)
-            sudo dnf install -y \
-                ffmpeg \
-                mpv \
-                vlc \
-                yt-dlp
-            ;;
-        opensuse)
-            sudo zypper install -y \
-                ffmpeg \
-                mpv \
-                vlc \
-                yt-dlp
-            ;;
-        *)
-            warn "DistribuciÃ³n no reconocida. Instala herramientas multimedia manualmente."
-            return 1
-            ;;
-    esac
-
-    info "â¡¡â¡¡â¡¡ Herramientas multimedia instaladas!"
-}
-
-# -------------------------------------------------------------
-# Visor de imágenes (feh)
-# -------------------------------------------------------------
-install_image_viewer() {
-    header "Instalando visor de imágenes (feh)..."
-
-    case "$DISTRO" in
-        arch)
-            if command -v yay >/dev/null 2>&1; then
-                yay -S --noconfirm feh
-            elif command -v paru >/dev/null 2>&1; then
-                paru -S --noconfirm feh
-            else
-                sudo pacman -S --noconfirm feh
-            fi
-            ;;
-        debian)
-            sudo apt update
-            sudo apt install -y feh
-            ;;
-        fedora)
-            sudo dnf install -y feh
-            ;;
-        opensuse)
-            sudo zypper install -y feh
-            ;;
-        *)
-            warn "DistribuciÃ³n no reconocida. Instala feh manualmente."
-            return 1
-            ;;
-    esac
-
-    info "â¡¡â¡¡â¡¡ Feh instalado!"
-    info "Uso: feh ~/ImÃ¡genes/foto.jpg"
-    info "Slideshow: feh --slideshow-delay 5 --fullscreen ~/ImÃ¡genes/"
-}
-
-# -------------------------------------------------------------
-# Editor de texto (Kate - KDE)
-# -------------------------------------------------------------
-install_editor() {
-    header "Instalando editor de texto (Kate - KDE)..."
-
-    case "$DISTRO" in
-        arch)
-            if command -v yay >/dev/null 2>&1; then
-                yay -S --noconfirm kate
-            elif command -v paru >/dev/null 2>&1; then
-                paru -S --noconfirm kate
-            else
-                sudo pacman -S --noconfirm kate
-            fi
-            ;;
-        debian)
-            sudo apt update
-            sudo apt install -y kate
-            ;;
-        fedora)
-            sudo dnf install -y kate
-            ;;
-        opensuse)
-            sudo zypper install -y kate
-            ;;
-        *)
-            warn "DistribuciÃ³n no reconocida. Instala Kate manualmente."
-            return 1
-            ;;
-    esac
-
-    info "â¡¡â¡¡â¡¡ Kate instalado!"
-    info "Uso: kate archivo.txt"
-}
-
-# -------------------------------------------------------------
-# Instalar todo
-# -------------------------------------------------------------
-install_all() {
-    install_system
-    install_dev
-    install_multimedia
-    install_image_viewer
-    install_editor
-
-    header "â¡¡â¡¡â¡¡ â Todos los programas instalados"
-}
-
-# ============================================================
-# MenÃº interactivo
-# ============================================================
-show_menu() {
-    cat <<EOF
-
-${CYAN}=====================================${NC}
-${CYAN}      Instalador de Programas        ${NC}
-${CYAN}=====================================${NC}
-
-Selecciona quÃ© instalar:
-
-  1) Programas del sistema (btop, fd, fzf, git, neovim, etc.)
-  2) Herramientas de desarrollo (Docker, Node, Python, Rust, etc.)
-  3) Multimedia (ffmpeg, mpv, vlc, yt-dlp)
-  4) Visor de imÃ¡genes (feh)
-  5) Editor de texto (Kate - KDE)
-  6) â Instalar todo
-  0) Salir
-
-EOF
-}
-
-interactive_mode() {
-    while true; do
-        show_menu
-        read -rp "OpciÃ³n [0-6]: " choice
-
-        case "$choice" in
-            1)
-                install_system
-                ;;
-            2)
-                install_dev
-                ;;
-            3)
-                install_multimedia
-                ;;
-            4)
-                install_image_viewer
-                ;;
-            5)
-                install_editor
-                ;;
-            6)
-                install_all
-                break
-                ;;
-            0)
-                info "Saliendo..."
-                exit 0
-                ;;
-            *)
-                warn "OpciÃ³n no vÃ¡lida. Intenta de nuevo."
-                ;;
-        esac
-
-        echo
-        read -rp "Â¿Continuar? [s/N]: " cont
-        [[ "$cont" =~ ^[SsYy]$ ]] || break
+    # Instalar paquetes, omitiendo los ya instalados
+    local to_install=()
+    for pkg in "${packages[@]}"; do
+        if is_installed "$pkg"; then
+            info "$pkg ya está instalado, omitiendo..."
+        else
+            to_install+=("$pkg")
+        fi
     done
+
+    if [[ ${#to_install[@]} -eq 0 ]]; then
+        info "Todos los paquetes ya están instalados."
+    else
+        log "Instalando ${#to_install[@]} paquetes..."
+    fi
+
+    # Resolver conflictos ANTES de intentar instalar
+    
+    # Conflicto 1: tealdeer vs tldr
+    if pacman -Q tealdeer &>/dev/null 2>&1; then
+        warn "Detectado conflicto: tealdeer está instalado. Removiendo para instalar tldr..."
+        sudo pacman -R --noconfirm tealdeer 2>/dev/null || true
+    fi
+
+    # Conflicto 2: rustup vs rust
+    if pacman -Q rustup &>/dev/null 2>&1; then
+        warn "Detectado conflicto: rustup está instalado. Removiendo para instalar rust..."
+        sudo pacman -R --noconfirm rustup 2>/dev/null || true
+    fi
+
+    # Filtrar paquetes que ya están instalados para evitar reinstalación
+    local final_install=()
+    for pkg in "${to_install[@]}"; do
+        if ! pacman -Q "$pkg" &>/dev/null 2>&1; then
+            final_install+=("$pkg")
+        fi
+    done
+
+    if [[ ${#final_install[@]} -gt 0 ]]; then
+        # Instalar con el gestor apropiado
+        if [[ "$aur_helper" == "yay" ]]; then
+            log "Usando yay para instalar ${#final_install[@]} paquetes..."
+            yay -S --noconfirm "${final_install[@]}" || {
+                error "Error durante la instalación con yay."
+                return 1
+            }
+        elif [[ "$aur_helper" == "paru" ]]; then
+            log "Usando paru para instalar ${#final_install[@]} paquetes..."
+            paru -S --noconfirm "${final_install[@]}" || {
+                error "Error durante la instalación con paru."
+                return 1
+            }
+        else
+            log "Usando pacman para instalar ${#final_install[@]} paquetes..."
+            sudo pacman -S --noconfirm "${final_install[@]}" || {
+                error "Error durante la instalación con pacman."
+                return 1
+            }
+        fi
+    fi
+
+    # Intentar instalar Lunacy desde AUR (opcional, sin fallar si no funciona)
+    if ! is_installed lunacy; then
+        log "Intentando instalar Lunacy desde AUR (esto puede tomar tiempo)..."
+        if [[ "$aur_helper" == "yay" ]]; then
+            info "Instalando lunacy-bin con yay..."
+            yay -S --noconfirm --nocleanmenu --nodiffmenu --answerclean=All --answerdiff=None lunacy-bin 2>&1 | grep -v "Evite ejecutar" || {
+                warn "No se pudo instalar lunacy-bin automáticamente."
+                echo ""
+                echo "Para instalar lunacy manualmente, ejecuta:"
+                echo "  ${GREEN}yay -S lunacy-bin${NC}"
+                echo ""
+                echo "O lee la documentación: $DOTFILES_DIR/LUNACY_INSTALL.md"
+            }
+        elif [[ "$aur_helper" == "paru" ]]; then
+            info "Instalando lunacy-bin con paru..."
+            paru -S --noconfirm --nocleanmenu --nodiffmenu lunacy-bin 2>&1 | grep -v "Evite ejecutar" || {
+                warn "No se pudo instalar lunacy-bin automáticamente."
+                echo ""
+                echo "Para instalar lunacy manualmente, ejecuta:"
+                echo "  ${GREEN}paru -S lunacy-bin${NC}"
+                echo ""
+                echo "O lee la documentación: $DOTFILES_DIR/LUNACY_INSTALL.md"
+            }
+        fi
+    else
+        info "lunacy ya está instalado, omitiendo..."
+    fi
+
+    info "Paquetes de Arch Linux instalados correctamente."
+}
+
+install_debian() {
+    header "Instalando programas en Debian/Ubuntu"
+
+    # Actualizar base de datos
+    log "Actualizando base de datos de paquetes..."
+    sudo apt update
+
+    local packages=(
+        # Sistema
+        "btop"
+        "fd-find"
+        "fzf"
+        "git"
+        "htop"
+        "jq"
+        "lsd"
+        "neovim"
+        "ripgrep"
+        "tldr"
+        "tree"
+        "zoxide"
+        "zsh"
+        # Desarrollo
+        "docker.io"
+        "docker-compose"
+        "golang-go"
+        "nodejs"
+        "npm"
+        "python3"
+        "python3-pip"
+        "rustc"
+        # Multimedia
+        "ffmpeg"
+        "vlc"
+        "yt-dlp"
+        # Visor de imágenes
+        "feh"
+        # Editor
+        "kate"
+        # Diseño
+        "lunacy"
+    )
+
+    local to_install=()
+    for pkg in "${packages[@]}"; do
+        if is_installed "${pkg%-*}"; then  # Remover sufijo para verificación
+            info "$pkg ya está instalado, omitiendo..."
+        else
+            to_install+=("$pkg")
+        fi
+    done
+
+    if [[ ${#to_install[@]} -eq 0 ]]; then
+        info "Todos los paquetes ya están instalados."
+        return 0
+    fi
+
+    log "Instalando ${#to_install[@]} paquetes..."
+    sudo apt install -y "${to_install[@]}" || {
+        error "Error durante la instalación."
+        return 1
+    }
+
+    info "Paquetes de Debian/Ubuntu instalados correctamente."
+}
+
+install_fedora() {
+    header "Instalando programas en Fedora"
+
+    log "Actualizando base de datos de paquetes..."
+    sudo dnf check-update || true
+
+    local packages=(
+        # Sistema
+        "btop"
+        "fd-find"
+        "fzf"
+        "git"
+        "htop"
+        "jq"
+        "lsd"
+        "neovim"
+        "ripgrep"
+        "tldr"
+        "tree"
+        "zoxide"
+        "zsh"
+        # Desarrollo
+        "docker"
+        "docker-compose"
+        "golang"
+        "nodejs"
+        "npm"
+        "python3"
+        "python3-pip"
+        "rust"
+        # Multimedia
+        "ffmpeg"
+        "vlc"
+        "yt-dlp"
+        # Visor de imágenes
+        "feh"
+        # Editor
+        "kate"
+        # Diseño
+        "lunacy"
+    )
+
+    local to_install=()
+    for pkg in "${packages[@]}"; do
+        if is_installed "${pkg%-*}"; then
+            info "$pkg ya está instalado, omitiendo..."
+        else
+            to_install+=("$pkg")
+        fi
+    done
+
+    if [[ ${#to_install[@]} -eq 0 ]]; then
+        info "Todos los paquetes ya están instalados."
+        return 0
+    fi
+
+    log "Instalando ${#to_install[@]} paquetes..."
+    sudo dnf install -y "${to_install[@]}" || {
+        error "Error durante la instalación."
+        return 1
+    }
+
+    info "Paquetes de Fedora instalados correctamente."
+}
+
+install_opensuse() {
+    header "Instalando programas en openSUSE"
+
+    log "Actualizando base de datos de paquetes..."
+    sudo zypper refresh || true
+
+    local packages=(
+        # Sistema
+        "btop"
+        "fd"
+        "fzf"
+        "git"
+        "htop"
+        "jq"
+        "lsd"
+        "neovim"
+        "ripgrep"
+        "tldr"
+        "tree"
+        "zoxide"
+        "zsh"
+        # Desarrollo
+        "docker"
+        "docker-compose"
+        "go"
+        "nodejs"
+        "npm"
+        "python3"
+        "python3-pip"
+        "rust"
+        # Multimedia
+        "ffmpeg"
+        "vlc"
+        "yt-dlp"
+        # Visor de imágenes
+        "feh"
+        # Editor
+        "kate"
+        # Diseño
+        "lunacy"
+    )
+
+    local to_install=()
+    for pkg in "${packages[@]}"; do
+        if is_installed "$pkg"; then
+            info "$pkg ya está instalado, omitiendo..."
+        else
+            to_install+=("$pkg")
+        fi
+    done
+
+    if [[ ${#to_install[@]} -eq 0 ]]; then
+        info "Todos los paquetes ya están instalados."
+        return 0
+    fi
+
+    log "Instalando ${#to_install[@]} paquetes..."
+    sudo zypper install -y "${to_install[@]}" || {
+        error "Error durante la instalación."
+        return 1
+    }
+
+    info "Paquetes de openSUSE instalados correctamente."
 }
 
 # ============================================================
-# Parseo de argumentos
+# Función principal
 # ============================================================
-INSTALL_ALL=false
-INSTALL_SYSTEM=false
-INSTALL_DEV=false
-INSTALL_MULTIMEDIA=false
-INSTALL_IMAGE_VIEWER=false
-INSTALL_EDITOR=false
+main() {
+    header "🚀 Instalador de Programas Esenciales"
 
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --all)
-            INSTALL_ALL=true
-            shift
-            ;;
-        --system)
-            INSTALL_SYSTEM=true
-            shift
-            ;;
-        --dev)
-            INSTALL_DEV=true
-            shift
-            ;;
-        --multimedia)
-            INSTALL_MULTIMEDIA=true
-            shift
-            ;;
-        --image-viewer)
-            INSTALL_IMAGE_VIEWER=true
-            shift
-            ;;
-        --editor)
-            INSTALL_EDITOR=true
-            shift
-            ;;
-        --help)
-            cat <<EOF
-Uso: $(basename "$0") [OPCIONES]
+    echo -e "${CYAN}Este script instalará TODOS los programas automáticamente.${NC}"
+    echo -e "${CYAN}Se omitirán los programas ya instalados.${NC}"
+    echo ""
+    echo "Categorías a instalar:"
+    echo "  • Sistema: btop, fd, fzf, git, htop, jq, lsd, neovim, ripgrep, tldr, tree, zoxide, zsh"
+    echo "  • Desarrollo: docker, docker-compose, go, nodejs, npm, python, rust"
+    echo "  • Multimedia: ffmpeg, vlc, yt-dlp"
+    echo "  • Herramientas: feh (visor), kate (editor)"
+    echo "  • Opcional: lunacy (diseño - AUR, puede omitirse si falla)"
+    echo ""
 
-Opciones:
-  --all            Instalar todo (sistema, dev, multimedia, visor, editor)
-  --system         Instalar programas del sistema
-  --dev            Instalar herramientas de desarrollo
-  --multimedia     Instalar herramientas multimedia
-  --image-viewer   Instalar visor de imÃ¡genes (feh)
-  --editor         Instalar editor de texto (Kate)
-  --help           Muestra esta ayuda
+    read -rp "$(echo -e "${YELLOW}?${NC} ¿Continuar con la instalación? [S/n]: ")" answer
+    answer="${answer:-s}"
+    
+    if [[ ! "$answer" =~ ^[Ss]$ ]]; then
+        info "Instalación cancelada."
+        exit 0
+    fi
 
-Sin opciones: muestra un menÃº interactivo.
-
-Ejemplos:
-  $(basename "$0") --all
-  $(basename "$0") --image-viewer --editor
-EOF
-            exit 0
+    case "$DISTRO" in
+        arch)
+            install_arch
+            ;;
+        debian)
+            install_debian
+            ;;
+        fedora)
+            install_fedora
+            ;;
+        opensuse)
+            install_opensuse
             ;;
         *)
-            die "OpciÃ³n desconocida: $1. Usa --help para ver ayuda."
+            error "Distribución no soportada: $DISTRO"
+            exit 1
             ;;
     esac
-done
 
-# ============================================================
-# Ejecutar instalaciÃ³n
-# ============================================================
-if [[ "$INSTALL_ALL" == true ]]; then
-    install_all
-elif [[ "$INSTALL_SYSTEM" == true ]]; then
-    install_system
-elif [[ "$INSTALL_DEV" == true ]]; then
-    install_dev
-elif [[ "$INSTALL_MULTIMEDIA" == true ]]; then
-    install_multimedia
-elif [[ "$INSTALL_IMAGE_VIEWER" == true ]]; then
-    install_image_viewer
-elif [[ "$INSTALL_EDITOR" == true ]]; then
-    install_editor
-else
-    interactive_mode
-fi
+    header "✅ INSTALACIÓN COMPLETADA"
+    info "Todos los programas han sido instalados correctamente."
+    echo ""
+    echo "Próximos pasos:"
+    echo "  1. Recarga tu shell: exec zsh"
+    echo "  2. Verifica dependencias: dotfiles doctor"
+    echo "  3. Explora los comandos: dotfiles help"
+}
+
+main

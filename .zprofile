@@ -11,6 +11,9 @@ unset LC_ALL
 # Directorio de dotfiles: ubicación actual del repositorio.
 export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/Dotfiles}"
 
+# Agregar bin de dotfiles al PATH
+export PATH="$HOME/Dotfiles/bin:$PATH"
+
 # Directorios locales de usuario
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 
