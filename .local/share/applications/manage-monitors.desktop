@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Gestor de Monitores
-Comment=Cambiar perfil multi-monitor en KDE Plasma
-Exec=bash -c "$HOME/dotfiles/scripts/manage-monitors.sh"
-Icon=preferences-desktop-display
-Terminal=false
-Categories=Utility;

@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Cambiar Fondo de Pantalla
-Comment=Rotar fondo estático o animado Catppuccin
-Exec=bash -c "$HOME/dotfiles/scripts/change-wallpaper.sh"
-Icon=preferences-desktop-wallpaper
-Terminal=false
-Categories=Utility;

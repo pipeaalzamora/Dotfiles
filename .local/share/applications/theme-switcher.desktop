@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Selector de Tema Visual
-Comment=Cambiar paleta y tema de KDE, Kvantum y Kitty
-Exec=bash -c "$HOME/dotfiles/scripts/theme-switcher.sh"
-Icon=preferences-desktop-theme
-Terminal=false
-Categories=Utility;

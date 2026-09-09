@@ -1,5 +1,0 @@
-[General]
-theme=catppuccin-mocha-yellow
-
-[Applications]
-catppuccin-mocha-yellow=dolphin, kate, konsole, systemsettings

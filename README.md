@@ -40,6 +40,12 @@ dotfiles help         # Muestra ayuda
 Dotfiles/
 ├── bin/dotfiles          ← Comando maestro
 ├── scripts/              ← Scripts esenciales
+├── .config/              ← Configuraciones de herramientas
+│   ├── nvim/            ← Neovim
+│   ├── kitty/           ← Terminal
+│   ├── zellij/          ← Terminal multiplexer
+│   ├── lazygit/         ← Git UI
+│   └── ...              ← Otras herramientas
 ├── .zshrc                ← Configuración Zsh
 ├── .gitconfig            ← Configuración Git
 └── install.sh            ← Instalador principal
@@ -53,31 +59,14 @@ Dotfiles/
 ✅ **Rápido** - Sin automatización innecesaria  
 ✅ **Mantenible** - Código limpio  
 ✅ **Manual** - Personalización según quieras  
-✅ **Widget de Versículos** - Widget para Plasma 6  
 
 ---
 
 ## 💡 Personalización
 
-- **Temas & Apariencia:** Sistema Settings de KDE
-- **Fondos:** `plasma-apply-wallpaperimage`
 - **Git:** `dotfiles git`
-- **Monitores:** KDE System Settings → Display and Monitor
-- **Widget de Versículos:** Botón derecho → Añadir widget → "Verse Widget"
-
----
-
-## 📖 Widget de Versículos
-
-Widget para KDE Plasma 6 que muestra versículos aleatorios de la Biblia RVR 1960.
-
-**Instalación:**
-1. Botón derecho en panel o escritorio
-2. "Añadir widget..."
-3. Buscar "Verse Widget"
-
-El widget está en: `~/.local/share/plasma/plasmoids/org.kde.plasma.versewidget/`  
-Datos en: `~/Dotfiles/data/bible-rvr1960.json`
+- **Temas & Apariencia:** Configura manualmente en KDE System Settings
+- **Fondos:** Configura en System Settings → Appearance → Wallpaper
 
 ---
 
@@ -93,4 +82,4 @@ dotfiles install
 
 ---
 
-📖 Ver más: `GUIA_RAPIDA.md`
+📖 Configuraciones incluidas: Zsh, Git, Neovim, Kitty, Zellij, Lazygit, Starship, Bat, LSD, y más.
