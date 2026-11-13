@@ -1,0 +1,14 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Ensure shell scripts, markdown and config files always use LF line endings
+*.sh text eol=lf
+*.zsh text eol=lf
+*.bash text eol=lf
+*.md text eol=lf
+.zshrc text eol=lf
+.bashrc text eol=lf
+.zprofile text eol=lf
+bin/* text eol=lf
+scripts/* text eol=lf
+docs/* text eol=lf
