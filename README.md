@@ -51,6 +51,7 @@ El instalador desatendido (`dotfiles programs` o durante `install.sh`) configura
 
 ### 2. Fullstack Development Stack
 * **Runtimes:** Node.js, Go (`golang-go`), Rust (`rustc`, `cargo`).
+* **Editores Modernos:** **Zed Editor** (editor colaborativo ultra-veloz en Rust), Neovim.
 * **Gestores de Paquetes:** `npm`, **`pnpm`**, **`Bun`** (runtime y ejecutor TS/JS ultra-rápido).
 * **Bases de Datos & APIs:** Clientes CLI para PostgreSQL (`postgresql-client`), Redis (`redis-tools`), SQLite3 (`sqlite3`), y **HTTPie** (`http`) para pruebas rápidas de APIs REST.
 * **Diagnóstico de Redes:** `lsof`, utilidades de puertos e inspección con `iproute2` (`ss`).
@@ -59,7 +60,8 @@ El instalador desatendido (`dotfiles programs` o durante `install.sh`) configura
 * **Python Moderno:** Python 3, `python3-venv`, `pipx` (cumpliendo con PEP 668).
 * **Gestor Ultra-Rápido [uv](https://astral.sh/uv):** Reemplazo de alto rendimiento en Rust para pip, virtualenv y poetry (resuelve e instala librerías de IA en segundos).
 * **Modelos Locales con [Ollama](https://ollama.com):** Motor para ejecutar y probar LLMs (Llama 3, DeepSeek, Qwen, Mistral) localmente en terminal o GPU.
-* **GPU & Credenciales:** Monitoreo con `watch nvidia-smi` y plantilla segura en `~/.zshrc.local` para tokens de OpenAI, Anthropic, Gemini, Groq y Hugging Face.
+* **Monitoreo GPU:** **`nvtop`** (monitor interactivo de GPU para procesos de IA y render) y atajo `nv` (`watch -n 1 nvidia-smi`).
+* **Herramientas de IA y Terminal:** **Antigravity CLI** (`agy`), **Kiro** (terminal inteligente con IA) y plantilla segura en `~/.zshrc.local` para tokens de OpenAI, Anthropic, Gemini, Groq y Hugging Face.
 
 ### 4. DevOps, Contenedores & Cloud
 * **Contenedores:** Docker Engine (`docker.io`), Docker Compose v2 (`docker-compose-v2`).
@@ -67,10 +69,14 @@ El instalador desatendido (`dotfiles programs` o durante `install.sh`) configura
 * **TUIs de Gestión:** **`lazydocker`** (administrador interactivo de contenedores, logs y volúmenes).
 * **Kubernetes:** `kubectl`, **`k9s`** (TUI interactiva de clusters y pods), `helm`, `kubectx` y `kubens` (cambio ágil de contextos y namespaces).
 
-### 5. Multimedia & Entorno Gráfico
-* **Multimedia:** FFmpeg, VLC, `yt-dlp` (descarga y procesamiento de audio/video), `feh` (visor de imágenes ligero).
+### 5. Multimedia, Productividad & Periféricos
+* **Productividad & Notas:** **Joplin Desktop** (notas markdown cifradas vía Snap).
+* **Descargas & Torrents:** **qBittorrent** (cliente torrent nativo), **JDownloader 2** (gestor de descargas vía Snap).
+* **Grabación & Streaming:** **OBS Studio** (estudio de grabación y streaming).
+* **Periféricos Logitech:** **Piper** y **Solaar** (control de DPI, botones, perfiles y batería de ratones/teclados Lightspeed y Unifying).
+* **Salud de Discos:** **GSmartControl** y `smartmontools` (diagnóstico SMART y salud de SSD/NVMe/HDD).
 * **Audio & Efectos:** EasyEffects (ecualización y reducción de ruido para micrófonos), Cava (visualizador de espectro de audio).
-* **Diseño:** Lunacy (opcional vía Snap).
+* **Multimedia & Diseño:** FFmpeg, VLC, `yt-dlp`, Feh, Kate, Lunacy (Snap).
 
 ---
 

@@ -26,6 +26,7 @@ check_command starship
 check_command kitty
 check_command zellij
 check_command nvim "neovim"
+check_command zed "Zed Editor"
 
 echo ""
 echo "=== Herramientas CLI & Navegación ==="
@@ -60,11 +61,14 @@ check_command sqlite3
 check_command http "httpie"
 
 echo ""
-echo "=== AI Engineering ==="
+echo "=== AI Engineering & Modelos ==="
 check_command python3 "python"
 check_command pipx
 check_command uv "uv (Astral)"
 check_command ollama "Ollama (Local LLMs)"
+check_command nvtop "nvtop (GPU Monitor)"
+if command -v agy &>/dev/null; then check_command agy "Antigravity CLI"; else check_command antigravity "Antigravity"; fi
+check_command kiro "Kiro"
 
 echo ""
 echo "=== DevOps & Cloud ==="
@@ -84,7 +88,14 @@ check_command kubectx
 check_command kubens
 
 echo ""
-echo "=== Multimedia & Sistema ==="
+echo "=== Periféricos, Discos y Aplicaciones ==="
+check_command piper "Piper (Logitech Gaming)"
+check_command solaar "Solaar (Logitech Wireless)"
+check_command gsmartcontrol "GSmartControl (Salud Discos)"
+if command -v joplin-desktop &>/dev/null; then check_command joplin-desktop "Joplin"; else check_command joplin "Joplin"; fi
+if command -v jdownloader2 &>/dev/null; then check_command jdownloader2 "JDownloader 2"; else check_command jdownloader "JDownloader 2"; fi
+check_command qbittorrent "qBittorrent"
+if command -v obs &>/dev/null; then check_command obs "OBS Studio"; else check_command obs-studio "OBS Studio"; fi
 check_command easyeffects "EasyEffects"
 check_command cava
 check_command yt-dlp

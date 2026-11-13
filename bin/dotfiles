@@ -82,8 +82,9 @@ case "$cmd" in
         deps=(
             "git:git" "zsh:zsh" "curl:curl" "rg:ripgrep" "bat:bat"
             "fzf:fzf" "zoxide:zoxide" "lazygit:lazygit" "docker:docker"
-            "node:node" "python3:python" "uv:uv (AI)" "lazydocker:lazydocker (DevOps)"
-            "kubectl:kubectl (DevOps)"
+            "node:node" "python3:python" "uv:uv (AI)" "ollama:Ollama (AI)"
+            "zed:Zed Editor" "lazydocker:lazydocker (DevOps)"
+            "kubectl:kubectl (DevOps)" "qbittorrent:qBittorrent"
         )
         missing=0
         for item in "${deps[@]}"; do

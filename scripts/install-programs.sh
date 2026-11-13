@@ -84,7 +84,7 @@ install_apt_packages() {
 }
 
 # ==============================================================================
-# Instaladores especializados (Fullstack / AI / DevOps)
+# Instaladores especializados (Fullstack / AI / DevOps / Productividad)
 # ==============================================================================
 
 # Starship Prompt
@@ -95,6 +95,16 @@ install_starship() {
     fi
     log "Instalando Starship prompt..."
     curl -sS https://starship.rs/install.sh | sh -s -- -y || warn "Fallo al instalar Starship"
+}
+
+# Zed Editor (Editor ultra-rápido en Rust)
+install_zed() {
+    if is_installed zed; then
+        info "Zed Editor ya está instalado."
+        return 0
+    fi
+    log "Instalando Zed Editor vía script oficial..."
+    curl -f https://zed.dev/install.sh | sh 2>/dev/null || warn "Fallo al instalar Zed Editor"
 }
 
 # Lazygit (Git TUI)
@@ -223,6 +233,57 @@ install_pnpm() {
     fi
 }
 
+# Joplin (Notas Markdown vía Snap)
+install_joplin() {
+    if is_installed joplin-desktop || is_installed joplin; then
+        info "Joplin ya está instalado."
+        return 0
+    fi
+    if is_installed snap; then
+        log "Instalando Joplin Desktop vía Snap..."
+        sudo snap install joplin-desktop 2>/dev/null || warn "Fallo al instalar Joplin vía Snap"
+    fi
+}
+
+# JDownloader 2 (Gestor de descargas vía Snap)
+install_jdownloader() {
+    if is_installed jdownloader || is_installed jdownloader2; then
+        info "JDownloader 2 ya está instalado."
+        return 0
+    fi
+    if is_installed snap; then
+        log "Instalando JDownloader 2 vía Snap..."
+        sudo snap install jdownloader2 2>/dev/null || warn "Fallo al instalar JDownloader 2 vía Snap"
+    fi
+}
+
+# Antigravity CLI (agy)
+install_antigravity() {
+    if is_installed antigravity || is_installed agy; then
+        info "Antigravity ya está instalado."
+        return 0
+    fi
+    log "Verificando Antigravity CLI (agy)..."
+    if is_installed npm; then
+        sudo npm install -g @google/antigravity 2>/dev/null || npm install -g @google/antigravity 2>/dev/null || true
+    fi
+}
+
+# Kiro (Entorno / terminal con IA)
+install_kiro() {
+    if is_installed kiro; then
+        info "Kiro ya está instalado."
+        return 0
+    fi
+    log "Verificando Kiro..."
+    if is_installed snap; then
+        sudo snap install kiro --classic 2>/dev/null || true
+    fi
+    if ! is_installed kiro; then
+        info "Kiro se puede instalar descargando el paquete oficial (.deb o AppImage) desde su sitio web."
+    fi
+}
+
 # Lunacy (Snap)
 install_lunacy() {
     if is_installed lunacy; then
@@ -269,10 +330,10 @@ main() {
 
     echo -e "${CYAN}Este script configurará las herramientas completas para:${NC}"
     echo -e "  • ${BOLD}Base CLI & Terminal:${NC} Zsh, Neovim, Starship, Kitty, Fzf, Zoxide, Bat, Fd, Lsd, Lazygit..."
-    echo -e "  • ${BOLD}Fullstack Developer:${NC} Node.js, PNPM, Bun, Go, Rust, PostgreSQL client, Redis, SQLite, HTTPie..."
-    echo -e "  • ${BOLD}AI Engineer:${NC} Python3, Pipx, uv (Astral), Ollama (Local LLMs)..."
+    echo -e "  • ${BOLD}Fullstack Developer:${NC} Node.js, PNPM, Bun, Go, Rust, PostgreSQL, Redis, SQLite, HTTPie, Zed Editor..."
+    echo -e "  • ${BOLD}AI Engineer:${NC} Python3, Pipx, uv (Astral), Ollama (Local LLMs), nvtop (GPU), Antigravity, Kiro..."
     echo -e "  • ${BOLD}DevOps & Cloud:${NC} Docker, Docker Compose v2, Lazydocker, Kubectl, k9s, Helm, Kubectx/Kubens..."
-    echo -e "  • ${BOLD}Multimedia & Extras:${NC} FFmpeg, VLC, yt-dlp, EasyEffects, Cava, Feh, Kate, Lunacy..."
+    echo -e "  • ${BOLD}Multimedia & Periféricos:${NC} qBittorrent, OBS Studio, Joplin, JDownloader 2, Piper + Solaar (Logitech), GSmartControl (Discos), FFmpeg, VLC, yt-dlp, EasyEffects, Cava, Feh, Kate, Lunacy..."
     echo ""
 
     read -rp "$(echo -e "${YELLOW}?${NC} ¿Deseas iniciar la instalación en Ubuntu? [S/n]: ")" answer
@@ -313,18 +374,23 @@ main() {
     install_apt_packages "DevOps Suite" \
         docker.io "$docker_compose_pkg" kubectx
 
-    # 4. AI Engineering & Python
-    install_apt_packages "AI Engineering & Python" \
-        python3 python3-pip python3-venv pipx
+    # 4. AI Engineering, Python & GPU
+    install_apt_packages "AI Engineering, Python & GPU" \
+        python3 python3-pip python3-venv pipx nvtop
 
-    # 5. Multimedia & Herramientas
+    # 5. Utilidades, Periféricos y Salud de Discos
+    install_apt_packages "Utilidades, Periféricos y Discos" \
+        piper ratbagd solaar gsmartcontrol smartmontools qbittorrent
+
+    # 6. Multimedia y GUI
     install_apt_packages "Multimedia y GUI" \
-        ffmpeg vlc yt-dlp feh kate
+        obs-studio ffmpeg vlc yt-dlp feh kate
 
     # Instaladores especializados y TUIs
     header "Instalando Herramientas Especializadas y TUIs"
     setup_ubuntu_symlinks
     install_starship
+    install_zed
     install_lazygit
     install_lazydocker
     install_k9s
@@ -332,17 +398,22 @@ main() {
     install_ollama
     install_bun
     install_pnpm
+    install_joplin
+    install_jdownloader
+    install_antigravity
+    install_kiro
     install_lunacy
     configure_docker_permissions
 
     header "✅ INSTALACIÓN COMPLETADA EXITOSAMENTE EN UBUNTU"
-    echo -e "${GREEN}¡Tu entorno Fullstack + AI Engineer + DevOps está listo!${NC}"
+    echo -e "${GREEN}¡Tu entorno Fullstack + AI Engineer + DevOps y aplicaciones están listos!${NC}"
     echo ""
     echo "Próximos pasos:"
     echo "  1. Recarga tu terminal: exec zsh"
     echo "  2. Verifica dependencias: dotfiles doctor"
-    echo "  3. Abre Lazygit con 'lg', Lazydocker con 'ld' o k9s con 'k9s'"
-    echo "  4. Gestiona modelos locales de IA con 'ollama run <modelo>'"
+    echo "  3. Abre Lazygit ('lg'), Lazydocker ('ld'), k9s ('k9s') o Zed Editor ('zed')"
+    echo "  4. Monitorea GPU con 'nvtop' o 'nv', y salud de discos con 'gsmartcontrol'"
+    echo "  5. Gestiona modelos locales de IA con 'ollama run <modelo>'"
     echo ""
 }
 
