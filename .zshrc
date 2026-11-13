@@ -4,13 +4,14 @@
 
 export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/Dotfiles}"
 export STARSHIP_CONFIG="${STARSHIP_CONFIG:-$HOME/.config/starship.toml}"
-export PATH="$HOME/Dotfiles/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/Dotfiles/bin:$PATH"
 
-# Compatibilidad de nombres en Arch y otras distribuciones.
+# Compatibilidad de nombres en Ubuntu, Debian, Arch y otras distribuciones.
 if command -v bat >/dev/null 2>&1; then
     BAT_CMD="bat"
 elif command -v batcat >/dev/null 2>&1; then
     BAT_CMD="batcat"
+    alias bat='batcat'
 else
     BAT_CMD="cat"
 fi
@@ -19,8 +20,13 @@ if command -v fd >/dev/null 2>&1; then
     FD_CMD="fd"
 elif command -v fdfind >/dev/null 2>&1; then
     FD_CMD="fdfind"
+    alias fd='fdfind'
 else
     FD_CMD="find"
+fi
+
+if ! command -v delta >/dev/null 2>&1 && command -v git-delta >/dev/null 2>&1; then
+    alias delta='git-delta'
 fi
 
 # ============================================================
@@ -123,7 +129,7 @@ alias cls='clear'
 alias c='clear'
 alias bp='btop'
 alias ping='ping -c 5'
-alias ports='netstat -tulanp'
+alias ports='ss -tulanp'
 alias myip='curl -s ifconfig.me'
 alias mkdir='mkdir -pv'
 alias cp='cp -i'
@@ -131,6 +137,77 @@ alias mv='mv -i'
 alias rm='rm -i'
 alias rrf='rm -rf'
 alias tree='tree -C'
+
+# ============================================================
+# Aliases — Fullstack (Node, Bun, PNPM, Go, DB)
+# ============================================================
+alias pn='pnpm'
+alias pni='pnpm install'
+alias pnd='pnpm dev'
+alias pnb='pnpm build'
+alias pnx='pnpm dlx'
+alias b='bun'
+alias bx='bunx'
+alias bd='bun dev'
+alias nr='npm run'
+alias ni='npm install'
+alias pg='psql'
+alias rcli='redis-cli'
+alias sq='sqlite3'
+
+# ============================================================
+# Aliases — AI Engineering (Python, uv, Ollama, GPU)
+# ============================================================
+alias py='python3'
+alias pip='pip3'
+alias uvr='uv run'
+alias uvp='uv pip'
+alias uva='uv add'
+alias uvs='uv sync'
+alias ol='ollama'
+alias olr='ollama run'
+alias oll='ollama list'
+alias olp='ollama pull'
+command -v nvidia-smi >/dev/null 2>&1 && alias nv='watch -n 1 nvidia-smi'
+
+# ============================================================
+# Aliases — DevOps & Containers (Docker, Lazydocker, K8s)
+# ============================================================
+alias d='docker'
+if docker compose version >/dev/null 2>&1; then
+    alias dc='docker compose'
+else
+    alias dc='docker-compose'
+fi
+alias dps='docker ps'
+alias dimg='docker images'
+alias dlogs='docker logs -f'
+alias dprune='docker system prune -af --volumes'
+alias ld='lazydocker'
+
+# Kubernetes & IaC
+alias k='kubectl'
+alias kgp='kubectl get pods'
+alias kgs='kubectl get svc'
+alias kgd='kubectl get deployments'
+alias klogs='kubectl logs -f'
+alias kexec='kubectl exec -it'
+alias kns='kubens'
+alias kctx='kubectx'
+alias tf='terraform'
+alias tfa='terraform apply'
+alias tfp='terraform plan'
+
+# ============================================================
+# Aliases — Editores y utilidades
+# ============================================================
+alias vim='nvim'
+alias vi='nvim'
+alias serve='python3 -m http.server'
+command -v fx >/dev/null 2>&1 && alias json='fx'
+alias yt='yt-dlp'
+alias nb='newsboat'
+alias dots='cd "$DOTFILES_DIR"'
 
 if command -v dust >/dev/null 2>&1; then
     alias du='dust'
@@ -146,28 +223,12 @@ if command -v btop >/dev/null 2>&1; then
 fi
 
 # ============================================================
-# Aliases — Desarrollo, Docker y extras
-# ============================================================
-alias py='python3'
-alias pip='pip3'
-alias serve='python3 -m http.server'
-alias vim='nvim'
-alias vi='nvim'
-command -v fx >/dev/null 2>&1 && alias json='fx'
-alias d='docker'
-alias dc='docker-compose'
-alias dps='docker ps'
-alias dimg='docker images'
-alias yt='yt-dlp'
-alias nb='newsboat'
-alias dots='cd "$DOTFILES_DIR"'
-
-# ============================================================
-# Funciones útiles
+# Funciones útiles (Productividad, Redes y Git)
 # ============================================================
 mkcd() { mkdir -p "$1" && cd "$1"; }
 ff() { "$FD_CMD" "$1"; }
 fif() { rg "$1" --hidden --follow; }
+port() { sudo lsof -i :"$1" 2>/dev/null || sudo ss -tulpn | grep ":$1"; }
 
 fzf-file() {
     local file
