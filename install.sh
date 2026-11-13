@@ -134,23 +134,42 @@ command -v nvim &>/dev/null && CONFIG_ITEMS+=(nvim)
 command -v lazygit &>/dev/null && CONFIG_ITEMS+=(lazygit)
 command -v btop &>/dev/null && CONFIG_ITEMS+=(btop)
 command -v lsd &>/dev/null && CONFIG_ITEMS+=(lsd)
-command -v bat &>/dev/null && CONFIG_ITEMS+=(bat)
+(command -v bat &>/dev/null || command -v batcat &>/dev/null) && CONFIG_ITEMS+=(bat)
+(command -v fd &>/dev/null || command -v fdfind &>/dev/null) && CONFIG_ITEMS+=(fd)
+command -v fastfetch &>/dev/null && CONFIG_ITEMS+=(fastfetch)
 command -v yazi &>/dev/null && CONFIG_ITEMS+=(yazi)
 command -v zathura &>/dev/null && CONFIG_ITEMS+=(zathura)
 command -v zellij &>/dev/null && CONFIG_ITEMS+=(zellij)
+command -v cava &>/dev/null && CONFIG_ITEMS+=(cava)
+command -v yt-dlp &>/dev/null && CONFIG_ITEMS+=(yt-dlp)
+command -v easyeffects &>/dev/null && CONFIG_ITEMS+=(easyeffects)
+command -v gram &>/dev/null && CONFIG_ITEMS+=(gram)
+command -v papyrus &>/dev/null && CONFIG_ITEMS+=(papyrus)
+
+# Directorio de temas / extensiones Zsh
+[ -d "$DOTFILES_DIR/.config/.zsh" ] && CONFIG_ITEMS+=(.zsh)
 
 # KDE y GTK
-if pgrep -x plasmashell > /dev/null 2>&1 || [ -d "/usr/share/plasma" ]; then
+if pgrep -x plasmashell > /dev/null 2>&1 || [ -d "/usr/share/plasma" ] || [ -d "$HOME/.config/kdeglobals" ]; then
     CONFIG_ITEMS+=(kdeglobals kglobalshortcutsrc kwinrc Kvantum gtk-3.0 gtk-4.0 rofi)
 fi
-
-command -v easyeffects &>/dev/null && CONFIG_ITEMS+=(easyeffects)
 
 for item in "${CONFIG_ITEMS[@]}"; do
     if [ -e "$DOTFILES_DIR/.config/$item" ]; then
         link_file "$DOTFILES_DIR/.config/$item" "$HOME/.config/$item"
     fi
 done
+
+# Enlaces de compatibilidad para Ubuntu / Debian
+mkdir -p "$HOME/.local/bin"
+if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
+    ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
+    print_info "Compatibilidad Ubuntu: ~/.local/bin/bat -> $(command -v batcat)"
+fi
+if command -v fdfind &>/dev/null && ! command -v fd &>/dev/null; then
+    ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+    print_info "Compatibilidad Ubuntu: ~/.local/bin/fd -> $(command -v fdfind)"
+fi
 
 # ============================================================
 # FASE 2: CONFIGURAR PERMISOS Y SERVICIOS
@@ -214,7 +233,7 @@ if ask_yes_no "¿Deseas configurar KDE Plasma 6 con Catppuccin?"; then
     fi
 fi
 
-if ask_yes_no "¿Deseas instalar programas recomendados?"; then
+if ask_yes_no "¿Deseas instalar los programas recomendados para Ubuntu (Fullstack, IA, DevOps)?"; then
     if [ -f "$DOTFILES_DIR/scripts/install-programs.sh" ]; then
         bash "$DOTFILES_DIR/scripts/install-programs.sh"
     fi

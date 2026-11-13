@@ -79,13 +79,22 @@ case "$cmd" in
         ;;
     doctor)
         log_step "Diagnóstico del entorno (Dotfiles Doctor)"
-        deps=("git:git" "zsh:zsh" "curl:curl" "rg:ripgrep" "tmux:tmux" "bat:bat" "fzf:fzf" "zoxide:zoxide" "lazygit:lazygit")
+        deps=(
+            "git:git" "zsh:zsh" "curl:curl" "rg:ripgrep" "bat:bat"
+            "fzf:fzf" "zoxide:zoxide" "lazygit:lazygit" "docker:docker"
+            "node:node" "python3:python" "uv:uv (AI)" "lazydocker:lazydocker (DevOps)"
+            "kubectl:kubectl (DevOps)"
+        )
         missing=0
         for item in "${deps[@]}"; do
             binary="${item%%:*}"
             label="${item##*:}"
             if has_cmd "$binary"; then
                 log_info "$label ($binary): instalado ($(command -v "$binary"))"
+            elif [[ "$binary" == "bat" ]] && has_cmd batcat; then
+                log_info "$label (batcat): instalado ($(command -v batcat))"
+            elif [[ "$binary" == "fd" ]] && has_cmd fdfind; then
+                log_info "$label (fdfind): instalado ($(command -v fdfind))"
             else
                 log_warn "$label ($binary): NO instalado"
                 ((missing++))

@@ -1,38 +1,34 @@
 #!/usr/bin/env bash
 # ============================================================
-# Verificador de dependencias y herramientas instaladas
+# Verificador de dependencias y herramientas instaladas (Ubuntu)
 # Repositorio: pipeaalzamora/Dotfiles
+# Perfil: Fullstack + AI Engineer + DevOps
 # ============================================================
 
-echo "🔍 Verificando dependencias..."
+echo "🔍 Verificando dependencias en Ubuntu..."
 echo ""
 
 check_command() {
     local cmd="$1"
     local display="${2:-$1}"
     if command -v "$cmd" &>/dev/null; then
-        local version=$("$cmd" --version 2>/dev/null | head -1 || echo "")
+        local version
+        version=$("$cmd" --version 2>/dev/null | head -1 || echo "")
         echo -e "✅ $display \033[0;90m$version\033[0m"
     else
-        echo "❌ $display — NO INSTALADO"
+        echo -e "❌ $display — \033[0;31mNO INSTALADO\033[0m"
     fi
 }
 
-echo "=== Shell & Prompt ==="
+echo "=== Shell, Terminal & Editores ==="
 check_command zsh
 check_command starship
-
-echo ""
-echo "=== Terminal & Multiplexores ==="
 check_command kitty
 check_command zellij
-
-echo ""
-echo "=== Editores ==="
 check_command nvim "neovim"
 
 echo ""
-echo "=== Herramientas CLI ==="
+echo "=== Herramientas CLI & Navegación ==="
 check_command lsd
 if command -v bat &>/dev/null; then check_command bat; else check_command batcat "bat"; fi
 if command -v fd &>/dev/null; then check_command fd; else check_command fdfind "fd"; fi
@@ -41,43 +37,56 @@ check_command fzf
 check_command zoxide
 check_command yazi
 check_command lazygit
-check_command delta "git-delta"
-check_command vivid
-check_command fx
-check_command dust
-check_command procs
-check_command tldr "tealdeer"
+if command -v delta &>/dev/null; then check_command delta "git-delta"; else check_command git-delta "git-delta"; fi
+if command -v tldr &>/dev/null; then check_command tldr "tldr"; else check_command tealdeer "tealdeer"; fi
 check_command btop
 check_command fastfetch
+check_command jq
+check_command tree
 
 echo ""
-echo "=== KDE Plasma & Entorno Gráfico ==="
-check_command kvantummanager "Kvantum"
-check_command rofi "Rofi-Wayland"
-check_command spicetify "Spicetify CLI"
-check_command konsave "Konsave"
-check_command easyeffects "EasyEffects"
-check_command snapper "Snapper (Btrfs)"
-
-echo ""
-echo "=== Desarrollo ==="
+echo "=== Fullstack Development ==="
 check_command git
 check_command node
 check_command npm
+check_command pnpm
 check_command bun
 check_command go
 check_command rustc "rust"
 check_command cargo
-check_command python3 "python"
-check_command pipx
+check_command psql "postgresql-client"
+check_command redis-cli "redis-tools"
+check_command sqlite3
+check_command http "httpie"
 
 echo ""
-echo "=== Utilidades ==="
-check_command curl
-check_command wget
-check_command jq
-check_command tree
-check_command newsboat
+echo "=== AI Engineering ==="
+check_command python3 "python"
+check_command pipx
+check_command uv "uv (Astral)"
+check_command ollama "Ollama (Local LLMs)"
+
+echo ""
+echo "=== DevOps & Cloud ==="
+check_command docker
+if docker compose version &>/dev/null; then
+    echo -e "✅ docker compose \033[0;90m$(docker compose version 2>/dev/null | head -1)\033[0m"
+elif command -v docker-compose &>/dev/null; then
+    check_command docker-compose
+else
+    echo -e "❌ docker compose — \033[0;31mNO INSTALADO\033[0m"
+fi
+check_command lazydocker
+check_command kubectl
+check_command k9s
+check_command helm
+check_command kubectx
+check_command kubens
+
+echo ""
+echo "=== Multimedia & Sistema ==="
+check_command easyeffects "EasyEffects"
+check_command cava
 check_command yt-dlp
 check_command zathura
 check_command wl-copy "wl-clipboard"

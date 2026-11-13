@@ -1,452 +1,349 @@
 #!/usr/bin/env bash
-#
-# install-programs.sh — Instala todos los programas esenciales para el sistema
-#
-# Este script instala automáticamente todos los programas de una sola vez.
-# Resuelve conflictos de dependencias y salta programas ya instalados.
+# ==============================================================================
+# Pipe's Dotfiles — Instalador de Programas para Ubuntu
+# Perfil: Fullstack Developer + AI Engineer + DevOps
+# ==============================================================================
 
 set -euo pipefail
 
-# ============================================================
 # Colores para salida
-# ============================================================
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+BOLD='\033[1m'
+NC='\033[0m'
 
 log() { echo -e "${BLUE}[install-programs]${NC} $*"; }
 info() { echo -e "${GREEN}[✓]${NC} $*"; }
 warn() { echo -e "${YELLOW}[⚠]${NC} $*" >&2; }
 error() { echo -e "${RED}[✗]${NC} $*" >&2; }
-header() { echo -e "\n${CYAN}════════════════════════════════════════${NC}"; echo -e "${CYAN}$*${NC}"; echo -e "${CYAN}════════════════════════════════════════${NC}\n"; }
+header() { echo -e "\n${CYAN}════════════════════════════════════════════════════════════${NC}"; echo -e "${BOLD}${CYAN}$*${NC}"; echo -e "${CYAN}════════════════════════════════════════════════════════════${NC}\n"; }
 
-# ============================================================
-# Detectar distribución
-# ============================================================
-detect_distro() {
-    if [[ -f /etc/arch-release ]]; then
-        echo "arch"
-    elif [[ -f /etc/fedora-release ]]; then
-        echo "fedora"
-    elif [[ -f /etc/debian_version ]]; then
-        echo "debian"
-    elif [[ -f /etc/opensuse-release ]] || [[ -f /etc/SuSE-release ]]; then
-        echo "opensuse"
-    else
-        echo "unknown"
-    fi
-}
-
-# Comprobar si un programa está instalado
 is_installed() {
     command -v "$1" >/dev/null 2>&1
 }
 
-DISTRO=$(detect_distro)
-log "Distribución detectada: $DISTRO"
-
-# ============================================================
-# Instaladores por distribución
-# ============================================================
-
-install_arch() {
-    header "Instalando programas en Arch Linux"
-
-    # Determinar gestor de paquetes AUR disponible
-    local aur_helper="pacman"
-    if command -v yay >/dev/null 2>&1; then
-        aur_helper="yay"
-    elif command -v paru >/dev/null 2>&1; then
-        aur_helper="paru"
-    fi
-
-    # Actualizar base de datos
-    log "Actualizando base de datos de paquetes..."
-    if [[ "$aur_helper" != "pacman" ]]; then
-        "$aur_helper" -Sy --noconfirm
-    else
-        sudo pacman -Sy --noconfirm
-    fi
-
-    # Array de paquetes a instalar
-    local packages=(
-        # Sistema
-        "btop"
-        "eza"
-        "fd"
-        "fzf"
-        "git"
-        "htop"
-        "jq"
-        "lsd"
-        "neovim"
-        "ripgrep"
-        "tldr"
-        "tree"
-        "zoxide"
-        "zsh"
-        "zsh-completions"
-        # Desarrollo
-        "docker"
-        "docker-compose"
-        "go"
-        "nodejs"
-        "npm"
-        "python"
-        "python-pip"
-        "rust"
-        # Multimedia
-        "ffmpeg"
-        "vlc"
-        "yt-dlp"
-        # Visor de imágenes
-        "feh"
-        # Editor
-        "kate"
-    )
-
-    # Instalar paquetes, omitiendo los ya instalados
-    local to_install=()
-    for pkg in "${packages[@]}"; do
-        if is_installed "$pkg"; then
-            info "$pkg ya está instalado, omitiendo..."
-        else
-            to_install+=("$pkg")
-        fi
-    done
-
-    if [[ ${#to_install[@]} -eq 0 ]]; then
-        info "Todos los paquetes ya están instalados."
-    else
-        log "Instalando ${#to_install[@]} paquetes..."
-    fi
-
-    # Resolver conflictos ANTES de intentar instalar
-    
-    # Conflicto 1: tealdeer vs tldr
-    if pacman -Q tealdeer &>/dev/null 2>&1; then
-        warn "Detectado conflicto: tealdeer está instalado. Removiendo para instalar tldr..."
-        sudo pacman -R --noconfirm tealdeer 2>/dev/null || true
-    fi
-
-    # Conflicto 2: rustup vs rust
-    if pacman -Q rustup &>/dev/null 2>&1; then
-        warn "Detectado conflicto: rustup está instalado. Removiendo para instalar rust..."
-        sudo pacman -R --noconfirm rustup 2>/dev/null || true
-    fi
-
-    # Filtrar paquetes que ya están instalados para evitar reinstalación
-    local final_install=()
-    for pkg in "${to_install[@]}"; do
-        if ! pacman -Q "$pkg" &>/dev/null 2>&1; then
-            final_install+=("$pkg")
-        fi
-    done
-
-    if [[ ${#final_install[@]} -gt 0 ]]; then
-        # Instalar con el gestor apropiado
-        if [[ "$aur_helper" == "yay" ]]; then
-            log "Usando yay para instalar ${#final_install[@]} paquetes..."
-            yay -S --noconfirm "${final_install[@]}" || {
-                error "Error durante la instalación con yay."
-                return 1
-            }
-        elif [[ "$aur_helper" == "paru" ]]; then
-            log "Usando paru para instalar ${#final_install[@]} paquetes..."
-            paru -S --noconfirm "${final_install[@]}" || {
-                error "Error durante la instalación con paru."
-                return 1
-            }
-        else
-            log "Usando pacman para instalar ${#final_install[@]} paquetes..."
-            sudo pacman -S --noconfirm "${final_install[@]}" || {
-                error "Error durante la instalación con pacman."
-                return 1
-            }
-        fi
-    fi
-
-    # Intentar instalar Lunacy desde AUR (opcional, sin fallar si no funciona)
-    if ! is_installed lunacy; then
-        log "Intentando instalar Lunacy desde AUR (esto puede tomar tiempo)..."
-        if [[ "$aur_helper" == "yay" ]]; then
-            info "Instalando lunacy-bin con yay..."
-            yay -S --noconfirm --nocleanmenu --nodiffmenu --answerclean=All --answerdiff=None lunacy-bin 2>&1 | grep -v "Evite ejecutar" || {
-                warn "No se pudo instalar lunacy-bin automáticamente."
-                echo ""
-                echo "Para instalar lunacy manualmente, ejecuta:"
-                echo "  ${GREEN}yay -S lunacy-bin${NC}"
-                echo ""
-                echo "O lee la documentación: $DOTFILES_DIR/LUNACY_INSTALL.md"
-            }
-        elif [[ "$aur_helper" == "paru" ]]; then
-            info "Instalando lunacy-bin con paru..."
-            paru -S --noconfirm --nocleanmenu --nodiffmenu lunacy-bin 2>&1 | grep -v "Evite ejecutar" || {
-                warn "No se pudo instalar lunacy-bin automáticamente."
-                echo ""
-                echo "Para instalar lunacy manualmente, ejecuta:"
-                echo "  ${GREEN}paru -S lunacy-bin${NC}"
-                echo ""
-                echo "O lee la documentación: $DOTFILES_DIR/LUNACY_INSTALL.md"
-            }
-        fi
-    else
-        info "lunacy ya está instalado, omitiendo..."
-    fi
-
-    info "Paquetes de Arch Linux instalados correctamente."
+is_deb_installed() {
+    dpkg -s "$1" &>/dev/null 2>&1
 }
 
-install_debian() {
-    header "Instalando programas en Debian/Ubuntu"
+# ==============================================================================
+# Verificación de Ubuntu
+# ==============================================================================
+verify_ubuntu() {
+    if [[ ! -f /etc/os-release ]]; then
+        error "No se pudo detectar /etc/os-release. Este script está diseñado exclusivamente para Ubuntu."
+        exit 1
+    fi
 
-    # Actualizar base de datos
-    log "Actualizando base de datos de paquetes..."
-    sudo apt update
+    # shellcheck source=/dev/null
+    source /etc/os-release
 
-    local packages=(
-        # Sistema
-        "btop"
-        "fd-find"
-        "fzf"
-        "git"
-        "htop"
-        "jq"
-        "lsd"
-        "neovim"
-        "ripgrep"
-        "tldr"
-        "tree"
-        "zoxide"
-        "zsh"
-        # Desarrollo
-        "docker.io"
-        "docker-compose"
-        "golang-go"
-        "nodejs"
-        "npm"
-        "python3"
-        "python3-pip"
-        "rustc"
-        # Multimedia
-        "ffmpeg"
-        "vlc"
-        "yt-dlp"
-        # Visor de imágenes
-        "feh"
-        # Editor
-        "kate"
-        # Diseño
-        "lunacy"
-    )
+    if [[ "${ID:-}" != "ubuntu" && ! "${ID_LIKE:-}" =~ ubuntu ]]; then
+        warn "Advertencia: Tu distribución reporta '${NAME:-Desconocida}', no Ubuntu."
+        warn "El instalador continuará usando el gestor APT de Ubuntu/Debian."
+    else
+        info "Sistema verificado: ${PRETTY_NAME:-Ubuntu}"
+    fi
+}
 
+# ==============================================================================
+# Instalación de paquetes APT
+# ==============================================================================
+install_apt_packages() {
+    local category="$1"
+    shift
+    local packages=("$@")
+
+    log "Verificando paquetes para: ${BOLD}$category${NC}..."
     local to_install=()
     for pkg in "${packages[@]}"; do
-        if is_installed "${pkg%-*}"; then  # Remover sufijo para verificación
-            info "$pkg ya está instalado, omitiendo..."
+        if is_deb_installed "$pkg"; then
+            info "  $pkg ya está instalado, omitiendo..."
         else
             to_install+=("$pkg")
         fi
     done
 
-    if [[ ${#to_install[@]} -eq 0 ]]; then
-        info "Todos los paquetes ya están instalados."
+    if [[ ${#to_install[@]} -gt 0 ]]; then
+        log "Instalando ${#to_install[@]} paquetes de $category vía APT..."
+        if ! sudo apt install -y "${to_install[@]}"; then
+            warn "Instalación en lote falló; intentando individualmente..."
+            for pkg in "${to_install[@]}"; do
+                if ! is_deb_installed "$pkg"; then
+                    sudo apt install -y "$pkg" 2>/dev/null || warn "No se pudo instalar $pkg (paquete opcional u omitido)."
+                fi
+            done
+        fi
+        info "Paquetes de $category procesados."
+    else
+        info "Todos los paquetes de $category ya están presentes."
+    fi
+}
+
+# ==============================================================================
+# Instaladores especializados (Fullstack / AI / DevOps)
+# ==============================================================================
+
+# Starship Prompt
+install_starship() {
+    if is_installed starship; then
+        info "Starship prompt ya está instalado."
         return 0
     fi
-
-    log "Instalando ${#to_install[@]} paquetes..."
-    sudo apt install -y "${to_install[@]}" || {
-        error "Error durante la instalación."
-        return 1
-    }
-
-    info "Paquetes de Debian/Ubuntu instalados correctamente."
+    log "Instalando Starship prompt..."
+    curl -sS https://starship.rs/install.sh | sh -s -- -y || warn "Fallo al instalar Starship"
 }
 
-install_fedora() {
-    header "Instalando programas en Fedora"
-
-    log "Actualizando base de datos de paquetes..."
-    sudo dnf check-update || true
-
-    local packages=(
-        # Sistema
-        "btop"
-        "fd-find"
-        "fzf"
-        "git"
-        "htop"
-        "jq"
-        "lsd"
-        "neovim"
-        "ripgrep"
-        "tldr"
-        "tree"
-        "zoxide"
-        "zsh"
-        # Desarrollo
-        "docker"
-        "docker-compose"
-        "golang"
-        "nodejs"
-        "npm"
-        "python3"
-        "python3-pip"
-        "rust"
-        # Multimedia
-        "ffmpeg"
-        "vlc"
-        "yt-dlp"
-        # Visor de imágenes
-        "feh"
-        # Editor
-        "kate"
-        # Diseño
-        "lunacy"
-    )
-
-    local to_install=()
-    for pkg in "${packages[@]}"; do
-        if is_installed "${pkg%-*}"; then
-            info "$pkg ya está instalado, omitiendo..."
-        else
-            to_install+=("$pkg")
-        fi
-    done
-
-    if [[ ${#to_install[@]} -eq 0 ]]; then
-        info "Todos los paquetes ya están instalados."
+# Lazygit (Git TUI)
+install_lazygit() {
+    if is_installed lazygit; then
+        info "lazygit ya está instalado."
         return 0
     fi
+    log "Instalando lazygit desde GitHub releases..."
+    local arch
+    arch=$(uname -m)
+    case "$arch" in
+        x86_64) arch="x86_64" ;;
+        aarch64|arm64) arch="arm64" ;;
+        *) arch="" ;;
+    esac
 
-    log "Instalando ${#to_install[@]} paquetes..."
-    sudo dnf install -y "${to_install[@]}" || {
-        error "Error durante la instalación."
-        return 1
-    }
-
-    info "Paquetes de Fedora instalados correctamente."
+    if [[ -n "$arch" ]]; then
+        local version
+        version=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" 2>/dev/null | grep -Po '"tag_name": "v\K[^"]*' || true)
+        if [[ -n "$version" ]]; then
+            curl -sLo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${version}_Linux_${arch}.tar.gz" 2>/dev/null || true
+            if [[ -f /tmp/lazygit.tar.gz ]]; then
+                tar -xf /tmp/lazygit.tar.gz -C /tmp lazygit 2>/dev/null || true
+                if [[ -f /tmp/lazygit ]]; then
+                    sudo install /tmp/lazygit /usr/local/bin/ 2>/dev/null || {
+                        mkdir -p "$HOME/.local/bin"
+                        cp /tmp/lazygit "$HOME/.local/bin/"
+                    }
+                    rm -f /tmp/lazygit /tmp/lazygit.tar.gz
+                    info "lazygit instalado correctamente."
+                fi
+            fi
+        fi
+    fi
 }
 
-install_opensuse() {
-    header "Instalando programas en openSUSE"
-
-    log "Actualizando base de datos de paquetes..."
-    sudo zypper refresh || true
-
-    local packages=(
-        # Sistema
-        "btop"
-        "fd"
-        "fzf"
-        "git"
-        "htop"
-        "jq"
-        "lsd"
-        "neovim"
-        "ripgrep"
-        "tldr"
-        "tree"
-        "zoxide"
-        "zsh"
-        # Desarrollo
-        "docker"
-        "docker-compose"
-        "go"
-        "nodejs"
-        "npm"
-        "python3"
-        "python3-pip"
-        "rust"
-        # Multimedia
-        "ffmpeg"
-        "vlc"
-        "yt-dlp"
-        # Visor de imágenes
-        "feh"
-        # Editor
-        "kate"
-        # Diseño
-        "lunacy"
-    )
-
-    local to_install=()
-    for pkg in "${packages[@]}"; do
-        if is_installed "$pkg"; then
-            info "$pkg ya está instalado, omitiendo..."
-        else
-            to_install+=("$pkg")
-        fi
-    done
-
-    if [[ ${#to_install[@]} -eq 0 ]]; then
-        info "Todos los paquetes ya están instalados."
+# Lazydocker (Docker TUI)
+install_lazydocker() {
+    if is_installed lazydocker; then
+        info "lazydocker ya está instalado."
         return 0
     fi
-
-    log "Instalando ${#to_install[@]} paquetes..."
-    sudo zypper install -y "${to_install[@]}" || {
-        error "Error durante la instalación."
-        return 1
-    }
-
-    info "Paquetes de openSUSE instalados correctamente."
+    log "Instalando lazydocker desde GitHub releases..."
+    curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash 2>/dev/null || warn "No se pudo instalar lazydocker"
 }
 
-# ============================================================
+# k9s (Kubernetes TUI)
+install_k9s() {
+    if is_installed k9s; then
+        info "k9s ya está instalado."
+        return 0
+    fi
+    log "Instalando k9s (Kubernetes TUI)..."
+    if is_installed snap; then
+        sudo snap install k9s --devmode 2>/dev/null || true
+    fi
+    if ! is_installed k9s; then
+        local k9s_arch
+        k9s_arch=$(uname -m)
+        case "$k9s_arch" in
+            x86_64) k9s_arch="amd64" ;;
+            aarch64|arm64) k9s_arch="arm64" ;;
+            *) k9s_arch="" ;;
+        esac
+        if [[ -n "$k9s_arch" ]]; then
+            local k9s_ver
+            k9s_ver=$(curl -s "https://api.github.com/repos/derailed/k9s/releases/latest" 2>/dev/null | grep -Po '"tag_name": "v\K[^"]*' || true)
+            if [[ -n "$k9s_ver" ]]; then
+                curl -sLo /tmp/k9s.tar.gz "https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_${k9s_arch}.tar.gz" 2>/dev/null || true
+                if [[ -f /tmp/k9s.tar.gz ]]; then
+                    tar -xf /tmp/k9s.tar.gz -C /tmp k9s 2>/dev/null || true
+                    if [[ -f /tmp/k9s ]]; then
+                        sudo install /tmp/k9s /usr/local/bin/ 2>/dev/null || {
+                            mkdir -p "$HOME/.local/bin"
+                            cp /tmp/k9s "$HOME/.local/bin/"
+                        }
+                        rm -f /tmp/k9s /tmp/k9s.tar.gz
+                        info "k9s instalado correctamente."
+                    fi
+                fi
+            fi
+        fi
+    fi
+}
+
+# uv (Astral - Python package & project manager para IA y desarrollo)
+install_uv() {
+    if is_installed uv; then
+        info "uv ya está instalado."
+        return 0
+    fi
+    log "Instalando uv (gestor ultra-rápido de Python para IA y backend)..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh 2>/dev/null || warn "Fallo al instalar uv"
+}
+
+# Ollama (Ejecución local de LLMs)
+install_ollama() {
+    if is_installed ollama; then
+        info "ollama ya está instalado."
+        return 0
+    fi
+    log "Instalando Ollama (ejecución local de modelos de IA)..."
+    curl -fsSL https://ollama.com/install.sh | sh 2>/dev/null || warn "Fallo al instalar Ollama"
+}
+
+# Bun (Runtime JS/TS de alto rendimiento)
+install_bun() {
+    if is_installed bun; then
+        info "bun ya está instalado."
+        return 0
+    fi
+    log "Instalando Bun (Runtime JavaScript / TypeScript)..."
+    curl -fsSL https://bun.sh/install | bash 2>/dev/null || warn "Fallo al instalar Bun"
+}
+
+# PNPM
+install_pnpm() {
+    if is_installed pnpm; then
+        info "pnpm ya está instalado."
+        return 0
+    fi
+    if is_installed npm; then
+        log "Instalando pnpm globalmente..."
+        sudo npm install -g pnpm 2>/dev/null || npm install -g pnpm 2>/dev/null || true
+    fi
+}
+
+# Lunacy (Snap)
+install_lunacy() {
+    if is_installed lunacy; then
+        info "lunacy ya está instalado."
+        return 0
+    fi
+    if is_installed snap; then
+        log "Instalando Lunacy vía Snap..."
+        sudo snap install lunacy 2>/dev/null || warn "No se pudo instalar Lunacy vía Snap (opcional)."
+    fi
+}
+
+# Configurar grupo Docker
+configure_docker_permissions() {
+    if is_installed docker && getent group docker >/dev/null 2>&1; then
+        if ! groups "$USER" 2>/dev/null | grep -qw docker; then
+            log "Configurando permisos de Docker para $USER..."
+            sudo usermod -aG docker "$USER" 2>/dev/null || true
+            info "Usuario $USER agregado al grupo docker (requiere cerrar y volver a abrir sesión)."
+        fi
+    fi
+}
+
+# Enlaces de compatibilidad para Ubuntu
+setup_ubuntu_symlinks() {
+    mkdir -p "$HOME/.local/bin"
+    if is_installed batcat && ! is_installed bat; then
+        ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
+        info "Enlace creado: ~/.local/bin/bat -> $(command -v batcat)"
+    fi
+    if is_installed fdfind && ! is_installed fd; then
+        ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+        info "Enlace creado: ~/.local/bin/fd -> $(command -v fdfind)"
+    fi
+}
+
+# ==============================================================================
 # Función principal
-# ============================================================
+# ==============================================================================
 main() {
-    header "🚀 Instalador de Programas Esenciales"
+    header "🚀 Pipe's Dotfiles — Instalador de Programas (Ubuntu)"
 
-    echo -e "${CYAN}Este script instalará TODOS los programas automáticamente.${NC}"
-    echo -e "${CYAN}Se omitirán los programas ya instalados.${NC}"
-    echo ""
-    echo "Categorías a instalar:"
-    echo "  • Sistema: btop, fd, fzf, git, htop, jq, lsd, neovim, ripgrep, tldr, tree, zoxide, zsh"
-    echo "  • Desarrollo: docker, docker-compose, go, nodejs, npm, python, rust"
-    echo "  • Multimedia: ffmpeg, vlc, yt-dlp"
-    echo "  • Herramientas: feh (visor), kate (editor)"
-    echo "  • Opcional: lunacy (diseño - AUR, puede omitirse si falla)"
+    verify_ubuntu
+
+    echo -e "${CYAN}Este script configurará las herramientas completas para:${NC}"
+    echo -e "  • ${BOLD}Base CLI & Terminal:${NC} Zsh, Neovim, Starship, Kitty, Fzf, Zoxide, Bat, Fd, Lsd, Lazygit..."
+    echo -e "  • ${BOLD}Fullstack Developer:${NC} Node.js, PNPM, Bun, Go, Rust, PostgreSQL client, Redis, SQLite, HTTPie..."
+    echo -e "  • ${BOLD}AI Engineer:${NC} Python3, Pipx, uv (Astral), Ollama (Local LLMs)..."
+    echo -e "  • ${BOLD}DevOps & Cloud:${NC} Docker, Docker Compose v2, Lazydocker, Kubectl, k9s, Helm, Kubectx/Kubens..."
+    echo -e "  • ${BOLD}Multimedia & Extras:${NC} FFmpeg, VLC, yt-dlp, EasyEffects, Cava, Feh, Kate, Lunacy..."
     echo ""
 
-    read -rp "$(echo -e "${YELLOW}?${NC} ¿Continuar con la instalación? [S/n]: ")" answer
+    read -rp "$(echo -e "${YELLOW}?${NC} ¿Deseas iniciar la instalación en Ubuntu? [S/n]: ")" answer
     answer="${answer:-s}"
-    
     if [[ ! "$answer" =~ ^[Ss]$ ]]; then
         info "Instalación cancelada."
         exit 0
     fi
 
-    case "$DISTRO" in
-        arch)
-            install_arch
-            ;;
-        debian)
-            install_debian
-            ;;
-        fedora)
-            install_fedora
-            ;;
-        opensuse)
-            install_opensuse
-            ;;
-        *)
-            error "Distribución no soportada: $DISTRO"
-            exit 1
-            ;;
-    esac
+    # Actualizar repositorios APT
+    log "Actualizando lista de paquetes APT..."
+    sudo apt update
 
-    header "✅ INSTALACIÓN COMPLETADA"
-    info "Todos los programas han sido instalados correctamente."
+    # Determinar docker compose
+    local docker_compose_pkg="docker-compose"
+    if apt-cache show docker-compose-v2 &>/dev/null 2>&1; then
+        docker_compose_pkg="docker-compose-v2"
+    fi
+
+    # Determinar tldr / tealdeer
+    local tldr_pkg="tldr"
+    if apt-cache show tealdeer &>/dev/null 2>&1; then
+        tldr_pkg="tealdeer"
+    fi
+
+    # 1. Base CLI & Sistema
+    install_apt_packages "Base CLI y Terminal" \
+        btop bat fd-find fzf git htop jq lsd neovim ripgrep "$tldr_pkg" tree zoxide \
+        zsh zsh-autosuggestions zsh-syntax-highlighting curl wget git-delta fastfetch \
+        wl-clipboard build-essential kitty zathura easyeffects cava
+
+    # 2. Fullstack Development
+    install_apt_packages "Fullstack Stack" \
+        nodejs npm golang-go rustc cargo postgresql-client redis-tools sqlite3 \
+        httpie lsof iproute2
+
+    # 3. DevOps & Cloud
+    install_apt_packages "DevOps Suite" \
+        docker.io "$docker_compose_pkg" kubectx
+
+    # 4. AI Engineering & Python
+    install_apt_packages "AI Engineering & Python" \
+        python3 python3-pip python3-venv pipx
+
+    # 5. Multimedia & Herramientas
+    install_apt_packages "Multimedia y GUI" \
+        ffmpeg vlc yt-dlp feh kate
+
+    # Instaladores especializados y TUIs
+    header "Instalando Herramientas Especializadas y TUIs"
+    setup_ubuntu_symlinks
+    install_starship
+    install_lazygit
+    install_lazydocker
+    install_k9s
+    install_uv
+    install_ollama
+    install_bun
+    install_pnpm
+    install_lunacy
+    configure_docker_permissions
+
+    header "✅ INSTALACIÓN COMPLETADA EXITOSAMENTE EN UBUNTU"
+    echo -e "${GREEN}¡Tu entorno Fullstack + AI Engineer + DevOps está listo!${NC}"
     echo ""
     echo "Próximos pasos:"
-    echo "  1. Recarga tu shell: exec zsh"
+    echo "  1. Recarga tu terminal: exec zsh"
     echo "  2. Verifica dependencias: dotfiles doctor"
-    echo "  3. Explora los comandos: dotfiles help"
+    echo "  3. Abre Lazygit con 'lg', Lazydocker con 'ld' o k9s con 'k9s'"
+    echo "  4. Gestiona modelos locales de IA con 'ollama run <modelo>'"
+    echo ""
 }
 
-main
+main "$@"
